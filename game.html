@@ -6,22 +6,22 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0a1128">
-<title>⚔️ Biện Chứng Kỷ Nguyên AI — MLN Game</title>
+<meta name="theme-color" content="#070d1a">
+<title>BIỆN CHỨNG — Philosophy Battle</title>
 <script src="qrcode.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap');
 
 :root {
-  --cyan: #38bdf8; --orange: #f97316; --gold: #fbbf24;
-  --green: #34d399; --red: #f87171; --purple: #a78bfa;
-  --dark: #0a1128; --card: #111827; --border: #1e3a5f;
-  --text: #f1f5f9; --muted: #64748b;
+  --cyan: #38bdf8; --orange: #f97316; --gold: #eab308;
+  --green: #22c55e; --red: #ef4444; --purple: #a855f7;
+  --dark: #070d1a; --card: #0d1527; --border: #1a3050;
+  --text: #e8eef4; --muted: #4a5c72;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 
 body {
-  background: radial-gradient(ellipse at 50% 0%, #0d1f3c 0%, #050a16 60%);
+  background: #070d1a;
   display: flex; flex-direction: column;
   justify-content: center; align-items: center;
   min-height: 100vh;
@@ -45,13 +45,13 @@ body {
 
 /* ── CANVAS ── */
 #gameCanvas {
-  border-radius: 12px;
-  box-shadow: 0 0 0 1px #1e3a5f, 0 0 40px rgba(56,189,248,.15), 0 20px 60px rgba(0,0,0,.6);
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px #1a3050, 0 0 30px rgba(56,189,248,.08), 0 16px 48px rgba(0,0,0,.8);
   display: block;
   image-rendering: pixelated;
   width: 100%;
   height: auto;
-  max-height: calc(100dvh - 120px);
+  max-height: calc(100dvh - 110px);
   aspect-ratio: 16 / 9;
   touch-action: none;
   transition: box-shadow .3s;
@@ -60,33 +60,34 @@ body {
 /* ── TOP BAR (HUD outside canvas) ── */
 #topBar {
   width: 100%; display: flex; justify-content: space-between; align-items: center;
-  padding: 6px 0 8px;
+  padding: 5px 0 6px;
 }
 #topBar.show { display: flex; }
 .hud-pill {
-  background: rgba(17,24,39,.85); border: 1px solid #1e3a5f;
-  border-radius: 20px; padding: 4px 14px; font-size: 12px;
-  color: var(--muted); display: flex; align-items: center; gap: 8px;
-  backdrop-filter: blur(8px);
+  background: rgba(7,13,26,.9); border: 1px solid var(--border);
+  border-radius: 3px; padding: 3px 12px; font-size: 11px;
+  color: var(--muted); display: flex; align-items: center; gap: 6px;
+  font-family: 'Exo 2', sans-serif; letter-spacing: .3px;
 }
 .hud-pill span { color: var(--text); font-weight: 700; }
 
 /* ── BOTTOM CONTROLS BAR ── */
 #ctrlBar {
   display: none; align-items: center; justify-content: center;
-  gap: 16px; padding: 8px 0 0;
+  gap: 10px; padding: 6px 0 0;
   flex-wrap: wrap;
 }
 #ctrlBar.show { display: flex; }
 .ctrl-badge {
-  background: rgba(17,24,39,.7); border: 1px solid #1e3a5f;
-  border-radius: 8px; padding: 4px 10px;
-  font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 5px;
+  background: rgba(7,13,26,.8); border: 1px solid var(--border);
+  border-radius: 3px; padding: 3px 8px;
+  font-size: 10px; color: var(--muted); display: flex; align-items: center; gap: 4px;
+  letter-spacing: .2px;
 }
 .ctrl-badge kbd {
-  background: #1e293b; border: 1px solid #334155;
-  border-radius: 4px; padding: 1px 5px;
-  font-family: monospace; font-size: 11px; color: var(--cyan);
+  background: #0d1527; border: 1px solid #243a55;
+  border-radius: 2px; padding: 1px 5px;
+  font-family: 'Orbitron', monospace; font-size: 10px; color: var(--cyan);
 }
 
 /* ── OVERLAY ── */
@@ -100,326 +101,357 @@ body {
 
 /* ── MODALS ── */
 .modal {
-  display: none; flex-direction: column; gap: 18px;
-  background: linear-gradient(160deg, #0d1b33 0%, #080f1e 100%);
-  border: 1px solid rgba(56,189,248,.25);
-  border-radius: 20px; padding: 36px 40px;
-  width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto;
-  box-shadow: 0 0 0 1px rgba(56,189,248,.08), 0 0 80px rgba(56,189,248,.08), 0 30px 80px rgba(0,0,0,.7);
-  animation: modalIn .35s cubic-bezier(.34,1.56,.64,1) both;
-  scrollbar-width: thin; scrollbar-color: #1e3a5f #080f1e;
+  display: none; flex-direction: column; gap: 14px;
+  background: #0a1220;
+  border: 1px solid var(--border);
+  border-radius: 4px; padding: 28px 32px;
+  width: 100%; max-width: 660px; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 0 0 1px rgba(26,48,80,.6), inset 0 1px 0 rgba(56,189,248,.06), 0 24px 64px rgba(0,0,0,.8);
+  animation: modalIn .25s ease-out both;
+  scrollbar-width: thin; scrollbar-color: var(--border) #070d1a;
   pointer-events: auto;
+  position: relative;
 }
-.modal::-webkit-scrollbar { width: 4px; }
-.modal::-webkit-scrollbar-track { background: #080f1e; }
-.modal::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 2px; }
+/* Corner accent lines */
+.modal::before, .modal::after {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  border-color: var(--cyan);
+  border-style: solid;
+  opacity: .5;
+}
+.modal::before { top: 6px; left: 6px; border-width: 1px 0 0 1px; }
+.modal::after  { bottom: 6px; right: 6px; border-width: 0 1px 1px 0; }
+.modal::-webkit-scrollbar { width: 3px; }
+.modal::-webkit-scrollbar-track { background: #070d1a; }
+.modal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 .modal.show { display: flex; }
 @keyframes modalIn {
-  from { opacity:0; transform:scale(.92) translateY(20px); }
-  to   { opacity:1; transform:scale(1) translateY(0); }
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
 }
 
 .modal-logo {
   text-align: center; font-family: 'Orbitron', monospace;
-  font-size: 26px; font-weight: 900; letter-spacing: 2px;
-  background: linear-gradient(135deg, var(--cyan) 0%, var(--orange) 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  text-shadow: none; line-height: 1.2;
+  font-size: 22px; font-weight: 900; letter-spacing: 3px;
+  color: var(--text);
+  line-height: 1.2;
+  text-transform: uppercase;
 }
+.modal-logo .accent { color: var(--cyan); }
 .modal-sub {
-  text-align: center; font-size: 13px; color: var(--muted);
-  letter-spacing: .5px; margin-top: -8px;
+  text-align: center; font-size: 11px; color: var(--muted);
+  letter-spacing: 1.5px; margin-top: -6px;
+  text-transform: uppercase;
 }
-.modal h2 { font-size: 20px; font-weight: 700; color: var(--orange); }
-.modal p, .modal li { font-size: 14px; line-height: 1.65; color: #94a3b8; }
-.modal ul { padding-left: 18px; }
+.modal h2 { font-size: 14px; font-weight: 700; color: var(--orange); text-transform: uppercase; letter-spacing: 1px; }
+.modal p, .modal li { font-size: 13px; line-height: 1.6; color: #7a8fa8; }
+.modal ul { padding-left: 16px; }
 .modal strong { color: var(--text); }
 
 .divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(56,189,248,.2), transparent);
+  background: var(--border);
+  opacity: .6;
 }
 
 /* Info cards inside modal */
-.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .info-card {
-  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06);
-  border-radius: 12px; padding: 14px 16px;
+  background: rgba(26,48,80,.25); border: 1px solid var(--border);
+  border-radius: 3px; padding: 12px 14px;
   display: flex; align-items: flex-start; gap: 10px;
+  border-left: 2px solid var(--cyan);
 }
-.info-card .ico { font-size: 22px; flex-shrink: 0; }
+.info-card .ico { font-size: 18px; flex-shrink: 0; }
 .info-card .txt { display: flex; flex-direction: column; gap: 2px; }
-.info-card .txt strong { font-size: 13px; color: var(--text); }
-.info-card .txt span { font-size: 12px; color: var(--muted); }
+.info-card .txt strong { font-size: 12px; color: var(--text); text-transform: uppercase; letter-spacing: .5px; }
+.info-card .txt span { font-size: 11.5px; color: var(--muted); }
 
 /* Controls table */
 .ctrl-grid {
   display: grid; grid-template-columns: auto 1fr;
-  gap: 8px 16px; align-items: center;
-  background: rgba(255,255,255,.02); border-radius: 12px; padding: 16px;
-  border: 1px solid rgba(255,255,255,.05);
+  gap: 6px 14px; align-items: center;
+  background: rgba(7,13,26,.5); border-radius: 3px; padding: 12px 14px;
+  border: 1px solid var(--border);
 }
 .ctrl-grid kbd {
-  background: #1e293b; border: 1px solid #334155;
-  border-radius: 6px; padding: 3px 8px;
-  font-family: monospace; font-size: 12px; color: var(--cyan);
-  white-space: nowrap;
+  background: #0d1527; border: 1px solid #243a55;
+  border-radius: 2px; padding: 2px 7px;
+  font-family: 'Orbitron', monospace; font-size: 10px; color: var(--cyan);
+  white-space: nowrap; letter-spacing: .5px;
 }
-.ctrl-grid span { font-size: 13px; color: #94a3b8; }
+.ctrl-grid span { font-size: 12px; color: #6a7f96; }
 
 /* Buttons */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 13px 28px; border-radius: 12px;
-  font-size: 15px; font-weight: 700; font-family: 'Exo 2', sans-serif;
+  padding: 11px 24px; border-radius: 3px;
+  font-size: 13px; font-weight: 700; font-family: 'Exo 2', sans-serif;
   cursor: pointer; border: none; text-decoration: none;
-  transition: all .2s cubic-bezier(.34,1.56,.64,1);
-  letter-spacing: .3px; align-self: center;
+  transition: all .15s ease;
+  letter-spacing: 1px; align-self: center;
   pointer-events: auto !important;
+  text-transform: uppercase;
 }
 .btn-primary {
-  background: linear-gradient(135deg, #0ea5e9, #0284c7);
-  border: 1px solid rgba(56,189,248,.4);
-  color: #fff; box-shadow: 0 4px 20px rgba(56,189,248,.2);
+  background: transparent;
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
 }
-.btn-primary:hover { transform:translateY(-3px) scale(1.02); box-shadow:0 8px 30px rgba(56,189,248,.35); }
+.btn-primary:hover { background: var(--cyan); color: #070d1a; transform: translateY(-2px); }
 .btn-orange {
-  background: linear-gradient(135deg, #f97316, #ea580c);
-  border: 1px solid rgba(249,115,22,.4);
-  color: #fff; box-shadow: 0 4px 20px rgba(249,115,22,.2);
+  background: var(--orange);
+  border: 1px solid var(--orange);
+  color: #fff;
 }
-.btn-orange:hover { transform:translateY(-3px) scale(1.02); box-shadow:0 8px 30px rgba(249,115,22,.4); }
+.btn-orange:hover { background: #ea580c; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(249,115,22,.35); }
 .btn-green {
-  background: linear-gradient(135deg, #10b981, #059669);
-  border: 1px solid rgba(52,211,153,.4);
-  color: #fff; box-shadow: 0 4px 20px rgba(52,211,153,.2);
+  background: transparent;
+  border: 1px solid var(--green);
+  color: var(--green);
 }
-.btn-green:hover { transform:translateY(-3px) scale(1.02); box-shadow:0 8px 30px rgba(52,211,153,.3); }
+.btn-green:hover { background: var(--green); color: #070d1a; transform: translateY(-2px); }
 
 /* Quiz */
-.quiz-q {
-  font-size: 16px; font-weight: 600; color: var(--text);
-  line-height: 1.55; padding: 16px; background: rgba(255,255,255,.03);
-  border-radius: 12px; border-left: 3px solid var(--cyan);
+/* ── QUIZ SCREEN ── */
+.quiz-battle-header {
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border); padding-bottom: 10px;
 }
-.quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+.quiz-battle-tag {
+  font-family: 'Orbitron', monospace; font-size: 9px; font-weight: 700;
+  color: var(--orange); letter-spacing: 2px; text-transform: uppercase;
+  background: rgba(249,115,22,.1); border: 1px solid rgba(249,115,22,.3);
+  border-radius: 2px; padding: 3px 8px;
+}
+.quiz-q {
+  font-size: 15px; font-weight: 600; color: var(--text);
+  line-height: 1.6; padding: 14px 16px; background: rgba(26,48,80,.2);
+  border-radius: 3px; border-left: 2px solid var(--cyan);
+}
+.quiz-opts { display: flex; flex-direction: column; gap: 6px; }
 .quiz-opt {
-  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08);
-  border-radius: 10px; padding: 13px 16px;
-  font-size: 14px; color: #cbd5e1; cursor: pointer; text-align: left;
-  transition: all .18s ease; display: flex; align-items: center; gap: 12px;
+  background: rgba(7,13,26,.6); border: 1px solid var(--border);
+  border-radius: 3px; padding: 11px 14px;
+  font-size: 13px; color: #8aa0b8; cursor: pointer; text-align: left;
+  transition: all .12s ease; display: flex; align-items: center; gap: 10px;
   font-family: 'Exo 2', sans-serif;
 }
 .quiz-opt .opt-letter {
-  width: 28px; height: 28px; border-radius: 8px;
-  background: rgba(255,255,255,.06); display: flex;
-  align-items: center; justify-content: center;
-  font-weight: 700; font-size: 13px; color: var(--cyan);
-  flex-shrink: 0; transition: all .18s;
+  width: 26px; height: 26px; border-radius: 2px;
+  background: rgba(56,189,248,.08); border: 1px solid rgba(56,189,248,.2);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 11px; color: var(--cyan); font-family: 'Orbitron', monospace;
+  flex-shrink: 0; transition: all .12s;
 }
-.quiz-opt:hover { border-color: var(--cyan); background:rgba(56,189,248,.06); transform:translateX(4px); }
-.quiz-opt:hover .opt-letter { background:var(--cyan); color:#000; }
-.quiz-opt.correct { border-color: var(--green) !important; background:rgba(52,211,153,.1) !important; color: var(--green); pointer-events:none; }
-.quiz-opt.correct .opt-letter { background:var(--green); color:#000; }
-.quiz-opt.wrong { border-color: var(--red) !important; background:rgba(248,113,113,.1) !important; color: var(--red); pointer-events:none; }
-.quiz-opt.wrong .opt-letter { background:var(--red); color:#000; }
-.quiz-opt.disabled { pointer-events:none; opacity:.5; }
+.quiz-opt:hover { border-color: var(--cyan); background: rgba(56,189,248,.05); transform: translateX(3px); }
+.quiz-opt:hover .opt-letter { background: var(--cyan); color: #070d1a; border-color: var(--cyan); }
+.quiz-opt.correct { border-color: var(--green) !important; background: rgba(34,197,94,.07) !important; color: var(--green); pointer-events:none; }
+.quiz-opt.correct .opt-letter { background:var(--green); color:#070d1a; border-color: var(--green); }
+.quiz-opt.wrong { border-color: var(--red) !important; background: rgba(239,68,68,.07) !important; color: var(--red); pointer-events:none; }
+.quiz-opt.wrong .opt-letter { background:var(--red); color:#070d1a; border-color: var(--red); }
+.quiz-opt.disabled { pointer-events:none; opacity:.45; }
 .quiz-opt.disabled.correct { opacity:1; }
 
 /* Feedback box */
 .feedback-box {
-  border-radius: 12px; padding: 14px 16px;
-  font-size: 13px; line-height: 1.6; display:none;
-  gap: 8px; flex-direction: column;
+  border-radius: 3px; padding: 12px 14px;
+  font-size: 12.5px; line-height: 1.6; display:none;
+  gap: 6px; flex-direction: column;
 }
 .feedback-box.show { display:flex; }
-.feedback-box.ok { background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.3); color:#86efac; }
-.feedback-box.err { background:rgba(248,113,113,.08); border:1px solid rgba(248,113,113,.3); color:#fca5a5; }
-.feedback-box strong { font-size: 15px; }
+.feedback-box.ok { background: rgba(34,197,94,.06); border: 1px solid rgba(34,197,94,.25); color: #86efac; }
+.feedback-box.err { background: rgba(239,68,68,.06); border: 1px solid rgba(239,68,68,.25); color: #fca5a5; }
+.feedback-box strong { font-size: 13px; font-family: 'Orbitron', monospace; letter-spacing: .5px; }
 
 /* Stats grid */
-.stats-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; }
+.stats-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; }
 .stat-card {
-  background: rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06);
-  border-radius: 14px; padding:16px 12px; text-align:center;
+  background: rgba(7,13,26,.8); border: 1px solid var(--border);
+  border-radius: 3px; padding:14px 10px; text-align:center;
   display:flex; flex-direction:column; gap:4px;
+  border-top: 2px solid var(--border);
 }
-.stat-val { font-size: 30px; font-weight: 900; font-family:'Orbitron',monospace; }
-.stat-lbl { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+.stat-val { font-size: 26px; font-weight: 900; font-family:'Orbitron',monospace; }
+.stat-lbl { font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; font-weight: 700; }
 
 /* Progress bar for quiz rounds */
-.quiz-progress { display:flex; gap:4px; align-items:center; }
-.quiz-pip { flex:1; height:4px; border-radius:2px; background:rgba(255,255,255,.1); transition:background .3s; }
+.quiz-progress { display:flex; gap:3px; align-items:center; flex:1; }
+.quiz-pip { flex:1; height:3px; border-radius:1px; background: rgba(255,255,255,.08); transition:background .3s; }
 .quiz-pip.done { background:var(--green); }
 .quiz-pip.active { background:var(--cyan); }
 
 /* Level intro accent */
 .boss-preview {
-  display:flex; align-items:center; gap:16px;
-  background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.06);
-  border-radius:14px; padding:16px;
+  display:flex; align-items:center; gap:14px;
+  background: rgba(7,13,26,.6); border: 1px solid var(--border);
+  border-radius:3px; padding:14px;
+  border-left: 3px solid var(--cyan);
 }
-.boss-icon { font-size:48px; line-height:1; }
-.boss-info strong { font-size:16px; color:var(--text); display:block; margin-bottom:4px; }
-.boss-info span { font-size:13px; color:var(--muted); }
+.boss-icon { font-size:42px; line-height:1; }
+.boss-info strong { font-size:15px; color:var(--text); display:block; margin-bottom:3px; font-family: 'Orbitron', monospace; }
+.boss-info span { font-size:12px; color:var(--muted); }
 
 /* Tip box */
 .tip-box {
-  background:rgba(251,191,36,.05); border:1px solid rgba(251,191,36,.2);
-  border-radius:12px; padding:14px 16px;
-  font-size:13px; color:#fde68a; line-height:1.6;
+  background: rgba(234,179,8,.04); border: 1px solid rgba(234,179,8,.2);
+  border-radius:3px; padding:12px 14px;
+  font-size:12.5px; color:#fef08a; line-height:1.6;
+  border-left: 2px solid var(--gold);
 }
 .tip-box strong { color:var(--gold); }
 
 /* ── HUD ACTION BUTTONS (TOP BAR) ── */
 .hud-btn {
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid #1e3a5f;
-  border-radius: 20px;
-  padding: 5px 14px;
-  font-size: 12px;
+  background: rgba(7,13,26,.9);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 4px 11px;
+  font-size: 10px;
   font-weight: 700;
-  color: var(--cyan);
+  color: var(--muted);
   cursor: pointer;
-  transition: all .2s ease;
+  transition: all .12s ease;
   font-family: 'Exo 2', sans-serif;
-  display: flex; align-items: center; gap: 6px;
-  backdrop-filter: blur(6px);
+  display: flex; align-items: center; gap: 5px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
 }
 .hud-btn:hover {
-  background: var(--cyan);
-  color: #040914;
+  background: rgba(56,189,248,.12);
+  color: var(--cyan);
   border-color: var(--cyan);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.4);
 }
 .hud-btn.gold {
   color: var(--gold);
-  border-color: rgba(251, 191, 36, 0.4);
+  border-color: rgba(234,179,8,.3);
 }
 .hud-btn.gold:hover {
-  background: var(--gold);
-  color: #000;
-  box-shadow: 0 4px 14px rgba(251, 191, 36, 0.4);
+  background: rgba(234,179,8,.12);
+  border-color: var(--gold);
 }
 
 /* ── QR CODE MODAL & CARDS ── */
 .qr-container-card {
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  border-radius: 16px;
-  padding: 20px;
+  background: rgba(7,13,26,.8);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  gap: 12px;
   width: 100%;
 }
 .qr-frame {
   background: #ffffff;
-  padding: 14px;
-  border-radius: 14px;
-  box-shadow: 0 0 35px rgba(56, 189, 248, 0.25);
+  padding: 12px;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(56,189,248,.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 228px;
-  min-height: 228px;
+  min-width: 224px;
+  min-height: 224px;
 }
 .qr-frame img, .qr-frame canvas {
   display: block;
-  border-radius: 6px;
 }
 .qr-url-box {
-  background: rgba(2, 6, 23, 0.85);
-  border: 1px solid #1e3a5f;
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-family: monospace;
-  font-size: 13px;
+  background: rgba(7,13,26,.9);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 7px 12px;
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
   color: var(--cyan);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   max-width: 100%;
 }
 .qr-url-box span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  letter-spacing: .3px;
 }
 .btn-sm {
-  padding: 6px 12px;
-  font-size: 12px;
-  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 10px;
+  border-radius: 2px;
   cursor: pointer;
-  border: 1px solid rgba(56, 189, 248, 0.4);
-  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56,189,248,.35);
+  background: rgba(56,189,248,.08);
   color: var(--cyan);
   font-family: 'Exo 2', sans-serif;
   font-weight: 700;
-  transition: all .15s;
+  transition: all .12s;
+  text-transform: uppercase;
+  letter-spacing: .5px;
 }
 .btn-sm:hover {
   background: var(--cyan);
-  color: #000;
+  color: #070d1a;
 }
 
 /* ── LEADERBOARD TOP 5 STYLES ── */
 .lb-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   width: 100%;
-  margin: 10px 0;
+  margin: 6px 0;
 }
 .lb-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  background: rgba(7,13,26,.6);
+  border: 1px solid var(--border);
+  border-radius: 2px;
   padding: 10px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  transition: all .2s ease;
+  transition: all .12s ease;
 }
 .lb-card:hover {
-  background: rgba(255, 255, 255, 0.06);
-  transform: translateX(3px);
+  background: rgba(26,48,80,.35);
+  transform: translateX(2px);
+  border-color: rgba(56,189,248,.25);
 }
 .lb-rank-badge {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Orbitron', monospace;
   font-weight: 900;
-  font-size: 16px;
+  font-size: 13px;
   flex-shrink: 0;
+  letter-spacing: -1px;
 }
 .lb-rank-1 {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(217, 119, 6, 0.4));
-  border: 1px solid #fbbf24;
-  color: #fbbf24;
-  box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+  background: rgba(234,179,8,.12);
+  border: 1px solid rgba(234,179,8,.5);
+  color: var(--gold);
 }
 .lb-rank-2 {
-  background: linear-gradient(135deg, rgba(203, 213, 225, 0.3), rgba(148, 163, 184, 0.4));
-  border: 1px solid #cbd5e1;
-  color: #cbd5e1;
+  background: rgba(203,213,225,.08);
+  border: 1px solid rgba(203,213,225,.35);
+  color: #b0bec5;
 }
 .lb-rank-3 {
-  background: linear-gradient(135deg, rgba(249, 115, 22, 0.3), rgba(194, 65, 12, 0.4));
-  border: 1px solid #f97316;
-  color: #f97316;
+  background: rgba(249,115,22,.1);
+  border: 1px solid rgba(249,115,22,.35);
+  color: var(--orange);
 }
 .lb-rank-other {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
   color: var(--muted);
 }
 .lb-info {
@@ -427,37 +459,38 @@ body {
   text-align: left;
 }
 .lb-player-name {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
-  color: #f8fafc;
+  color: var(--text);
   display: flex;
   align-items: center;
   gap: 6px;
 }
 .lb-meta {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--muted);
   margin-top: 2px;
+  letter-spacing: .3px;
 }
 .lb-score-val {
   font-family: 'Orbitron', monospace;
   font-weight: 900;
-  font-size: 18px;
+  font-size: 16px;
   color: var(--green);
-  text-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
   text-align: right;
   flex-shrink: 0;
 }
 
 /* ── SCORE SUBMISSION FORM ── */
 .submit-score-box {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(251, 191, 36, 0.25);
-  border-radius: 12px;
+  background: rgba(7,13,26,.6);
+  border: 1px solid rgba(234,179,8,.2);
+  border-radius: 3px;
   padding: 14px;
-  margin: 12px 0;
+  margin: 8px 0;
   text-align: center;
   width: 100%;
+  border-top: 2px solid rgba(234,179,8,.3);
 }
 .submit-input-row {
   display: flex;
@@ -466,20 +499,21 @@ body {
   margin-top: 8px;
 }
 .submit-input {
-  background: #0f172a;
-  border: 1px solid #334155;
-  border-radius: 8px;
+  background: #070d1a;
+  border: 1px solid var(--border);
+  border-radius: 3px;
   padding: 10px 14px;
-  color: #f8fafc;
-  font-size: 14px;
+  color: var(--text);
+  font-size: 13px;
   font-family: 'Exo 2', sans-serif;
   outline: none;
   flex: 1;
   max-width: 280px;
+  letter-spacing: .3px;
 }
 .submit-input:focus {
   border-color: var(--cyan);
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+  box-shadow: 0 0 0 1px rgba(56,189,248,.2);
 }
 
 /* ── MOBILE TOUCH CONTROLS ── */
@@ -499,20 +533,20 @@ body {
 }
 .touch-cluster {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   pointer-events: auto;
   align-items: flex-end;
 }
 .t-btn {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: rgba(15, 23, 42, 0.85);
-  border: 2px solid rgba(56, 189, 248, 0.4);
-  color: #f8fafc;
+  width: 54px;
+  height: 54px;
+  border-radius: 3px;
+  background: rgba(7,13,26,.88);
+  border: 1px solid rgba(56,189,248,.35);
+  color: var(--text);
   font-family: 'Orbitron', monospace;
   font-weight: 900;
-  font-size: 15px;
+  font-size: 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -520,176 +554,176 @@ body {
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 14px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.04);
   cursor: pointer;
 }
 .t-btn:active, .t-btn.active {
-  background: rgba(56, 189, 248, 0.45);
+  background: rgba(56,189,248,.2);
   border-color: var(--cyan);
   transform: scale(0.92);
-  box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
 }
 .t-btn-act {
-  width: 56px;
-  height: 56px;
-  border-color: rgba(249, 115, 22, 0.5);
+  width: 54px;
+  height: 54px;
+  border-color: rgba(249,115,22,.4);
 }
 .t-btn-act:active, .t-btn-act.active {
-  background: rgba(249, 115, 22, 0.45);
+  background: rgba(249,115,22,.2);
   border-color: var(--orange);
   transform: scale(0.92);
-  box-shadow: 0 0 15px rgba(249, 115, 22, 0.6);
 }
 .t-sub {
-  font-size: 8px;
+  font-size: 7px;
   font-family: 'Exo 2', sans-serif;
   color: var(--muted);
   font-weight: 700;
   margin-top: 1px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
 }
 
 /* ── PLAYER MOBILE START SCREEN STYLES ── */
 .player-name-card {
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(251, 191, 36, 0.45);
-  border-radius: 14px;
-  padding: 16px;
+  background: rgba(7,13,26,.95);
+  border: 1px solid rgba(234,179,8,.3);
+  border-radius: 3px;
+  padding: 14px;
   text-align: left;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   width: 100%;
+  border-top: 2px solid rgba(234,179,8,.4);
 }
 .player-big-input {
   width: 100%;
-  background: #060d1a;
-  border: 2px solid #334155;
-  border-radius: 10px;
-  padding: 14px 16px;
-  font-size: 16px;
+  background: #050a14;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 13px 15px;
+  font-size: 15px;
   font-family: 'Exo 2', sans-serif;
-  color: #f8fafc;
+  color: var(--text);
   outline: none;
-  transition: all .2s;
+  transition: all .15s;
+  letter-spacing: .3px;
 }
 .player-big-input:focus {
   border-color: var(--cyan);
-  box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+  box-shadow: 0 0 0 1px rgba(56,189,248,.2);
 }
 .rules-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  background: rgba(7,13,26,.5);
+  border: 1px solid var(--border);
+  border-radius: 3px;
   padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
   text-align: left;
   width: 100%;
 }
 .rule-item {
-  font-size: 12px;
-  color: #cbd5e1;
-  line-height: 1.45;
+  font-size: 11.5px;
+  color: #6a7f96;
+  line-height: 1.5;
 }
 .rule-item strong {
   color: var(--gold);
 }
 .btn-glow {
-  box-shadow: 0 0 25px rgba(249, 115, 22, 0.45);
-  animation: startGlow 1.5s infinite alternate ease-in-out;
+  animation: startGlow 2s infinite alternate ease-in-out;
 }
 @keyframes startGlow {
-  0% { transform: scale(1); box-shadow: 0 0 15px rgba(249, 115, 22, 0.3); }
-  100% { transform: scale(1.02); box-shadow: 0 0 30px rgba(249, 115, 22, 0.6); }
+  0% { box-shadow: 0 0 12px rgba(249,115,22,.25); }
+  100% { box-shadow: 0 0 24px rgba(249,115,22,.55); }
 }
 .auto-submit-banner {
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(52, 211, 153, 0.4);
-  border-radius: 12px;
-  padding: 14px;
+  background: rgba(34,197,94,.08);
+  border: 1px solid rgba(34,197,94,.3);
+  border-radius: 3px;
+  padding: 12px;
   text-align: center;
-  margin: 10px 0;
+  margin: 8px 0;
   width: 100%;
 }
 
 /* ── LOBBY / WAITING ROOM STYLES ── */
 .lobby-admin-box {
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(251, 191, 36, 0.4);
-  border-radius: 14px;
-  padding: 14px 16px;
+  background: rgba(7,13,26,.7);
+  border: 1px solid rgba(234,179,8,.25);
+  border-radius: 3px;
+  padding: 12px 14px;
   width: 100%;
-  margin-top: 10px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  margin-top: 8px;
   text-align: left;
+  border-top: 2px solid rgba(234,179,8,.3);
 }
 .lobby-admin-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 }
 .lobby-count-pill {
-  background: rgba(56, 189, 248, 0.2);
-  border: 1px solid var(--cyan);
+  background: rgba(56,189,248,.1);
+  border: 1px solid rgba(56,189,248,.35);
   color: var(--cyan);
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 2px;
+  font-size: 11px;
   font-weight: 800;
   font-family: 'Orbitron', monospace;
+  letter-spacing: .5px;
 }
 .lobby-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  max-height: 110px;
+  gap: 5px;
+  max-height: 100px;
   overflow-y: auto;
   padding: 6px;
-  background: rgba(2, 6, 23, 0.6);
-  border-radius: 8px;
-  border: 1px solid #1e293b;
-  min-height: 44px;
-  align-items: center;
+  background: rgba(5,10,20,.5);
+  border-radius: 2px;
+  border: 1px solid var(--border);
+  min-height: 40px;
+  align-items: flex-start;
 }
 .lobby-chip {
-  background: rgba(30, 58, 95, 0.85);
-  border: 1px solid rgba(56, 189, 248, 0.4);
-  color: #f8fafc;
-  border-radius: 6px;
-  padding: 4px 8px;
-  font-size: 11.5px;
+  background: rgba(26,48,80,.6);
+  border: 1px solid rgba(56,189,248,.25);
+  color: var(--text);
+  border-radius: 2px;
+  padding: 3px 8px;
+  font-size: 11px;
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 4px;
-  animation: chipFadeIn .3s ease-out;
+  animation: chipFadeIn .2s ease-out;
 }
 @keyframes chipFadeIn {
-  0% { transform: scale(0.8); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+  0% { transform: translateY(-4px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
 }
 .lobby-pulse-dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: #34d399;
-  box-shadow: 0 0 10px #34d399;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
   display: inline-block;
-  animation: pulseDot 1.4s infinite ease-in-out;
+  animation: pulseDot 1.6s infinite ease-in-out;
+  flex-shrink: 0;
 }
 @keyframes pulseDot {
-  0% { transform: scale(0.9); opacity: 0.6; }
-  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 15px #34d399; }
-  100% { transform: scale(0.9); opacity: 0.6; }
+  0%, 100% { opacity: .5; transform: scale(.9); }
+  50% { opacity: 1; transform: scale(1.2); }
 }
 .waiting-radar-container {
   position: relative;
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 10px;
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -699,67 +733,62 @@ body {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 2px solid var(--cyan);
-  animation: radarRipple 2s infinite ease-out;
+  border: 1px solid var(--cyan);
+  animation: radarRipple 2.2s infinite ease-out;
 }
 @keyframes radarRipple {
-  0% { transform: scale(0.5); opacity: 1; }
-  100% { transform: scale(1.4); opacity: 0; }
+  0% { transform: scale(0.4); opacity: .8; }
+  100% { transform: scale(1.6); opacity: 0; }
 }
 .radar-icon {
-  font-size: 36px;
+  font-size: 30px;
   z-index: 2;
-  animation: radarFloat 2.5s infinite ease-in-out;
-}
-@keyframes radarFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
 }
 .countdown-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(2, 6, 23, 0.94);
+  background: rgba(7,13,26,.96);
   z-index: 1000;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(10px);
 }
 .countdown-number {
   font-family: 'Orbitron', monospace;
-  font-size: 110px;
+  font-size: 100px;
   font-weight: 900;
   color: var(--orange);
-  text-shadow: 0 0 35px rgba(249, 115, 22, 0.8), 0 0 70px rgba(249, 115, 22, 0.5);
-  animation: countdownZoom 1s infinite ease-in-out;
+  text-shadow: 0 0 40px rgba(249,115,22,.6);
+  animation: countdownZoom .9s ease-out;
+  line-height: 1;
 }
 @keyframes countdownZoom {
-  0% { transform: scale(1.3); opacity: 0; }
-  30% { transform: scale(1); opacity: 1; }
-  80% { transform: scale(0.95); opacity: 1; }
-  100% { transform: scale(0.85); opacity: 0; }
+  0% { transform: scale(1.4); opacity: 0; }
+  40% { opacity: 1; }
+  100% { transform: scale(.9); opacity: .8; }
 }
 .countdown-sub {
   font-family: 'Orbitron', monospace;
-  font-size: 20px;
-  font-weight: 800;
-  color: #f8fafc;
-  letter-spacing: 2px;
-  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 4px;
+  margin-top: 16px;
+  text-transform: uppercase;
 }
 
 /* ── COMPREHENSIVE MOBILE RESPONSIVE OPTIMIZATIONS ── */
 .mobile-hint {
   display: none;
-  background: rgba(56, 189, 248, 0.12);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  border-radius: 10px;
-  padding: 8px 12px;
-  font-size: 11.5px;
-  color: #bae6fd;
+  background: rgba(56,189,248,.08);
+  border: 1px solid rgba(56,189,248,.25);
+  border-radius: 3px;
+  padding: 7px 12px;
+  font-size: 11px;
+  color: #7ec8f0;
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   line-height: 1.4;
 }
 
@@ -980,17 +1009,17 @@ body {
 <div id="wrapper">
   <!-- Top HUD (outside canvas) -->
   <div id="topBar">
-    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-      <div class="hud-pill" id="hudPlayerPill" style="display:none;color:var(--gold);font-weight:700;">👤 <span id="hudPlayerNameText"></span></div>
-      <div class="hud-pill">Màn <span id="hudLevel">1</span>/4</div>
-      <div class="hud-pill">⭐ <span id="hudStars">0</span> &nbsp;|&nbsp; 🏆 <span id="hudScore">0</span></div>
-      <div class="hud-pill">✅ <span id="hudQuiz">0/0</span> đúng</div>
+    <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;">
+      <div class="hud-pill" id="hudPlayerPill" style="display:none;color:var(--gold);font-weight:700;"><span id="hudPlayerNameText"></span></div>
+      <div class="hud-pill">STAGE <span id="hudLevel">1</span>/4</div>
+      <div class="hud-pill">STR <span id="hudStars">0</span> &nbsp;|&nbsp; PTS <span id="hudScore">0</span></div>
+      <div class="hud-pill">QUIZ <span id="hudQuiz">0/0</span></div>
     </div>
-    <div style="display:flex;gap:6px;align-items:center;">
-      <button class="hud-btn gold" onclick="UI.showLeaderboardModal()">🏆 Top 5</button>
-      <button class="hud-btn" id="btnAdminLogout" onclick="UI.logoutAdmin()" style="display:none;background:rgba(239,68,68,0.25);border-color:rgba(239,68,68,0.6);color:#fca5a5;">🔓 Đăng xuất Admin</button>
-      <button class="hud-btn" id="btnTopBarQR" onclick="UI.showQRModal()">📱 Quét QR</button>
-      <button class="hud-btn" id="btnFullscreen" onclick="UI.toggleFullscreen()" title="Toàn màn hình">⛶</button>
+    <div style="display:flex;gap:5px;align-items:center;">
+      <button class="hud-btn gold" onclick="UI.showLeaderboardModal()">TOP 5</button>
+      <button class="hud-btn" id="btnAdminLogout" onclick="UI.logoutAdmin()" style="display:none;color:var(--red);border-color:rgba(239,68,68,.4);">LOGOUT</button>
+      <button class="hud-btn" id="btnTopBarQR" onclick="UI.showQRModal()">QR</button>
+      <button class="hud-btn" id="btnFullscreen" onclick="UI.toggleFullscreen()" title="Fullscreen">&#9974;</button>
     </div>
   </div>
 
@@ -999,13 +1028,13 @@ body {
 
   <!-- Bottom Controls -->
   <div id="ctrlBar">
-    <div class="ctrl-badge"><kbd>A</kbd><kbd>D</kbd> Di chuyển</div>
-    <div class="ctrl-badge"><kbd>W</kbd> Nhảy 2 bước</div>
-    <div class="ctrl-badge"><kbd>S</kbd> Xuống bệ</div>
-    <div class="ctrl-badge"><kbd>Shift</kbd><kbd>L</kbd> Lướt né đạn (Dash)</div>
-    <div class="ctrl-badge"><kbd>J</kbd><kbd>Space</kbd> Giữ bắn Laser</div>
-    <div class="ctrl-badge"><kbd>K</kbd> Đại pháo (3⭐)</div>
-    <div class="ctrl-badge"><kbd>P</kbd> Tạm dừng</div>
+    <div class="ctrl-badge"><kbd>A</kbd><kbd>D</kbd> MOVE</div>
+    <div class="ctrl-badge"><kbd>W</kbd> JUMP x2</div>
+    <div class="ctrl-badge"><kbd>S</kbd> DROP</div>
+    <div class="ctrl-badge"><kbd>SHIFT</kbd><kbd>L</kbd> DASH</div>
+    <div class="ctrl-badge"><kbd>J</kbd><kbd>SPC</kbd> SHOOT</div>
+    <div class="ctrl-badge"><kbd>K</kbd> ULTIMATE (3&#9733;)</div>
+    <div class="ctrl-badge"><kbd>P</kbd> PAUSE</div>
   </div>
 
   <!-- Mobile Touch Controls -->
@@ -1026,99 +1055,79 @@ body {
   <!-- OVERLAY -->
   <div id="overlay" class="active">
 
-    <!-- ── PLAYER MOBILE START SCREEN (KHI ĐIỆN THOẠI QUÉT QR VÀO CHƠI) ── -->
+    <!-- ── PLAYER MOBILE START SCREEN ── -->
     <div class="modal show" id="screenPlayerStart">
-      <div class="mobile-hint" style="display:block;">💡 <strong>Mẹo:</strong> Xoay ngang màn hình hoặc ấn <strong>⛶</strong> để chơi toàn màn hình!</div>
-      <div class="modal-logo">⚔️ ĐẤU TRƯỜNG TRIẾT HỌC AI</div>
-      <div class="modal-sub">ĐUA TOP TRANH HẠNG TRỰC TIẾP TRÊN MÁY CHIẾU | FPT University</div>
+      <div class="mobile-hint" style="display:block;">Xoay ngang hoặc bấm <strong>&#9974;</strong> để chơi toàn màn hình.</div>
+      <div class="modal-logo">BI<span class="accent">&#7878;N</span> CH&#7�;NG</div>
+      <div class="modal-sub">Philosophy Battle Arena &middot; FPT University</div>
       <div class="divider"></div>
 
-      <!-- BANNER CẢNH BÁO NẾU ĐÃ HOÀN THÀNH 1 LƯỢT THI ĐẤU -->
-      <div id="playerPlayedWarning" class="auto-submit-banner" style="display:none;margin-bottom:12px;"></div>
+      <!-- WARNING IF ALREADY PLAYED -->
+      <div id="playerPlayedWarning" class="auto-submit-banner" style="display:none;margin-bottom:4px;"></div>
 
-      <!-- Ô BẮT BUỘC NHẬP HỌ TÊN -->
+      <!-- NAME INPUT -->
       <div class="player-name-card" id="playerNameCard">
-        <label for="inputPlayerName" style="display:block;font-size:13px;font-weight:700;color:var(--gold);margin-bottom:8px;">
-          👤 NHẬP HỌ TÊN HOẶC MSSV CỦA BẠN: <span style="color:#f87171;">*</span>
+        <label for="inputPlayerName" style="display:block;font-size:11px;font-weight:700;color:var(--gold);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;">
+          Enter Your Identity <span style="color:var(--red);">*</span>
         </label>
-        <input type="text" id="inputPlayerName" class="player-big-input" placeholder="Ví dụ: Nguyễn Văn A - SE17xxxx (hoặc gõ 'admin')" maxlength="25" autocomplete="name" required oninput="if(this.value.trim().toLowerCase()==='admin') UI.toggleAdminPasswordBox(true)" onkeydown="if(event.key==='Enter') UI.startPlayerGame()">
-        <div id="playerNameError" style="display:none;color:#f87171;font-size:12px;margin-top:8px;font-weight:700;">
-          ⚠️ VUI LÒNG NHẬP HỌ TÊN HOẶC MSSV ĐỂ VÀO THI ĐẤU!
-        </div>
+        <input type="text" id="inputPlayerName" class="player-big-input" placeholder="Họ tên / MSSV (hoặc gõ 'admin')" maxlength="25" autocomplete="name" required oninput="if(this.value.trim().toLowerCase()==='admin') UI.toggleAdminPasswordBox(true)" onkeydown="if(event.key==='Enter') UI.startPlayerGame()">
+        <div id="playerNameError" style="display:none;color:var(--red);font-size:11px;margin-top:6px;font-weight:700;letter-spacing:.5px;"></div>
       </div>
 
-      <!-- KHUNG NHẬP MẬT KHẨU ADMIN (KHI GÕ ADMIN HOẶC ẤN LINK ADMIN) -->
-      <div id="adminPasswordCard" style="display:none;background:rgba(239,68,68,0.12);border:1.5px solid rgba(239,68,68,0.5);border-radius:12px;padding:14px;margin-bottom:14px;">
-        <div style="font-size:13px;font-weight:800;color:#f87171;margin-bottom:6px;display:flex;align-items:center;gap:6px;">
-          🛡️ XÁC THỰC NGƯỜI CHỦ TRÌ (ADMIN)
-        </div>
-        <div style="font-size:12px;color:#cbd5e1;margin-bottom:8px;line-height:1.4;">
-          Nhập mật khẩu quản trị để mở giao diện Máy Chiếu, QR Code và Bảng điều khiển:
-        </div>
+      <!-- ADMIN PASSWORD CARD -->
+      <div id="adminPasswordCard" style="display:none;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.4);border-left:2px solid var(--red);border-radius:3px;padding:14px;">
+        <div style="font-size:10px;font-weight:700;color:var(--red);margin-bottom:6px;letter-spacing:2px;text-transform:uppercase;">HOST AUTHENTICATION</div>
         <div style="display:flex;gap:8px;">
-          <input type="password" id="inputAdminPassword" class="player-big-input" placeholder="Nhập mật khẩu Admin..." style="padding:10px 14px;font-size:14px;" onkeydown="if(event.key==='Enter') UI.loginAdmin()">
-          <button class="btn btn-orange" onclick="UI.loginAdmin()" style="width:auto;padding:10px 16px;font-size:13px;white-space:nowrap;font-weight:800;">
-            Xác nhận
-          </button>
+          <input type="password" id="inputAdminPassword" class="player-big-input" placeholder="Admin password..." style="padding:10px 14px;font-size:13px;" onkeydown="if(event.key==='Enter') UI.loginAdmin()">
+          <button class="btn btn-orange" onclick="UI.loginAdmin()" style="width:auto;padding:10px 16px;font-size:11px;white-space:nowrap;">CONFIRM</button>
         </div>
-        <div id="adminPasswordError" style="display:none;color:#f87171;font-size:12px;margin-top:6px;font-weight:700;"></div>
+        <div id="adminPasswordError" style="display:none;color:var(--red);font-size:11px;margin-top:6px;font-weight:700;"></div>
       </div>
 
-      <!-- THỂ LỆ 1 MẠNG DUY NHẤT -->
+      <!-- RULES -->
       <div class="rules-card">
-        <div class="rule-item">🎯 <strong>1 Mạng Duy Nhất:</strong> Thi đấu 1 lượt duy nhất! Khi kết thúc, điểm số sẽ tự động lưu thẳng về máy chiếu Admin.</div>
-        <div class="rule-item">📝 <strong>18 Câu Trắc Nghiệm:</strong> Trả lời đúng để hồi +50 HP và tăng sức mạnh súng Laser.</div>
-        <div class="rule-item">📱 <strong>Phím Ảo Cảm Ứng:</strong> Dùng các nút tròn bên dưới màn hình để di chuyển, nhảy né đạn và giữ bắn liên thanh.</div>
+        <div class="rule-item"><strong>1 LIFE ONLY</strong> &mdash; One attempt per tournament. Score auto-saves.</div>
+        <div class="rule-item"><strong>18 QUESTIONS</strong> &mdash; Correct answers restore HP and boost laser damage.</div>
+        <div class="rule-item"><strong>TOUCH CONTROLS</strong> &mdash; Use on-screen buttons on mobile devices.</div>
       </div>
 
-      <button class="btn btn-orange btn-glow" id="btnStartPlayerGame" onclick="UI.startPlayerGame()" style="font-size:16px;padding:15px;width:100%;font-weight:900;">
-        🚀 ĐĂNG KÝ VÀO PHÒNG CHỜ!
-      </button>
-      <button class="btn btn-green" onclick="UI.showLeaderboardModal()" style="width:100%;font-size:13px;">
-        🏆 Xem Bảng Xếp Hạng TOP 5
-      </button>
-      <div style="margin-top:12px;text-align:center;">
-        <a href="javascript:void(0)" onclick="UI.toggleAdminPasswordBox()" style="color:var(--muted);font-size:12px;text-decoration:underline;cursor:pointer;">
-          🔑 Đăng nhập dành cho Người Chủ Trì (Admin)
-        </a>
+      <button class="btn btn-orange btn-glow" id="btnStartPlayerGame" onclick="UI.startPlayerGame()" style="font-size:13px;padding:13px;width:100%;">ENTER THE ARENA</button>
+      <button class="btn btn-primary" onclick="UI.showLeaderboardModal()" style="width:100%;font-size:12px;">VIEW LEADERBOARD</button>
+      <div style="margin-top:8px;text-align:center;">
+        <a href="javascript:void(0)" onclick="UI.toggleAdminPasswordBox()" style="color:var(--muted);font-size:11px;text-decoration:none;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;">Host Login</a>
       </div>
     </div>
 
-    <!-- ── PLAYER WAITING ROOM MODAL (PHÒNG CHỜ THÍ SINH) ── -->
+    <!-- ── PLAYER WAITING ROOM MODAL ── -->
     <div class="modal" id="screenPlayerWaiting">
       <div class="waiting-radar-container">
         <div class="radar-circle"></div>
-        <div class="radar-icon">🎮</div>
+        <div class="radar-icon">&#9876;</div>
       </div>
-      <div class="modal-logo" style="color:var(--cyan);font-size:20px;">PHÒNG CHỜ THI ĐẤU</div>
-      <div style="font-size:13px;color:var(--gold);font-weight:700;">
-        👤 Thí sinh: <span id="waitingPlayerName"></span>
-      </div>
+      <div class="modal-logo">STAND<span class="accent">BY</span></div>
+      <div class="modal-sub">Waiting for host &middot; <span id="waitingPlayerName" style="color:var(--gold);"></span></div>
       <div class="divider"></div>
 
-      <div class="auto-submit-banner" style="background:rgba(56,189,248,0.12);border-color:rgba(56,189,248,0.4);padding:12px;">
-        <div style="display:flex;align-items:center;gap:8px;justify-content:center;">
+      <div class="auto-submit-banner" style="background:rgba(56,189,248,.06);border-color:rgba(56,189,248,.3);padding:10px;">
+        <div style="display:flex;align-items:center;gap:7px;justify-content:center;">
           <span class="lobby-pulse-dot"></span>
-          <span style="font-size:14px;font-weight:800;color:#f8fafc;">ĐÃ KẾT NỐI VÀO PHÒNG CHỜ!</span>
+          <span style="font-size:12px;font-weight:700;color:var(--text);letter-spacing:.5px;text-transform:uppercase;">Connected to lobby</span>
         </div>
-        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin-top:6px;">
-          Vui lòng theo dõi màn hình máy chiếu.<br>
-          <strong style="color:var(--orange);">Trận đấu sẽ tự động bắt đầu khi Người Chủ Trì bấm lệnh!</strong>
-        </p>
+        <p style="font-size:11px;color:var(--muted);line-height:1.5;margin-top:5px;text-align:center;">Watch the projector screen.<br><strong style="color:var(--orange);">Battle starts when host gives the signal.</strong></p>
       </div>
 
       <div class="lobby-admin-box" style="margin-top:4px;">
         <div class="lobby-admin-header">
-          <span style="font-size:12px;font-weight:700;color:var(--gold);">👥 BẠN CÙNG PHÒNG CHỜ:</span>
-          <span class="lobby-count-pill" id="playerWaitingCount">1 người</span>
+          <span style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase;">Players in lobby</span>
+          <span class="lobby-count-pill" id="playerWaitingCount">1</span>
         </div>
         <div class="lobby-chips" id="playerWaitingChips">
-          <div style="color:var(--muted);font-size:12px;font-style:italic;">Đang kết nối danh sách bạn cùng phòng...</div>
+          <div style="color:var(--muted);font-size:11px;font-style:italic;">Connecting...</div>
         </div>
       </div>
 
-      <div class="rules-card" style="margin-top:8px;">
-        <div class="rule-item">💡 <strong>Mẹo sẵn sàng:</strong> Hãy làm quen các nút cảm ứng bên dưới (Nhảy 2 bước, Lướt né đạn, Bắn liên thanh). Game chỉ có 1 mạng duy nhất!</div>
+      <div class="rules-card" style="margin-top:6px;">
+        <div class="rule-item"><strong>Ready tip:</strong> Practice the touch controls below. Double jump, dash, and hold to shoot. One life only.</div>
       </div>
     </div>
 
@@ -1238,136 +1247,123 @@ body {
 
     <!-- ── LEADERBOARD MODAL ── -->
     <div class="modal" id="screenLeaderboard">
-      <div class="modal-logo">🏆 BẢNG VINH DANH TOP 5</div>
-      <div class="modal-sub">TRIẾT GIA AI XUẤT SẮC NHẤT | FPT University</div>
+      <div class="modal-logo">HALL OF <span class="accent">CHAMPIONS</span></div>
+      <div class="modal-sub">Top Philosophers &middot; FPT University</div>
       <div class="divider"></div>
 
       <div class="lb-wrapper" id="leaderboardList">
-        <div style="text-align:center;color:var(--muted);padding:20px;">Đang tải danh sách Top 5...</div>
+        <div style="text-align:center;color:var(--muted);padding:20px;font-size:11px;letter-spacing:1px;">LOADING...</div>
       </div>
 
       <div class="divider"></div>
-      <div style="display:flex;gap:10px;width:100%;">
-        <button class="btn btn-green" onclick="UI.fetchLeaderboard(true)" style="flex:1;">🔄 Làm mới</button>
-        <button class="btn btn-primary" id="btnLbShowQR" onclick="UI.showQRModal()" style="flex:1;">📱 Hiện mã QR</button>
-        <button class="btn btn-orange" onclick="UI.closeModal()" style="flex:1;">✕ Đóng</button>
+      <div style="display:flex;gap:8px;width:100%;">
+        <button class="btn btn-green" onclick="UI.fetchLeaderboard(true)" style="flex:1;font-size:11px;">REFRESH</button>
+        <button class="btn btn-primary" id="btnLbShowQR" onclick="UI.showQRModal()" style="flex:1;font-size:11px;">QR CODE</button>
+        <button class="btn btn-orange" onclick="UI.closeModal()" style="flex:1;font-size:11px;">CLOSE</button>
       </div>
-      <div id="adminResetContainer" style="text-align:right;margin-top:8px;">
-        <button id="btnResetLeaderboard" onclick="UI.resetLeaderboard()" style="background:none;border:none;color:#ef4444;font-size:11px;cursor:pointer;text-decoration:underline;">🗑️ Đặt lại giải đấu mới</button>
+      <div id="adminResetContainer" style="text-align:right;margin-top:6px;">
+        <button id="btnResetLeaderboard" onclick="UI.resetLeaderboard()" style="background:none;border:none;color:var(--red);font-size:10px;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;">Reset Tournament</button>
       </div>
     </div>
 
     <!-- ── LEVEL INTRO ── -->
     <div class="modal" id="screenIntro">
-      <div id="introLevelTag" style="font-size:12px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;"></div>
-      <div id="introTitle" style="font-family:'Orbitron',monospace;font-size:22px;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;"></div>
+      <div id="introLevelTag" style="font-size:9px;color:var(--muted);font-weight:700;letter-spacing:2px;text-transform:uppercase;"></div>
+      <div id="introTitle" style="font-family:'Orbitron',monospace;font-size:20px;font-weight:900;color:var(--text);letter-spacing:2px;"></div>
       <div id="introBossPreview" class="boss-preview"></div>
       <p id="introDesc"></p>
       <div id="introTip" class="tip-box"></div>
-      <button class="btn btn-orange" onclick="UI.startLevel()">⚔️ Chiến đấu!</button>
+      <button class="btn btn-orange" onclick="UI.startLevel()">FIGHT</button>
     </div>
 
     <!-- ── QUIZ SCREEN ── -->
     <div class="modal" id="screenQuiz">
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div id="quizLabel" style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">Câu hỏi ôn tập</div>
-        <div id="quizPips" class="quiz-progress"></div>
+      <div class="quiz-battle-header">
+        <span class="quiz-battle-tag">BATTLE CHALLENGE</span>
+        <div id="quizLabel" style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-left:auto;"></div>
+        <div id="quizPips" class="quiz-progress" style="max-width:100px;"></div>
       </div>
       <div id="quizQ" class="quiz-q"></div>
       <div id="quizOpts" class="quiz-opts"></div>
       <div id="quizFeedback" class="feedback-box"></div>
-      <button class="btn btn-green" id="quizNextBtn" style="display:none;" onclick="UI.quizNext()">Câu tiếp theo ▶</button>
+      <button class="btn btn-green" id="quizNextBtn" style="display:none;font-size:11px;" onclick="UI.quizNext()">NEXT &nbsp;&#9658;</button>
     </div>
 
     <!-- ── VICTORY ── -->
     <div class="modal" id="screenVictory">
-      <div class="modal-logo">🏆 CHIẾN THẮNG VINH QUANG!</div>
+      <div class="modal-logo"><span class="accent">VICTORY</span></div>
+      <div class="modal-sub">Philosophy Master &mdash; All 4 Bosses Defeated</div>
       <div class="divider"></div>
-      <p style="text-align:center;font-size:16px;color:var(--green);font-weight:600;line-height:1.6;">
-        "AI không loại bỏ con người —<br>AI chỉ loại bỏ những ai từ chối nâng cấp sức lao động của chính mình."
+      <p style="text-align:center;font-size:12px;color:var(--green);font-weight:600;line-height:1.6;font-style:italic;border-left:2px solid var(--green);padding-left:12px;">
+        "AI does not eliminate people &mdash;<br>AI only eliminates those who refuse to upgrade themselves."
       </p>
       <div class="divider"></div>
       <div class="stats-grid" id="victoryStats"></div>
 
-      <!-- Auto submit banner cho người chơi di động -->
       <div id="playerSubmitBannerVictory" class="auto-submit-banner" style="display:none;">
-        <div style="font-size:15px;font-weight:900;color:#34d399;margin-bottom:4px;">
-          ✅ ĐÃ TỰ ĐỘNG GỬI ĐIỂM VỀ MÁY CHIẾU ADMIN!
-        </div>
-        <div style="font-size:13px;color:#f8fafc;margin-bottom:4px;">
-          Thí sinh: <strong class="submitted-player-name" style="color:var(--gold);"></strong>
-        </div>
-        <div style="font-size:11.5px;color:var(--muted);">
-          ⭐ Bạn đã hoàn thành lượt thi đấu của mình. Hãy theo dõi bảng xếp hạng trên màn hình máy chiếu!
-        </div>
+        <div style="font-size:13px;font-weight:900;color:var(--green);margin-bottom:4px;">SCORE SAVED TO LEADERBOARD</div>
+        <div style="font-size:12px;color:var(--text);margin-bottom:3px;">Player: <strong class="submitted-player-name" style="color:var(--gold);"></strong></div>
+        <div style="font-size:10px;color:var(--muted);">Check the projector screen for your rank.</div>
       </div>
 
-      <!-- Khung nộp điểm cho Admin máy chủ -->
       <div class="submit-score-box" id="submitBoxVictory">
-        <p style="font-weight:700;color:var(--gold);margin-bottom:4px;">🎖️ ĐẠT ĐƯỢC: <span id="victoryScoreDisplay">0</span> ĐIỂM!</p>
-        <p style="font-size:12px;color:var(--muted);">Nhập Họ Tên / MSSV để lưu danh vào TOP 5:</p>
+        <p style="font-weight:700;color:var(--gold);margin-bottom:4px;font-size:11px;letter-spacing:.5px;text-transform:uppercase;">Score: <span id="victoryScoreDisplay">0</span> pts</p>
+        <p style="font-size:11px;color:var(--muted);">Enter name / ID to save to leaderboard:</p>
         <div class="submit-input-row">
-          <input type="text" id="playerNameVictory" class="submit-input" placeholder="Tên bạn (vd: Hoàng - SE17...)" maxlength="25">
-          <button class="btn btn-green" style="padding:10px 18px;" onclick="UI.submitScore('victory')">🚀 Nộp điểm</button>
+          <input type="text" id="playerNameVictory" class="submit-input" placeholder="Your name / MSSV" maxlength="25">
+          <button class="btn btn-green" style="padding:10px 16px;font-size:11px;" onclick="UI.submitScore('victory')">SAVE</button>
         </div>
-        <div id="submitMsgVictory" style="font-size:12px;margin-top:6px;font-weight:700;"></div>
+        <div id="submitMsgVictory" style="font-size:11px;margin-top:6px;font-weight:700;"></div>
       </div>
 
-      <div style="display:flex;gap:10px;width:100%;margin-top:10px;">
-        <button class="btn btn-green" onclick="UI.showLeaderboardModal()" style="flex:1;">🏆 Xem Bảng Xếp Hạng TOP 5</button>
-        <button class="btn btn-orange" id="btnVictoryReplay" onclick="location.reload()" style="flex:1;">🔄 Chơi lại</button>
+      <div style="display:flex;gap:8px;width:100%;margin-top:8px;">
+        <button class="btn btn-green" onclick="UI.showLeaderboardModal()" style="flex:1;font-size:11px;">LEADERBOARD</button>
+        <button class="btn btn-orange" id="btnVictoryReplay" onclick="location.reload()" style="flex:1;font-size:11px;">PLAY AGAIN</button>
       </div>
     </div>
 
     <!-- ── GAME OVER ── -->
     <div class="modal" id="screenGameover">
-      <div style="font-family:'Orbitron',monospace;font-size:24px;font-weight:900;color:var(--red);text-align:center;">💀 GAME OVER</div>
+      <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:900;color:var(--red);text-align:center;letter-spacing:2px;">DEFEATED</div>
+      <div style="font-family:'Exo 2',sans-serif;font-size:10px;font-weight:700;color:var(--muted);text-align:center;letter-spacing:3px;text-transform:uppercase;margin-top:4px;">The dialectic continues...</div>
       <div class="divider"></div>
-      <p id="goMsg" style="text-align:center;color:#fca5a5;font-size:15px;"></p>
+      <p id="goMsg" style="text-align:center;color:#8aa0b8;font-size:13px;"></p>
       <div class="stats-grid" id="goStats"></div>
 
-      <!-- Auto submit banner cho người chơi di động -->
       <div id="playerSubmitBannerGameover" class="auto-submit-banner" style="display:none;">
-        <div style="font-size:15px;font-weight:900;color:#34d399;margin-bottom:4px;">
-          ✅ ĐÃ TỰ ĐỘNG GỬI ĐIỂM VỀ MÁY CHIẾU ADMIN!
-        </div>
-        <div style="font-size:13px;color:#f8fafc;margin-bottom:4px;">
-          Thí sinh: <strong class="submitted-player-name" style="color:var(--gold);"></strong>
-        </div>
-        <div style="font-size:11.5px;color:var(--muted);">
-          ⭐ Lượt thi đấu (1 mạng duy nhất) đã kết thúc. Hãy theo dõi vị trí trên máy chiếu lớp!
-        </div>
+        <div style="font-size:13px;font-weight:900;color:var(--green);margin-bottom:4px;">SCORE SAVED</div>
+        <div style="font-size:12px;color:var(--text);margin-bottom:3px;">Player: <strong class="submitted-player-name" style="color:var(--gold);"></strong></div>
+        <div style="font-size:10px;color:var(--muted);">Check the projector for your rank.</div>
       </div>
 
-      <!-- Khung nộp điểm cho Admin máy chủ -->
       <div class="submit-score-box" id="submitBoxGameover">
-        <p style="font-weight:700;color:var(--gold);margin-bottom:4px;">🎖️ ĐẠT ĐƯỢC: <span id="goScoreDisplay">0</span> ĐIỂM!</p>
-        <p style="font-size:12px;color:var(--muted);">Nhập Họ Tên / MSSV để lưu danh vào TOP 5:</p>
+        <p style="font-weight:700;color:var(--gold);margin-bottom:4px;font-size:11px;letter-spacing:.5px;text-transform:uppercase;">Score: <span id="goScoreDisplay">0</span> pts</p>
+        <p style="font-size:11px;color:var(--muted);">Enter name / ID to save:</p>
         <div class="submit-input-row">
-          <input type="text" id="playerNameGameover" class="submit-input" placeholder="Tên bạn (vd: Hoàng - SE17...)" maxlength="25">
-          <button class="btn btn-green" style="padding:10px 18px;" onclick="UI.submitScore('gameover')">🚀 Nộp điểm</button>
+          <input type="text" id="playerNameGameover" class="submit-input" placeholder="Your name / MSSV" maxlength="25">
+          <button class="btn btn-green" style="padding:10px 16px;font-size:11px;" onclick="UI.submitScore('gameover')">SAVE</button>
         </div>
-        <div id="submitMsgGameover" style="font-size:12px;margin-top:6px;font-weight:700;"></div>
+        <div id="submitMsgGameover" style="font-size:11px;margin-top:6px;font-weight:700;"></div>
       </div>
 
-      <div style="display:flex;gap:10px;width:100%;margin-top:10px;">
-        <button class="btn btn-green" onclick="UI.showLeaderboardModal()" style="flex:1;">🏆 Xem Bảng Xếp Hạng TOP 5</button>
-        <button class="btn btn-orange" id="btnGameOverReplay" onclick="location.reload()" style="flex:1;">🔄 Thử lại ngay</button>
+      <div style="display:flex;gap:8px;width:100%;margin-top:8px;">
+        <button class="btn btn-green" onclick="UI.showLeaderboardModal()" style="flex:1;font-size:11px;">LEADERBOARD</button>
+        <button class="btn btn-orange" id="btnGameOverReplay" onclick="location.reload()" style="flex:1;font-size:11px;">TRY AGAIN</button>
       </div>
     </div>
 
     <!-- ── PAUSE ── -->
     <div class="modal" id="screenPause">
-      <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:900;color:var(--gold);text-align:center;">⏸ TẠM DỪNG</div>
+      <div style="font-family:'Orbitron',monospace;font-size:18px;font-weight:900;color:var(--gold);text-align:center;letter-spacing:3px;">&#9646;&#9646; PAUSED</div>
       <div class="divider"></div>
       <div class="ctrl-grid">
-        <kbd>A / D</kbd><span>Di chuyển trái / phải</span>
-        <kbd>W / ↑</kbd><span>Nhảy né đạn</span>
-        <kbd>J / Space</kbd><span>Bắn súng Laser</span>
-        <kbd>K</kbd><span>Đại pháo năng lượng (cần 3⭐)</span>
-        <kbd>P</kbd><span>Tiếp tục chơi</span>
+        <kbd>A / D</kbd><span>Move left / right</span>
+        <kbd>W</kbd><span>Jump</span>
+        <kbd>J / Space</kbd><span>Shoot laser</span>
+        <kbd>K</kbd><span>Ultimate cannon (3 stars)</span>
+        <kbd>P</kbd><span>Resume</span>
       </div>
-      <button class="btn btn-primary" onclick="UI.resume()">▶ Tiếp tục</button>
+      <button class="btn btn-primary" onclick="UI.resume()">&#9654; RESUME</button>
     </div>
 
   </div><!-- /overlay -->
