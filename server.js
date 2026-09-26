@@ -27,24 +27,36 @@ const DEFAULT_LEADERBOARD = [
   { id: 5, name: "Vũ Đăng Khoa", score: 980, quizCorrect: 9, level: 2, stars: 2, date: "10:35" }
 ];
 
+let memoryLeaderboard = null;
+
 function getLeaderboard() {
+  if (memoryLeaderboard) return memoryLeaderboard;
   try {
-    if (!fs.existsSync(LEADERBOARD_FILE)) {
-      fs.writeFileSync(LEADERBOARD_FILE, JSON.stringify(DEFAULT_LEADERBOARD, null, 2), 'utf8');
-      return DEFAULT_LEADERBOARD;
+    if (fs.existsSync(LEADERBOARD_FILE)) {
+      memoryLeaderboard = JSON.parse(fs.readFileSync(LEADERBOARD_FILE, 'utf8'));
+      return memoryLeaderboard;
     }
-    const data = fs.readFileSync(LEADERBOARD_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch (e) {
-    return DEFAULT_LEADERBOARD;
-  }
+    const tmpFile = path.join('/tmp', 'leaderboard.json');
+    if (fs.existsSync(tmpFile)) {
+      memoryLeaderboard = JSON.parse(fs.readFileSync(tmpFile, 'utf8'));
+      return memoryLeaderboard;
+    }
+  } catch (e) {}
+  memoryLeaderboard = [...DEFAULT_LEADERBOARD];
+  return memoryLeaderboard;
 }
 
 function saveLeaderboard(list) {
+  memoryLeaderboard = list;
   try {
     fs.writeFileSync(LEADERBOARD_FILE, JSON.stringify(list, null, 2), 'utf8');
   } catch (e) {
-    console.error('Lỗi lưu leaderboard:', e.message);
+    try {
+      const tmpFile = path.join('/tmp', 'leaderboard.json');
+      fs.writeFileSync(tmpFile, JSON.stringify(list, null, 2), 'utf8');
+    } catch (err2) {
+      console.warn('Lưu leaderboard vào RAM (Serverless mode)');
+    }
   }
 }
 
@@ -273,6 +285,9 @@ const server = http.createServer((req, res) => {
   // ── Static Files Serving ──
   let cleanPath = pathname === '/' ? 'game.html' : pathname.replace(/^\/+/, '');
   let filePath = path.join(__dirname, decodeURIComponent(cleanPath));
+  if (!fs.existsSync(filePath)) {
+    filePath = path.join(process.cwd(), decodeURIComponent(cleanPath));
+  }
 
   fs.stat(filePath, (err, stats) => {
     if (err || !stats.isFile()) {
@@ -290,17 +305,21 @@ const server = http.createServer((req, res) => {
   });
 });
 
-// Lắng nghe trên 0.0.0.0 để mọi máy tính & điện thoại trong cùng mạng Wi-Fi có thể kết nối
-server.listen(PORT, '0.0.0.0', () => {
-  const ips = getNetworkIps();
-  console.log('========================================================');
-  console.log(`🚀 GAME SERVER ĐÃ SẴN SÀNG CHO BUỔI THUYẾT TRÌNH!`);
-  console.log(`💻 Chơi trực tiếp trên máy chủ: http://localhost:${PORT}/game.html`);
-  if (ips.length > 0) {
-    console.log(`📱 Link quét mã QR cho điện thoại cả lớp cùng chơi:`);
-    ips.forEach(net => {
-      console.log(`   👉 [${net.name}]: http://${net.ip}:${PORT}/game.html`);
-    });
-  }
-  console.log('========================================================');
-});
+// Lắng nghe trên 0.0.0.0 (Local hoặc Render)
+if (!process.env.VERCEL) {
+  server.listen(PORT, '0.0.0.0', () => {
+    const ips = getNetworkIps();
+    console.log('========================================================');
+    console.log(`🚀 GAME SERVER ĐÃ SẴN SÀNG CHO BUỔI THUYẾT TRÌNH!`);
+    console.log(`💻 Chơi trực tiếp trên máy chủ: http://localhost:${PORT}/game.html`);
+    if (ips.length > 0) {
+      console.log(`📱 Link quét mã QR cho điện thoại cả lớp cùng chơi:`);
+      ips.forEach(net => {
+        console.log(`   👉 [${net.name}]: http://${net.ip}:${PORT}/game.html`);
+      });
+    }
+    console.log('========================================================');
+  });
+}
+
+module.exports = server;
