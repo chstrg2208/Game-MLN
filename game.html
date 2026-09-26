@@ -989,6 +989,7 @@ body {
     </div>
     <div style="display:flex;gap:6px;align-items:center;">
       <button class="hud-btn gold" onclick="UI.showLeaderboardModal()">🏆 Top 5</button>
+      <button class="hud-btn" id="btnAdminLogout" onclick="UI.logoutAdmin()" style="display:none;background:rgba(239,68,68,0.25);border-color:rgba(239,68,68,0.6);color:#fca5a5;">🔓 Đăng xuất Admin</button>
       <button class="hud-btn" id="btnTopBarQR" onclick="UI.showQRModal()">📱 Quét QR</button>
       <button class="hud-btn" id="btnFullscreen" onclick="UI.toggleFullscreen()" title="Toàn màn hình">⛶</button>
     </div>
@@ -1041,10 +1042,27 @@ body {
         <label for="inputPlayerName" style="display:block;font-size:13px;font-weight:700;color:var(--gold);margin-bottom:8px;">
           👤 NHẬP HỌ TÊN HOẶC MSSV CỦA BẠN: <span style="color:#f87171;">*</span>
         </label>
-        <input type="text" id="inputPlayerName" class="player-big-input" placeholder="Ví dụ: Nguyễn Văn A - SE17xxxx" maxlength="25" autocomplete="name" required onkeydown="if(event.key==='Enter') UI.startPlayerGame()">
+        <input type="text" id="inputPlayerName" class="player-big-input" placeholder="Ví dụ: Nguyễn Văn A - SE17xxxx (hoặc gõ 'admin')" maxlength="25" autocomplete="name" required oninput="if(this.value.trim().toLowerCase()==='admin') UI.toggleAdminPasswordBox(true)" onkeydown="if(event.key==='Enter') UI.startPlayerGame()">
         <div id="playerNameError" style="display:none;color:#f87171;font-size:12px;margin-top:8px;font-weight:700;">
           ⚠️ VUI LÒNG NHẬP HỌ TÊN HOẶC MSSV ĐỂ VÀO THI ĐẤU!
         </div>
+      </div>
+
+      <!-- KHUNG NHẬP MẬT KHẨU ADMIN (KHI GÕ ADMIN HOẶC ẤN LINK ADMIN) -->
+      <div id="adminPasswordCard" style="display:none;background:rgba(239,68,68,0.12);border:1.5px solid rgba(239,68,68,0.5);border-radius:12px;padding:14px;margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:800;color:#f87171;margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+          🛡️ XÁC THỰC NGƯỜI CHỦ TRÌ (ADMIN)
+        </div>
+        <div style="font-size:12px;color:#cbd5e1;margin-bottom:8px;line-height:1.4;">
+          Nhập mật khẩu quản trị để mở giao diện Máy Chiếu, QR Code và Bảng điều khiển:
+        </div>
+        <div style="display:flex;gap:8px;">
+          <input type="password" id="inputAdminPassword" class="player-big-input" placeholder="Nhập mật khẩu Admin..." style="padding:10px 14px;font-size:14px;" onkeydown="if(event.key==='Enter') UI.loginAdmin()">
+          <button class="btn btn-orange" onclick="UI.loginAdmin()" style="width:auto;padding:10px 16px;font-size:13px;white-space:nowrap;font-weight:800;">
+            Xác nhận
+          </button>
+        </div>
+        <div id="adminPasswordError" style="display:none;color:#f87171;font-size:12px;margin-top:6px;font-weight:700;"></div>
       </div>
 
       <!-- THỂ LỆ 1 MẠNG DUY NHẤT -->
@@ -1060,6 +1078,11 @@ body {
       <button class="btn btn-green" onclick="UI.showLeaderboardModal()" style="width:100%;font-size:13px;">
         🏆 Xem Bảng Xếp Hạng TOP 5
       </button>
+      <div style="margin-top:12px;text-align:center;">
+        <a href="javascript:void(0)" onclick="UI.toggleAdminPasswordBox()" style="color:var(--muted);font-size:12px;text-decoration:underline;cursor:pointer;">
+          🔑 Đăng nhập dành cho Người Chủ Trì (Admin)
+        </a>
+      </div>
     </div>
 
     <!-- ── PLAYER WAITING ROOM MODAL (PHÒNG CHỜ THÍ SINH) ── -->
@@ -2828,7 +2851,8 @@ function drawHUDOnCanvas(){
 // ═══════════════════════════════════════════════════════
 const urlParams = new URLSearchParams(window.location.search);
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-const isPlayerMode = urlParams.get('mode') === 'player' || (!isLocal && !urlParams.has('admin'));
+let isAdmin = localStorage.getItem('mln_is_admin') === 'true' || urlParams.get('admin') === 'Conchokhai123' || (isLocal && !urlParams.has('mode'));
+let isPlayerMode = !isAdmin;
 let playerNickname = '';
 let myPlayerId = localStorage.getItem('mln_player_id') || '';
 let hasAutoSubmitted = false;
@@ -2958,14 +2982,81 @@ const UI = {
 
   quizNext(){ UI.showNextQuiz(); },
 
+  toggleAdminPasswordBox(forceShow){
+    const box = document.getElementById('adminPasswordCard');
+    if (!box) return;
+    const shouldShow = typeof forceShow === 'boolean' ? forceShow : (box.style.display === 'none');
+    box.style.display = shouldShow ? 'block' : 'none';
+    if (shouldShow) {
+      const pwdInput = document.getElementById('inputAdminPassword');
+      if (pwdInput) {
+        pwdInput.focus();
+        pwdInput.select();
+      }
+    }
+  },
+
+  loginAdmin(){
+    const pwdInput = document.getElementById('inputAdminPassword');
+    const errEl = document.getElementById('adminPasswordError');
+    const pwd = pwdInput ? pwdInput.value.trim() : '';
+
+    if (pwd === 'Conchokhai123') {
+      localStorage.setItem('mln_is_admin', 'true');
+      isAdmin = true;
+      isPlayerMode = false;
+      if (errEl) errEl.style.display = 'none';
+      if (pwdInput) pwdInput.value = '';
+      UI.toggleAdminPasswordBox(false);
+      alert("✅ ĐĂNG NHẬP ADMIN THÀNH CÔNG!\nChào mừng Người Chủ Trì! Toàn bộ quyền Quét QR, Bảng xếp hạng và Phát lệnh thi đấu cho cả lớp đã được kích hoạt.");
+      initRoleMode();
+    } else {
+      if (errEl) {
+        errEl.style.display = 'block';
+        errEl.textContent = '❌ Mật khẩu Admin không chính xác! Vui lòng thử lại.';
+      }
+      if (pwdInput) {
+        pwdInput.focus();
+        pwdInput.select();
+      }
+    }
+  },
+
+  logoutAdmin(){
+    if (!confirm("Bạn có chắc chắn muốn đăng xuất tài khoản Admin?")) return;
+    localStorage.removeItem('mln_is_admin');
+    isAdmin = false;
+    isPlayerMode = true;
+    if (adminLobbyPollTimer) {
+      clearInterval(adminLobbyPollTimer);
+      adminLobbyPollTimer = null;
+    }
+    alert("Đã đăng xuất Admin. Chuyển về giao diện người chơi.");
+    initRoleMode();
+  },
+
   async startPlayerGame(){
     const input = document.getElementById('inputPlayerName');
     const errEl = document.getElementById('playerNameError');
     const name = input ? input.value.trim() : '';
 
+    // Nếu gõ admin hoặc Admin -> kích hoạt ô nhập mật khẩu
+    if (name.toLowerCase() === 'admin') {
+      UI.toggleAdminPasswordBox(true);
+      const pwdInput = document.getElementById('inputAdminPassword');
+      if (pwdInput) pwdInput.focus();
+      if (errEl) {
+        errEl.style.display = 'block';
+        errEl.style.color = '#38bdf8';
+        errEl.textContent = '🔒 Bạn đang vào tài khoản Quản trị. Vui lòng nhập mật khẩu Admin bên dưới!';
+      }
+      return;
+    }
+
     if (!name || name.length < 2) {
       if (errEl) {
         errEl.style.display = 'block';
+        errEl.style.color = '#f87171';
         errEl.textContent = '⚠️ BẮT BUỘC: Vui lòng nhập Họ Tên hoặc MSSV để bắt đầu thi đấu!';
       }
       if (input) {
@@ -3341,10 +3432,23 @@ const UI = {
         localOpt.textContent = `Localhost (Chế độ người chơi)`;
         select.appendChild(localOpt);
       }
-      const targetUrl = (select && select.value) || data.primaryUrl || window.location.href;
+      let targetUrl = (select && select.value) || data.primaryUrl || window.location.href;
+      try {
+        const u = new URL(targetUrl, window.location.origin);
+        u.searchParams.set('mode', 'player');
+        u.searchParams.delete('admin');
+        targetUrl = u.toString();
+      } catch(err){}
       UI.renderQR(targetUrl);
     } catch(e) {
-      UI.renderQR(window.location.href);
+      try {
+        const u = new URL(window.location.href);
+        u.searchParams.set('mode', 'player');
+        u.searchParams.delete('admin');
+        UI.renderQR(u.toString());
+      } catch(err){
+        UI.renderQR(window.location.origin + '/game.html?mode=player');
+      }
     }
   },
 
@@ -3546,28 +3650,59 @@ function escapeHtml(str) {
 // ROLE & UI MODE INITIALIZATION
 // ═══════════════════════════════════════════════════════
 function initRoleMode() {
-  if (isPlayerMode) {
+  const btnLogout = document.getElementById('btnAdminLogout');
+  const btnQR = document.getElementById('btnTopBarQR');
+  const btnReset = document.getElementById('btnResetLeaderboard');
+  const adminReset = document.getElementById('adminResetContainer');
+  const btnLbQR = document.getElementById('btnLbShowQR');
+  const ctrlBar = document.getElementById('ctrlBar');
+  const screenStart = document.getElementById('screenStart');
+  const screenPlayerStart = document.getElementById('screenPlayerStart');
+  const screenPlayerWaiting = document.getElementById('screenPlayerWaiting');
+
+  if (isAdmin) {
+    isPlayerMode = false;
+
+    // 1. Hiển thị toàn bộ công cụ quản trị máy chủ cho Admin
+    if (btnLogout) btnLogout.style.display = 'inline-flex';
+    if (btnQR) btnQR.style.display = 'inline-flex';
+    if (btnReset) btnReset.style.display = 'inline-block';
+    if (adminReset) adminReset.style.display = 'block';
+    if (btnLbQR) btnLbQR.style.display = 'inline-block';
+    if (ctrlBar) ctrlBar.style.display = 'flex';
+
+    // 2. Chuyển modal sang màn hình chính của Admin
+    if (screenPlayerStart) screenPlayerStart.classList.remove('show');
+    if (screenPlayerWaiting) screenPlayerWaiting.classList.remove('show');
+
+    if (screenStart && gs.state === 'start') {
+      screenStart.classList.add('show');
+      document.getElementById('overlay')?.classList.add('active');
+    }
+
+    UI.startAdminLobbyPolling();
+  } else {
+    isPlayerMode = true;
+
     // 1. Ẩn toàn bộ nút quản trị máy chủ đối với thí sinh dùng điện thoại
-    const btnQR = document.getElementById('btnTopBarQR');
+    if (btnLogout) btnLogout.style.display = 'none';
     if (btnQR) btnQR.style.display = 'none';
-
-    const btnReset = document.getElementById('btnResetLeaderboard');
     if (btnReset) btnReset.style.display = 'none';
-    const adminReset = document.getElementById('adminResetContainer');
     if (adminReset) adminReset.style.display = 'none';
-
-    const btnLbQR = document.getElementById('btnLbShowQR');
     if (btnLbQR) btnLbQR.style.display = 'none';
-
-    const ctrlBar = document.getElementById('ctrlBar');
     if (ctrlBar) ctrlBar.style.display = 'none';
 
-    // 2. Ẩn màn hình Admin máy chủ, hiển thị duy nhất màn hình bắt đầu của người chơi
-    const screenStart = document.getElementById('screenStart');
+    // 2. Ẩn màn hình Admin máy chủ, hiển thị màn hình người chơi
     if (screenStart) screenStart.classList.remove('show');
 
-    const screenPlayerStart = document.getElementById('screenPlayerStart');
-    if (screenPlayerStart) screenPlayerStart.classList.add('show');
+    if (gs.state === 'start') {
+      if (myPlayerId && lobbyPollTimer) {
+        if (screenPlayerWaiting) screenPlayerWaiting.classList.add('show');
+      } else {
+        if (screenPlayerStart) screenPlayerStart.classList.add('show');
+      }
+      document.getElementById('overlay')?.classList.add('active');
+    }
 
     // 3. Kiểm tra thể lệ 1 mạng duy nhất
     const alreadyPlayed = localStorage.getItem('mln_tournament_played') === 'true';
@@ -3604,17 +3739,6 @@ function initRoleMode() {
       const inputCard = document.getElementById('playerNameCard');
       if (inputCard) inputCard.style.display = 'none';
     }
-  } else {
-    // Chế độ Admin / Presenter trên máy tính chiếu slide
-    const screenPlayerStart = document.getElementById('screenPlayerStart');
-    if (screenPlayerStart) screenPlayerStart.classList.remove('show');
-    const screenPlayerWaiting = document.getElementById('screenPlayerWaiting');
-    if (screenPlayerWaiting) screenPlayerWaiting.classList.remove('show');
-
-    const screenStart = document.getElementById('screenStart');
-    if (screenStart && gs.state === 'start') screenStart.classList.add('show');
-
-    UI.startAdminLobbyPolling();
   }
 }
 
