@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 const LEADERBOARD_FILE = path.join(__dirname, 'leaderboard.json');
 
 const MIME_TYPES = {
@@ -191,12 +191,21 @@ const server = http.createServer((req, res) => {
 
   // ── API: Lấy thông tin mạng (IP) để tạo mã QR ──
   if (pathname === '/api/network' && req.method === 'GET') {
+    const host = req.headers.host || `localhost:${PORT}`;
+    const proto = req.headers['x-forwarded-proto'] || 'http';
+    const isPublicHost = !host.startsWith('localhost') && !host.startsWith('127.0.0.1') && !host.startsWith('192.168.') && !host.startsWith('10.');
+
     const ips = getNetworkIps();
     const primaryIp = ips.length > 0 ? ips[0].ip : '127.0.0.1';
-    const primaryUrl = `http://${primaryIp}:${PORT}/game.html?mode=player`;
+    
+    // Nếu deploy lên cloud (Render, Railway, domain thật), QR sẽ lấy domain public này!
+    const primaryUrl = isPublicHost 
+      ? `${proto}://${host}/game.html?mode=player`
+      : `http://${primaryIp}:${PORT}/game.html?mode=player`;
+
     const localUrl = `http://localhost:${PORT}/game.html`;
     res.writeHead(200, { 'Content-Type': 'application/json; charset=UTF-8' });
-    res.end(JSON.stringify({ ips, primaryIp, primaryUrl, localUrl, port: PORT }));
+    res.end(JSON.stringify({ ips, primaryIp, primaryUrl, localUrl, port: PORT, isPublicHost, host }));
     return;
   }
 
