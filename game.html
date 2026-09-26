@@ -61,7 +61,6 @@ body {
 #topBar {
   width: 100%; display: flex; justify-content: space-between; align-items: center;
   padding: 6px 0 8px;
-  display: none;
 }
 #topBar.show { display: flex; }
 .hud-pill {
@@ -1028,7 +1027,7 @@ body {
   <div id="overlay" class="active">
 
     <!-- ── PLAYER MOBILE START SCREEN (KHI ĐIỆN THOẠI QUÉT QR VÀO CHƠI) ── -->
-    <div class="modal" id="screenPlayerStart">
+    <div class="modal show" id="screenPlayerStart">
       <div class="mobile-hint" style="display:block;">💡 <strong>Mẹo:</strong> Xoay ngang màn hình hoặc ấn <strong>⛶</strong> để chơi toàn màn hình!</div>
       <div class="modal-logo">⚔️ ĐẤU TRƯỜNG TRIẾT HỌC AI</div>
       <div class="modal-sub">ĐUA TOP TRANH HẠNG TRỰC TIẾP TRÊN MÁY CHIẾU | FPT University</div>
@@ -3675,7 +3674,7 @@ function initRoleMode() {
     if (screenPlayerStart) screenPlayerStart.classList.remove('show');
     if (screenPlayerWaiting) screenPlayerWaiting.classList.remove('show');
 
-    if (screenStart && gs.state === 'start') {
+    if (screenStart && (gs.state === 'menu' || gs.state === 'start')) {
       screenStart.classList.add('show');
       document.getElementById('overlay')?.classList.add('active');
     }
@@ -3695,7 +3694,7 @@ function initRoleMode() {
     // 2. Ẩn màn hình Admin máy chủ, hiển thị màn hình người chơi
     if (screenStart) screenStart.classList.remove('show');
 
-    if (gs.state === 'start') {
+    if (gs.state === 'menu' || gs.state === 'start') {
       if (myPlayerId && lobbyPollTimer) {
         if (screenPlayerWaiting) screenPlayerWaiting.classList.add('show');
       } else {
