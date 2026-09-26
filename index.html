@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biện chứng LLSX & QHSX trong Kỷ nguyên AI | Báo cáo MLN - FPT University</title>
+  <style>
+    :root {
+      --bg-dark: #0A1128;
+      --bg-card: #152238;
+      --bg-card-hover: #1c2c47;
+      --border-card: #2A3F65;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --accent-cyan: #38BDF8;
+      --accent-orange: #F97316;
+      --accent-gold: #FBBF24;
+      --accent-green: #34D399;
+      --accent-red: #F87171;
+      --accent-purple: #A78BFA;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Top Navigation Bar */
+    header {
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-card);
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, #ea580c, #f97316);
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .brand-title span {
+      color: var(--accent-cyan);
+    }
+
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      color: var(--text-main);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+
+    .btn.active {
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: white;
+    }
+
+    .btn-orange {
+      background: #c2410c;
+      border-color: #ea580c;
+      color: white;
+    }
+
+    .btn-orange:hover {
+      background: #ea580c;
+      color: white;
+    }
+
+    .timer-badge {
+      background: #1e293b;
+      border: 1px solid var(--border-card);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: monospace;
+      color: var(--accent-gold);
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Progress bar */
+    .progress-track {
+      height: 4px;
+      background: #1e293b;
+      width: 100%;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-orange));
+      width: 8.33%;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Main Presentation Container */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      position: relative;
+    }
+
+    .deck-container {
+      width: 100%;
+      max-width: 1200px;
+      aspect-ratio: 16 / 9;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-card);
+      border-radius: 14px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(56, 189, 248, 0.1);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Slide Content View */
+    .slide-wrapper {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      padding: 40px 48px 24px 48px;
+      position: relative;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .slide-wrapper.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide-category {
+      display: inline-block;
+      align-self: flex-start;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 12px;
+    }
+
+    .slide-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.3;
+      margin-bottom: 6px;
+    }
+
+    .slide-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .slide-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Grid Layouts */
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent-cyan);
+    }
+
+    .card-top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+
+    .card-num {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      font-family: monospace;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .card-desc {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .card-desc strong {
+      color: var(--text-main);
+    }
+
+    .card-desc ul {
+      padding-left: 16px;
+      margin-top: 6px;
+    }
+
+    .card-desc li {
+      margin-bottom: 6px;
+    }
+
+    /* Big Numbers / Stats */
+    .stat-huge {
+      font-size: 40px;
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 8px;
+      font-family: system-ui, sans-serif;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    /* Quote Banner */
+    .quote-box {
+      background: rgba(24, 40, 69, 0.7);
+      border-left: 4px solid var(--accent-gold);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 18px;
+    }
+
+    .quote-text {
+      font-size: 16px;
+      font-style: italic;
+      color: #e2e8f0;
+      line-height: 1.5;
+      font-family: 'Georgia', serif;
+    }
+
+    .quote-author {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-gold);
+      margin-top: 6px;
+      text-align: right;
+    }
+
+    /* Bottom Highlight Banner */
+    .highlight-banner {
+      background: rgba(14, 42, 69, 0.6);
+      border: 1px solid var(--accent-cyan);
+      border-radius: 8px;
+      padding: 12px 18px;
+      margin-top: 16px;
+      font-size: 12.5px;
+      color: var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Slide Footer */
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .slide-source {
+      max-width: 75%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-style: italic;
+    }
+
+    .slide-source a {
+      color: var(--accent-cyan);
+      text-decoration: none;
+    }
+
+    .slide-source a:hover {
+      text-decoration: underline;
+    }
+
+    .slide-pagination {
+      font-weight: 700;
+      color: var(--accent-orange);
+    }
+
+    /* Split View / Speaker Notes Panel */
+    .split-container {
+      display: flex;
+      width: 100%;
+      max-width: 1400px;
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .notes-panel {
+      width: 380px;
+      background: #0d1829;
+      border: 1px solid var(--border-card);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+      max-height: calc(100vh - 120px);
+    }
+
+    .notes-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--accent-gold);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-card);
+      padding-bottom: 8px;
+    }
+
+    .notes-script {
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: #cbd5e1;
+      white-space: pre-line;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 12px;
+      border-radius: 8px;
+      border-left: 3px solid var(--accent-cyan);
+    }
+
+    .notes-tips {
+      background: rgba(249, 115, 22, 0.1);
+      border: 1px solid rgba(249, 115, 22, 0.3);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #fed7aa;
+    }
+
+    .notes-tips strong {
+      color: var(--accent-orange);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* Floating Navigation Controls */
+    .deck-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-card);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      z-index: 10;
+    }
+
+    .deck-nav-btn:hover {
+      background: var(--accent-cyan);
+      color: black;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+    }
+
+    .deck-prev { left: -22px; }
+    .deck-next { right: -22px; }
+
+    /* Key indicator pills at bottom */
+    .key-hints {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 14px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .kbd {
+      background: #1e293b;
+      border: 1px solid var(--border-card);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      color: var(--accent-cyan);
+    }
+
+    /* Fullscreen Mode */
+    body.is-fullscreen header,
+    body.is-fullscreen .key-hints {
+      display: none;
+    }
+
+    body.is-fullscreen main {
+      padding: 0;
+    }
+
+    body.is-fullscreen .deck-container {
+      width: 100vw;
+      height: 100vh;
+      max-width: none;
+      aspect-ratio: auto;
+      border-radius: 0;
+      border: none;
+    }
+
+    body.is-fullscreen .deck-nav-btn {
+      opacity: 0.2;
+    }
+
+    body.is-fullscreen .deck-nav-btn:hover {
+      opacity: 1;
+    }
+
+    /* Print Styles */
+    @media print {
+      header, .deck-nav-btn, .notes-panel, .key-hints, .progress-track {
+        display: none !important;
+      }
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      .deck-container {
+        border: none !important;
+        box-shadow: none !important;
+        width: 100% !important;
+        max-width: none !important;
+        height: auto !important;
+      }
+      .slide-wrapper {
+        display: flex !important;
+        page-break-after: always;
+        height: 100vh;
+        background: #0A1128 !important;
+        color: #F8FAFC !important;
+        padding: 30px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <span class="brand-badge">FPT UNIVERSITY</span>
+      <div class="brand-title">
+        MLN - KỲ 8 | <span>TRIẾT HỌC MÁC - LÊNIN</span>
+      </div>
+    </div>
+
+    <div class="nav-controls">
+      <div class="timer-badge">
+        ⏱️ <span id="timerDisplay">00:00</span>
+        <button class="btn" style="padding: 2px 6px; font-size: 10px;" id="toggleTimerBtn">Bắt đầu</button>
+        <button class="btn" style="padding: 2px 6px; font-size: 10px;" id="resetTimerBtn">Reset</button>
+      </div>
+
+      <button class="btn" id="toggleNotesBtn">
+        📝 Kịch bản (Script)
+      </button>
+
+      <button class="btn" id="fullscreenBtn">
+        ⛶ Toàn màn hình
+      </button>
+
+      <a href="Bai_Thuyet_Trinh_MLN_AI_KTPM.pptx" download class="btn btn-orange">
+        📥 Tải PowerPoint (.pptx)
+      </a>
+    </div>
+  </header>
+
+  <!-- Progress Bar -->
+  <div class="progress-track">
+    <div class="progress-fill" id="progressBar"></div>
+  </div>
+
+  <!-- Main View -->
+  <main>
+    <div class="split-container" id="mainContainer">
+      <!-- Deck Container -->
+      <div class="deck-container" id="deck">
+        <button class="deck-nav-btn deck-prev" id="prevBtn" title="Slide trước (←)">❮</button>
+        <button class="deck-nav-btn deck-next" id="nextBtn" title="Slide sau (→)">❯</button>
+
+        <!-- SLIDE 1 -->
+        <div class="slide-wrapper active" data-slide="1">
+          <div class="slide-category">TRIẾT HỌC MÁC - LÊNIN • CHƯƠNG 3: CNDVLS</div>
+          <h1 class="slide-title">Biện chứng giữa Lực lượng Sản xuất & Quan hệ Sản xuất trong Kỷ nguyên Trí tuệ Nhân tạo</h1>
+          <div class="slide-subtitle">Thực tiễn ngành Kỹ thuật Phần mềm và Chiến lược thích ứng nghề nghiệp của người học</div>
+          
+          <div class="slide-body">
+            <div class="grid-4">
+              <div class="card">
+                <div class="card-top-bar" style="background: var(--accent-cyan);"></div>
+                <div class="card-num" style="color: var(--accent-cyan);">01</div>
+                <div class="card-title">Sản xuất Vật chất</div>
+                <div class="card-desc">Tiền đề xuất phát điểm khách quan của mọi lịch sử và sự vận động xã hội loài người.</div>
+              </div>
+              <div class="card">
+                <div class="card-top-bar" style="background: var(--accent-orange);"></div>
+                <div class="card-num" style="color: var(--accent-orange);">02</div>
+                <div class="card-title">Lực lượng Sản xuất</div>
+                <div class="card-desc">Thước đo năng lực thực tiễn cải biến giới tự nhiên của con người qua công cụ lao động.</div>
+              </div>
+              <div class="card">
+                <div class="card-top-bar" style="background: var(--accent-purple);"></div>
+                <div class="card-num" style="color: var(--accent-purple);">03</div>
+                <div class="card-title">Quan hệ Sản xuất</div>
+                <div class="card-desc">Quan hệ kinh tế - vật chất khách quan giữa người với người trong quá trình sản xuất.</div>
+              </div>
+              <div class="card">
+                <div class="card-top-bar" style="background: var(--accent-green);"></div>
+                <div class="card-num" style="color: var(--accent-green);">04</div>
+                <div class="card-title">Quy luật Phù hợp</div>
+                <div class="card-desc">QHSX tất yếu phải phù hợp với trình độ phát triển của LLSX để thúc đẩy xã hội tiến lên.</div>
+              </div>
+            </div>
+            <div class="highlight-banner" style="border-color: var(--accent-gold); color: #fde68a;">
+              💡 <strong>Mục tiêu đề tài:</strong> Sử dụng phương pháp luận duy vật lịch sử để giải mã "nỗi sợ AI thay thế lập trình viên" và xây dựng chiến lược phát triển bản thân vững chắc cho sinh viên CNTT.
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="slide-source">Nguồn: Giáo trình Triết học Mác - Lênin (Bộ GD&ĐT, 2021), Chương 3, Tr. 287–305 | <a href="http://www.marxists.org/xlang/index.htm" target="_blank">marxists.org</a></div>
+            <div class="slide-pagination">SLIDE 01 / 12</div>
+          </div>
+        </div>
+
+        <!-- SLIDE 2 -->
+        <div class="slide-wrapper" data-slide="2">
+          <div class="slide-category">Cơ sở lý luận • Chủ nghĩa duy vật lịch sử</div>
+          <h1 class="slide-title">Cấu trúc Nội tại của Lực lượng Sản xuất & Quan hệ Sản xuất</h1>
+          <div class="slide-subtitle">Hai mặt thống nhất hữu cơ trong Phương thức sản xuất vật chất</div>
+
+          <div class="slide-body">
+            <div class="grid-2">
+              <div class="card" style="border-color: var(--accent-cyan);">
+                <div class="card-top-bar" style="background: var(--accent-cyan);"></div>
+                <div class="card-title" style="color: var(--accent-cyan); font-size: 17px;">
+                  ⚙️ LỰC LƯỢNG SẢN XUẤT (LLSX)
+                </div>
+                <div class="card-desc" style="font-size: 13px;">
+                  <p><strong>1. Người lao động (Chủ thể giữ vai trò quyết định):</strong> Thể lực, trí lực, kinh nghiệm, kỹ năng sáng tạo vận hành công cụ tạo ra của cải.</p>
+                  <p style="margin-top: 10px;"><strong>2. Tư liệu sản xuất (TLSX):</strong></p>
+                  <ul>
+                    <li>Đối tượng lao động (Tự nhiên & Nhân tạo qua chế biến).</li>
+                    <li>Tư liệu lao động & <strong>CÔNG CỤ LAO ĐỘNG:</strong> Yếu tố động nhất, mang tính cách mạng nhất, là "khí quan nối dài" năng lực con người và tiêu chuẩn phân biệt các thời đại kinh tế.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="card" style="border-color: var(--accent-orange);">
+                <div class="card-top-bar" style="background: var(--accent-orange);"></div>
+                <div class="card-title" style="color: var(--accent-orange); font-size: 17px;">
+                  🤝 QUAN HỆ SẢN XUẤT (QHSX)
+                </div>
+                <div class="card-desc" style="font-size: 13px;">
+                  <p><strong>1. Quan hệ Sở hữu đối với TLSX (Hạt nhân chi phối):</strong> Quyết định địa vị kinh tế và bản chất phân phối của cải trong xã hội.</p>
+                  <p style="margin-top: 10px;"><strong>2. Quan hệ Tổ chức và Quản lý sản xuất:</strong> Phân công lao động xã hội, dây chuyền điều hành dự án, phân cấp chỉ huy.</p>
+                  <p style="margin-top: 10px;"><strong>3. Quan hệ Phân phối sản phẩm lao động:</strong> Thụ hưởng của cải thặng dư, hình thức tiền lương và phân hóa lợi ích.</p>
+                </div>
+              </div>
+            </div>
+            <div class="highlight-banner">
+              🔄 <strong>Mối quan hệ biện chứng:</strong> Công cụ lao động biến đổi trước → LLSX đi trước một bước → Mâu thuẫn với QHSX cũ → Đòi hỏi QHSX phải tái cấu trúc tương ứng.
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="slide-source">Nguồn: Karl Marx, Sự khốn cùng của triết học (1847, Ch. 2); <a href="https://weeklyworker.co.uk/worker/853/the-direction-of-historical-development/" target="_blank">Weekly Worker Research</a></div>
+            <div class="slide-pagination">SLIDE 02 / 12</div>
+          </div>
+        </div>
+
+        <!-- SLIDE 3 -->
+        <div class="slide-wrapper" data-slide="3">
+          <div class="slide-category">Soi chiếu lịch sử • Sự khốn cùng của triết học</div>
+          <h1 class="slide-title">Luận đề Kinh điển: Từ Cối xay Hơi nước đến Trí tuệ Nhân tạo</h1>
+          <div class="slide-subtitle">Sự nhảy vọt về chất của công cụ lao động tất yếu làm đảo lộn cấu trúc xã hội</div>
+
+          <div class="slide-body">
+            <div class="quote-box">
+              <div class="quote-text">
+                "Cái cối xay quay bằng tay đưa lại xã hội có lãnh chúa; cái cối xay chạy bằng hơi nước đưa lại xã hội có nhà tư bản công nghiệp."
+              </div>
+              <div class="quote-author">— Karl Marx, Sự khốn cùng của triết học (1847)</div>
+            </div>
+
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-top-bar" style="background: var(--accent-cyan);"></div>
+                <div class="card-title" style="color: var(--accent-cyan);">CÁCH MẠNG CÔNG NGHIỆP LẦN 1 (Thế kỷ 18)</div>
+                <div class="card-desc">
+                  <ul>
+                    <li><strong>Đột phá:</strong> Động cơ hơi nước của James Watt.</li>
+                    <li><strong>Cơ chế:</strong> Cơ giới hóa sức mạnh cơ bắp con người.</li>
+                    <li><strong>Biến đổi xã hội:</strong> Xóa bỏ kinh tế phong kiến, khai sinh Giai cấp Công nhân Công nghiệp và Nhà Tư bản Hiện đại.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-top-bar" style="background: var(--accent-orange);"></div>
+                <div class="card-title" style="color: var(--accent-orange);">CÁCH MẠNG CÔNG NGHIỆP LẦN 4 - AI (Thế kỷ 21)</div>
+                <div class="card-desc">
+                  <ul>
+                    <li><strong>Đột phá:</strong> LLM, Tác nhân AI (AI Agents) & Siêu cụm GPU.</li>
+                    <li><strong>Cơ chế:</strong> Trí tuệ hóa các thao tác tư duy logic trừu tượng bậc cao.</li>
+                    <li><strong>Biến đổi xã hội:</strong> Khai sinh phương thức tổ chức lao động trí tuệ mới, tái cấu trúc toàn diện lực lượng lao động công nghệ.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="highlight-banner" style="border-color: var(--accent-green); color: #86efac;">
+              ⚡ <strong>Kết luận:</strong> Phương thức kết hợp giữa người lao động và TLSX thay đổi → Toàn bộ kết cấu xã hội phải thay đổi theo. AI chính là "Cối xay hơi nước" của thời đại số!
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="slide-source">Nguồn: Karl Marx (1847); <a href="https://weeklyworker.co.uk/worker/853/the-direction-of-historical-development/" target="_blank">Weekly Worker Research (2021)</a></div>
+            <div class="slide-pagination">SLIDE 03 / 12</div>
+          </div>
+        </div>
+
+        <!-- SLIDE 4 -->
+        <div class="slide-wrapper" data-slide="4">
+          <div class="slide-category">Kinh tế chính trị học Mác - Lênin • Tư bản (Tập 1, Ch. 15)</div>
+          <h1 class="slide-title">Máy móc & Quy luật Sản xuất Giá trị Thặng dư Tương đối</h1>
+          <div class="slide-subtitle">Bản chất kinh tế học của làn sóng đầu tư hạ tầng AI của giới tư bản công nghệ</div>
+
+          <div class="slide-body">
+            <div class="grid-3">
+              <div class="card">
+                <div class="card-top-bar" style="background: var(--accent-orange);"></div>
+                <div class="card-num" style="color: var(--accent-orange);">01</div>
+                <div class="card-title">Bản chất Máy móc dưới CNTB</div>
+                <div class="card-desc">
+                  Máy móc không chỉ giảm nhẹ lao động, mà là công cụ tối ưu hóa bòn rút <strong>giá trị thặng dư tương đối</strong>: Rút ngắn thời gian lao động tất yếu (t) để kéo dài thời gian lao động thặng dư (t').
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-top-bar" style="background: var(--accent-red);"></div>
+                <div class="card-num" style="color: var(--accent-red);">02</div>
+                <div class="card-title">Nghịch lý Tha hóa</div>
+                <div class="card-desc">
+                  Máy móc tinh xảo biến thành <strong>đối thủ cạnh tranh trực tiếp</strong> với người lao động. Làm giảm giá trị sức lao động sống thông thường, biến lao động sơ cấp thành dư thừa cục bộ.
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-top-bar" style="background: var(--accent-cyan);"></div>
+                <div class="card-num" style="color: var(--accent-cyan);">03</div>
+                <div class="card-title">Đột biến Cấu tạo Hữu cơ (c/v)</div>
+                <div class="card-desc">
+                  Tư bản tăng vọt đầu tư vào <strong>Tư bản bất biến (c)</strong> (hàng trăm tỷ USD vào chip GPU, cụm server AI) trong khi cắt giảm <strong>Tư bản khả biến (v)</strong> (quỹ lương lập trình viên).
+                </div>
+              </div>
+            </div>
+            <div class="highlight-banner" style="border-color: var(--accent-red); color: #fca5a5;">
+              📉 <strong>Giải mã thực tế:</strong> Đây là chiếc chìa khóa lý luận soi rọi hiện tượng Big Tech liên tục sa thải hàng vạn nhân sự dù đạt lợi nhuận và doanh thu kỷ lục!
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="slide-source">Nguồn: Karl Marx, Tư bản (Tập 1, Ch. 15); <a href="https://colibryx.com/en/blog/economic-potential-of-generative-artificial-intelligence/" target="_blank">Colibryx (2024)</a>; Fragment on Machines</div>
+            <div class="slide-pagination">SLIDE 04 / 12</div>
+          </div>
+        </div>
+
+        <!-- SLIDE 5 -->
+        <div class="slide-wrapper" data-slide="5">
+          <div class="slide-category">Dữ liệu thực nghiệm • Ngành Kỹ thuật Phần mềm</div>
+          <h1 class="slide-title">Bước Nhảy Vọt về Năng Suất của Lực Lượng Sản Xuất Số</h1>
+          <div class="slide-subtitle">Kiểm chứng lý luận bằng các số liệu thực nghiệm toàn cầu năm 2024 - 2025</div>
+
+          <div class="slide-body">
+            <div class="grid-3">
+              <div class="card" style="text-align: center;">
+                <div class="card-top-bar" style="background: var(--accent-cyan);"></div>
+                <div class="stat-huge" style="color: var(--accent-cyan);">+56%</div>
+                <div class="stat-label">Tốc độ hoàn thành tác vụ</div>
+                <div class="card-desc">Kỹ sư phần mềm hoàn thành các tác vụ kỹ thuật nhanh hơn 56% khi có sự trợ lực của AI.</div>
+              </div>
+
+              <div class="card" style="text-align: center;">
+                <div class="card-top-bar" style="background: var(--accent-orange);"></div>
+                <div class="stat-huge" style="color: var(--accent-orange);">35%–45%</div>
+                <div class="stat-label">Cắt giảm thời gian viết code</div>
+                <div class="card-desc">Giảm tới 45% thời gian viết mã mới và giảm 20% – 30% thời gian tái cấu trúc (refactoring).</div>
+              </div>
+
+              <div class="card" style="text-align: center;">
+                <div class="card-top-bar" style="background: var(--accent-green);"></div>
+                <div class="stat-huge" style="color: var(--accent-green);">76%→84%</div>
+                <div class="stat-label">Tỷ lệ kỹ sư sử dụng AI</div>
+                <div class="card-desc">Khảo sát trên 65.000 lập trình viên toàn cầu cho thấy tỷ lệ dùng AI tăng vọt chỉ trong 1 năm.</div>
+              </div>
+            </div>
+
+            <div class="highlight-banner" style="border-color: var(--accent-cyan); color: #bae6fd;">
+              🚀 <strong>Nhận định:</strong> Công cụ lao động không còn thụ động chờ gõ lệnh, mà đã được "trí tuệ hóa". Lực lượng sản xuất trong ngành phần mềm đã thực hiện một bước nhảy vọt chưa từng có tiền lệ!
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="slide-source">Nguồn: <a href="https://www.mckinsey.com/capabilities/tech-and-ai/our-insights/the-economic-potential-of-generative-ai-the-next-productivity-frontier" target="_blank">McKinsey Global Institute (2023)</a>; <a href="https://survey.stackoverflow.co/2024/ai" target="_blank">Stack Overflow Developer Survey (2024)</a></div>
+            <div class="slide-pagination">SLIDE 05 / 12</div>
+          </div>
+        </div>
+
+        <!-- SLIDE 6 -->
+        <div class="slide-wrapper" data-slide="6">
+          <div class="slide-category">Tái cấu trúc QHSX • Đối chiếu toàn diện</div>
+          <h1 class="slide-title">Sự Biến Đổi của Ba Mặt Quan Hệ Sản Xuất trong Ngành Phần Mềm</h1>
+          <div class="slide-subtitle">Sự dịch chuyển từ mô hình công nghệ truyền thống sang kỷ nguyên AI</div>
+
+          <div class="slide-body">
+            <div class="grid-3">
+              <div class="card">
+                <div class="card-top-bar" style="background: var(--accent-orange);"></div>
+                <div class="card-title" style="color: var(--accent-orange);">1. Quan hệ Sở hữu TLSX</div>
+                <div class="card-desc">
+                  <p><strong>Trước:</strong> Sở hữu phân tán (Laptop cá nhân, IDE offline, mã nguồn mở miễn phí).</p>
+                  <p style="margin-top: 8px;"><strong>Kỷ nguyên AI:</strong> Tập trung tư bản cao độ (Siêu cụm GPU hàng tỷ USD, mô hình độc quyền của OpenAI, Microsoft, Google). Kỹ sư hoàn toàn phụ thuộc vào API độc quyền.</p>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-top-bar" style="background: var(--accent-cyan);"></div>
+                <div class="card-title" style="color: var(--accent-cyan);">2. Quan hệ Tổ chức & Quản lý</div>
+                <div class="card-desc">
+                  <p><strong>Trước:</strong> Cấu trúc Kim tự tháp (1 Senior kèm 2 Mid-level và nhiều Junior phụ trách các công việc phụ).</p>
+                  <p style="margin-top: 8px;"><strong>Kỷ nguyên AI:</strong> Cấu trúc Phẳng, Siêu tinh gọn (1 Senior + Bộ công cụ AI tự xử lý toàn bộ quy trình, hấp thụ hoàn toàn việc phụ).</p>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-top-bar" style="background: var(--accent-red);"></div>
+                <div class="card-title" style="color: var(--accent-red);">3. Quan hệ Phân phối sản phẩm</div>
+                <div class="card-desc">
+                  <p><strong>Trước:</strong> Trả lương theo thâm niên và kỹ năng nhớ cú pháp ngôn ngữ lập trình.</p>
+                  <p style="margin-top: 8px;"><strong>Kỷ nguyên AI:</strong> Phân cực sâu sắc (Lợi nhuận thặng dư dồn vào chủ nền tảng và chuyên gia kiến trúc; đóng băng tuyển dụng và lương Junior).</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="slide-source">Nguồn: Medium Design Bootcamp; <a href="https://arxiv.org/html/2607.17067v1" target="_blank">ArXiv (2025)</a>; <a href="https://stackoverflow.blog/2025/12/26/ai-vs-gen-z/" target="_blank">Stack Overflow Blog (2025)</a></div>
+            <div class="slide-pagination">SLIDE 06 / 12</div>
+          </div>
+        </div>
+
+        <!-- SLIDE 7 -->
+        <div class="slide-wrapper" data-slide="7">
+          <div class="slide-category">Phân công lao động mới • The Absorption Mechanism</div>
+          <h1 class="slide-title">Tái Cấu Trúc Phân Công Lao Động: Cơ Chế "Hấp Thụ" Tác Vụ Kỹ Thuật</h1>
+          <div class="slide-subtitle">Khám phá từ công trình nghiên cứu Hosseini Maasoum và cộng sự (ArXiv 2025)</div>
+
+          <div class="slide-body">
+            <div class="grid-3">
+              <div class="card">
+                <div class="card-top-bar" style="background: var(--accent-cyan);"></div>
+                <div class="card-title">Mô hình cũ: Vùng đệm Junior</div>
+                <div class="card-desc">
+                  Các công việc như viết unit test, soát lỗi cú pháp, linting, viết tài liệu API... vốn là "bãi tập" tích lũy kinh nghiệm bắt buộc của sinh viên mới ra trường và lập trình viên tập sự.
+                </div>
+              </div>
+
+              <div class="card" style="border-color: var(--accent-orange);">
+                <div class="card-top-bar" style="background: var(--accent-orange);"></div>
+                <div class="card-title" style="color: var(--accent-orange);">Cơ chế Hấp thụ (Absorption)</div>
+                <div class="card-desc">
+                  1 Kỹ sư cấp cao (Senior) sử dụng AI xử lý toàn bộ các tác vụ phụ trợ này với chi phí cận biên tiệm cận bằng 0 (MC ≈ 0) và tốc độ tức thì. Triệt tiêu nhu cầu tuyển Junior theo cách cũ.
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-top-bar" style="background: var(--accent-green);"></div>
+                <div class="card-title" style="color: var(--accent-green);">Thước đo giá trị mới</div>
+                <div class="card-desc">
+                  Chấm dứt việc đo lường giá trị bằng số dòng code gõ ra (LOC) hay trí nhớ cú pháp. Thay bằng năng lực thẩm định hệ thống, kiểm soát tác nhân AI và phân tích nghiệp vụ.
+                </div>
+              </div>
+            </div>
+
+            <div class="highlight-banner" style="border-color: var(--accent-orange); color: #fed7aa;">
+              ⚠️ <strong>Cảnh báo:</strong> Doanh nghiệp không thiếu dự án, nhưng vì Senior + AI rẻ hơn và nhanh hơn gấp bội việc đào tạo một người mới từ đầu!
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="slide-source">Nguồn: <a href="https://arxiv.org/html/2607.17067v1" target="_blank">Hosseini Maasoum et al., ArXiv (2025)</a>; McKinsey Tech Forward (2025)</div>
+            <div class="slide-pagination">SLIDE 07 / 12</div>
+          </div>
+        </div>
+
+        <!-- SLIDE 8 -->
+        <div class="slide-wrapper" data-slide="8">
+          <div class="slide-category">Khủng hoảng tuyển dụng • Áp lực lợi nhuận tư bản</div>
+          <h1 class="slide-title">Khủng Hoảng Tuyển Dụng Sơ Cấp: Bài Toán Tối Ưu Hóa Lợi Nhuận Tư Bản</h1>
+          <div class="slide-subtitle">Sự chênh lệch chi phí kinh tế đẩy lao động trẻ vào vòng xoáy áp lực</div>
+
+          <div class="slide-body">
+            <div class="grid-2">
+              <div class="card" style="border-color: var(--accent-orange);">
+                <div class="card-top-bar" style="background: var(--accent-orange);"></div>
+                <div class="card-title" style="color: var(--accent-orange);">SO SÁNH BÀI TOÁN CHI PHÍ (5 NĂM)</div>
+                <div class="card-desc" style="font-size: 13px;">
+                  <div style="background: rgba(239, 68, 68, 0.15); padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid var(--accent-red);">
+                    <div style="font-size: 24px; font-weight: 800; color: var(--accent-red);">~$585.000 USD</div>
+                    <div>Đào tạo 1 Junior Dev (Lương, phúc lợi + 500 giờ công kèm cặp của Senior).</div>
+                  </div>
+
+                  <div style="background: rgba(52, 211, 153, 0.15); padding: 12px; border-radius: 8px; border-left: 3px solid var(--accent-green);">
+                    <div style="font-size: 24px; font-weight: 800; color: var(--accent-green);">~$6.000 USD</div>
+                    <div>Duy trì 10 bản quyền AI Copilot cao cấp trong 5 năm (Chênh lệch ~100 lần!).</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card" style="border-color: var(--accent-cyan);">
+                <div class="card-top-bar" style="background: var(--accent-cyan);"></div>
+                <div class="card-title" style="color: var(--accent-cyan);">CÚ SỐC THỊ TRƯỜNG LAO ĐỘNG THỰC TẾ</div>
+                <div class="card-desc" style="font-size: 13px;">
+                  <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                      <span style="font-size: 22px; font-weight: 800; color: var(--accent-red);">-60% đến -67%</span>
+                      <span>Tin đăng tuyển dụng vị trí lập trình viên sơ cấp sụt giảm.</span>
+                    </li>
+                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                      <span style="font-size: 22px; font-weight: 800; color: var(--accent-orange);">-73%</span>
+                      <span>Tuyển dụng thực tế cho cử nhân CNTT mới tốt nghiệp giảm sâu.</span>
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 10px;">
+                      <span style="font-size: 22px; font-weight: 800; color: var(--accent-gold);">6.1% – 7.5%</span>
+                      <span>Tỷ lệ thất nghiệp cử nhân CS/IT (Vượt cả khối khoa học xã hội - Fed NY).</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="slide-source">Nguồn: <a href="https://altersquare.io/blog/companies-stopped-hiring-junior-devs-ai-crisis" target="_blank">AlterSquare (2025)</a>; Ask Tua Blog; <a href="https://xfutureagi.com/en/article/ai-junior-dev-collapse/" target="_blank">Federal Reserve Bank of New York</a></div>
+            <div class="slide-pagination">SLIDE 08 / 12</div>
+          </div>
+        </div>
+
+        <!-- SLIDE 9 -->
+        <div class="slide-wrapper" data-slide="9">
+          <div class="slide-category">Phân hóa nhân khẩu học • Dữ liệu ADP</div>
+          <h1 class="slide-title">Sự Phân Hóa Nhân Khẩu Học Sâu Sắc trong Thị Trường Lao Động</h1>
+          <div class="slide-subtitle">Nghiên cứu phối hợp giữa Đại học Stanford và Bảng lương ADP Payroll</div>
+
+          <div class="slide-body">
+            <div class="grid-2">
+              <div class="card" style="border-color: var(--accent-red); text-align: center;">
+                <div class="card-top-bar" style="background: var(--accent-red);"></div>
+                <div style="font-size: 13px; font-weight: 700; color: var(--accent-red); margin-bottom: 6px;">KỸ SƯ TRẺ 22 – 25 TUỔI (MỚI RA TRƯỜNG)</div>
+                <div class="stat-huge" style="color: var(--accent-red);">-20%</div>
+                <div class="card-desc" style="text-align: left; font-size: 13px;">
+                  <ul>
+                    <li>Việc làm sụt giảm 20% so với đỉnh cuối năm 2022.</li>
+                    <li><strong>Sụp đổ tín hiệu tuyển dụng (Signal Collapse):</strong> Tuyển junior nhưng đòi hỏi năng lực kiến trúc của mid-level.</li>
+                    <li>Bị tước đoạt mất những nấc thang đầu tiên để tích lũy kinh nghiệm.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="card" style="border-color: var(--accent-green); text-align: center;">
+                <div class="card-top-bar" style="background: var(--accent-green);"></div>
+                <div style="font-size: 13px; font-weight: 700; color: var(--accent-green); margin-bottom: 6px;">KỸ SƯ DÀY DẠN 41 – 49 TUỔI (SENIOR/LEAD)</div>
+                <div class="stat-huge" style="color: var(--accent-green);">+14%</div>
+                <div class="card-desc" style="text-align: left; font-size: 13px;">
+                  <ul>
+                    <li>Tăng trưởng việc làm dương vững chắc (+14% cùng kỳ).</li>
+                    <li>Thu nhập và vị thế tăng cao: AI trở thành "đòn bẩy cấp số nhân" cho trực giác kiến trúc và kinh nghiệm thực chiến.</li>
+                    <li>Trở thành tài sản chiến lược được săn đón với mức đãi ngộ kỷ lục.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="highlight-banner" style="border-color: var(--accent-cyan); color: #bae6fd;">
+              ⚖️ <strong>Quy luật:</strong> Thị trường KHÔNG biến mất, mà bị xé toạc làm hai cực đối lập. Người có kinh nghiệm được nhân bội sức mạnh; người trẻ bị chặn đứng tại ngưỡng cửa!
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="slide-source">Nguồn: <a href="https://survey.stackoverflow.co/2024/professional-developers" target="_blank">Stanford Digital Economy Lab & ADP</a>; Three Oaks Advisory (2024)</div>
+            <div class="slide-pagination">SLIDE 09 / 12</div>
+          </div>
+        </div>
+
+        <!-- SLIDE 10 -->
+        <div class="slide-wrapper" data-slide="10">
+          <div class="slide-category">Mâu thuẫn biện chứng • Đứt gãy thế hệ</div>
+          <h1 class="slide-title">Mâu Thuẫn Biện Chứng: Sự Đứt Gãy Chuỗi Tái Sản Xuất Sức Lao Động</h1>
+          <div class="slide-subtitle">Xung đột giữa Tính xã hội hóa của LLSX và Tính tư lợi ngắn hạn của Tư bản</div>
+
+          <div class="slide-body">
+            <div class="grid-3">
+              <div class="card">
+                <div class="card-top-bar" style="background: var(--accent-orange);"></div>
+                <div class="card-num" style="color: var(--accent-orange);">01</div>
+                <div class="card-title">Mất "Vật lộn để trưởng thành"</div>
+                <div class="card-desc">
+                  Trực giác nghề nghiệp chỉ hình thành qua <em>Productive Struggle</em> (tự thức đêm debug, tìm rò rỉ bộ nhớ). Khi AI làm thay, người học mất đi môi trường rèn luyện nền tảng.
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-top-bar" style="background: var(--accent-red);"></div>
+                <div class="card-num" style="color: var(--accent-red);">02</div>
+                <div class="card-title">Hiện tượng "Kỹ sư rỗng"</div>
+                <div class="card-desc">
+                  <em>Hollow Senior:</em> Kỹ sư biết bấm nút sinh code nhưng không hiểu bản chất bên dưới. Code AI làm tăng <strong>50%</strong> mã trùng lặp; refactoring sâu giảm dưới <strong>10%</strong>.
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-top-bar" style="background: var(--accent-purple);"></div>
+                <div class="card-num" style="color: var(--accent-purple);">03</div>
+                <div class="card-title">Nghịch lý Tư bản Ngắn hạn</div>
+                <div class="card-desc">
+                  Vì lợi nhuận trước mắt từ chối đào tạo tập sự hôm nay → Sau 5–10 năm xã hội sẽ thiếu hụt trầm trọng chuyên gia kiến trúc và bảo mật. QHSX cũ kìm hãm chính LLSX tương lai!
+                </div>
+              </div>
+            </div>
+            <div class="highlight-banner" style="border-color: var(--accent-red); color: #fca5a5;">
+              ⚠️ <strong>Cốt lõi triết học:</strong> QHSX tư bản thiển cận đang "ăn vào vốn hạt giống" của xã hội, kìm hãm sự phát triển bền vững của Lực lượng sản xuất!
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="slide-source">Nguồn: Karl Marx, Tư bản (Ch. 15); <a href="https://dev.to/gabrielanhaia/ai-coding-tools-are-making-developers-dumber-the-data-agrees-4elo" target="_blank">Dev.to (2024)</a>; AlterSquare Research</div>
+            <div class="slide-pagination">SLIDE 10 / 12</div>
+          </div>
+        </div>
+
+        <!-- SLIDE 11 -->
+        <div class="slide-wrapper" data-slide="11">
+          <div class="slide-category">Hành động của người học • Khuyến nghị WEF</div>
+          <h1 class="slide-title">Bài Học Thích Ứng Nghề Nghiệp: Khung 4 Trụ Cột Năng Lực Cốt Lõi</h1>
+          <div class="slide-subtitle">Không sa vào chủ nghĩa Luddite đập phá máy móc — Chủ động nâng cấp sức lao động</div>
+
+          <div class="slide-body">
+            <div class="grid-2" style="gap: 16px;">
+              <div class="card" style="border-color: var(--accent-cyan);">
+                <div class="card-top-bar" style="background: var(--accent-cyan);"></div>
+                <div class="card-title" style="color: var(--accent-cyan);">1. Kiến trúc Hệ thống & Tư duy Phức hợp</div>
+                <div class="card-desc">Thoát khỏi bẫy học vẹt cú pháp; tập trung vào thiết kế kiến trúc tổng thể, khả năng chịu tải, mở rộng và bảo mật hệ thống lớn.</div>
+              </div>
+
+              <div class="card" style="border-color: var(--accent-orange);">
+                <div class="card-top-bar" style="background: var(--accent-orange);"></div>
+                <div class="card-title" style="color: var(--accent-orange);">2. Chỉ huy & Kiểm toán An toàn AI</div>
+                <div class="card-desc">Nâng tầm thành nhạc trưởng điều phối AI: Kỹ thuật prompt ngữ cảnh sâu, phát hiện ảo giác (hallucination) và thẩm định bảo mật mã nguồn.</div>
+              </div>
+
+              <div class="card" style="border-color: var(--accent-green);">
+                <div class="card-top-bar" style="background: var(--accent-green);"></div>
+                <div class="card-title" style="color: var(--accent-green);">3. Tri thức Chuyên ngành Sâu rộng (Domain)</div>
+                <div class="card-desc">Nắm vững nghiệp vụ ngân hàng số, y tế, logistics và luật bản địa — nơi AI không thể tự biên dịch được.</div>
+              </div>
+
+              <div class="card" style="border-color: var(--accent-purple);">
+                <div class="card-top-bar" style="background: var(--accent-purple);"></div>
+                <div class="card-title" style="color: var(--accent-purple);">4. Học tập Suốt đời & Thích ứng Linh hoạt</div>
+                <div class="card-desc">Chu kỳ bán rã kỹ năng dưới 5 năm; chủ động "Unlearn" kiến thức cũ lỗi thời để nạp nhanh phương pháp luận mới.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="slide-source">Nguồn: <a href="https://www.weforum.org/publications/the-future-of-jobs-report-2023/" target="_blank">WEF Future of Jobs Report 2023</a>; McKinsey AI-Native Development</div>
+            <div class="slide-pagination">SLIDE 11 / 12</div>
+          </div>
+        </div>
+
+        <!-- SLIDE 12 -->
+        <div class="slide-wrapper" data-slide="12">
+          <div class="slide-category">Tổng kết báo cáo • Khẳng định vị thế chủ thể</div>
+          <h1 class="slide-title">Khẳng Định Vị Thế Chủ Thể Lịch Sử trong Quan Hệ Sản Xuất Mới</h1>
+          <div class="slide-subtitle">Phương pháp luận Mác - Lênin là ngọn hải đăng soi sáng hành trình nghề nghiệp</div>
+
+          <div class="slide-body">
+            <div class="quote-box" style="border-color: var(--accent-gold); background: rgba(30, 45, 74, 0.8);">
+              <div class="quote-text" style="font-size: 19px; text-align: center; color: #fff;">
+                "AI không loại bỏ con người — AI chỉ loại bỏ những ai từ chối nâng cấp sức lao động của chính mình."
+              </div>
+            </div>
+
+            <div class="grid-3">
+              <div class="card">
+                <div class="card-top-bar" style="background: var(--accent-cyan);"></div>
+                <div class="card-title">Bản chất Công cụ</div>
+                <div class="card-desc">AI chỉ là tư liệu lao động mở rộng trí tuệ; người lao động với ý thức sáng tạo vẫn là chủ thể quyết định của LLSX.</div>
+              </div>
+
+              <div class="card">
+                <div class="card-top-bar" style="background: var(--accent-orange);"></div>
+                <div class="card-title">Giá trị Mác - Lênin</div>
+                <div class="card-desc">Quy luật biện chứng giữa LLSX và QHSX là kim chỉ nam giúp thế hệ trẻ nhìn xuyên qua nỗi sợ để nhận diện cơ hội.</div>
+              </div>
+
+              <div class="card">
+                <div class="card-top-bar" style="background: var(--accent-green);"></div>
+                <div class="card-title">Hành động của Kỹ sư</div>
+                <div class="card-desc">Tự tin làm chủ công cụ mới, biến thách thức của thị trường thành bệ phóng khẳng định giá trị bản thân trong thời đại số.</div>
+              </div>
+            </div>
+
+            <div class="highlight-banner" style="border-color: var(--accent-green); color: #86efac; justify-content: center; font-weight: 700;">
+              🎉 CHÂN THÀNH CẢM ƠN QUÝ THẦY CÔ & CÁC BẠN — MỜI BƯỚC VÀO PHIÊN THẢO LUẬN (Q&A)!
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="slide-source">Nguồn: <a href="http://www.marxists.org/xlang/index.htm" target="_blank">Marxists Internet Archive</a>; McKinsey Global Institute</div>
+            <div class="slide-pagination">SLIDE 12 / 12</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Presenter Notes Panel (Toggleable) -->
+      <div class="notes-panel" id="notesPanel" style="display: none;">
+        <div class="notes-title">
+          <span>🎙️ LỜI THOẠI & GỢI Ý THUYẾT TRÌNH</span>
+          <span style="font-size: 11px; color: var(--accent-cyan); margin-left: auto;" id="notesSlideIndicator">Slide 1/12</span>
+        </div>
+        <div class="notes-script" id="notesScriptContent">Đang tải kịch bản...</div>
+        <div class="notes-tips" id="notesTipsContent">
+          <strong>GỢI Ý CỬ CHỈ & ĐIỂM NHẤN:</strong>
+          Đang tải gợi ý...
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Keyboard Shortcuts Bar -->
+  <div class="key-hints">
+    <span>Điều hướng: <span class="kbd">←</span> <span class="kbd">→</span> hoặc <span class="kbd">Space</span></span>
+    <span>Toàn màn hình: <span class="kbd">F</span></span>
+    <span>Bật/Tắt Kịch bản: <span class="kbd">S</span></span>
+    <span>In PDF: <span class="kbd">Ctrl + P</span></span>
+  </div>
+
+  <script>
+    // Speaker Notes Database
+    const slideNotes = {
+      1: {
+        script: `"Kính thưa quý Thầy Cô và các bạn sinh viên, hiện nay làn sóng trí tuệ nhân tạo và các mô hình ngôn ngữ lớn đang làm dấy lên một nỗi hoang mang sâu sắc trong cộng đồng sinh viên, đặc biệt là nỗi lo sợ bị thay thế hoặc mất cơ hội việc làm sau khi ra trường.
+
+Tuy nhiên, nếu chúng ta tiếp cận hiện tượng này dưới lăng kính khoa học của Chủ nghĩa duy vật lịch sử trong triết học Mác - Lênin, ta sẽ nhận ra đây không phải là một tai họa ngẫu nhiên hay bất thường.
+
+Đó chính là sự phản ánh sinh động của quy luật khách quan phổ biến nhất chi phối sự phát triển của xã hội loài người: Quy luật quan hệ sản xuất phù hợp với trình độ phát triển của lực lượng sản xuất.
+
+Hôm nay, nhóm chúng em xin được phân tích trường hợp điển hình của ngành Kỹ thuật Phần mềm để làm sáng tỏ tính quy luật này, đồng thời xác lập chiến lược thích ứng nghề nghiệp vững chắc cho sinh viên trước sự tái cấu trúc của thời đại số."`,
+        tips: `• Phong thái tự tin, ánh mắt bao quát hội trường.\n• Nhấn giọng vào 2 cụm từ cốt lõi: "quy luật khách quan" và "chiến lược thích ứng".\n• Thời gian mục tiêu: ~1 phút.`
+      },
+      2: {
+        script: `"Trước hết, chúng ta cùng nhìn lại cấu trúc lý luận nền tảng. Phương thức sản xuất vật chất là sự thống nhất hữu cơ giữa hai mặt: Lực lượng sản xuất và Quan hệ sản xuất.
+
+Lực lượng sản xuất biểu hiện mối quan hệ giữa con người với tự nhiên, bao gồm người lao động và tư liệu sản xuất. Trong đó, Mác khẳng định công cụ lao động chính là yếu tố động nhất, cách mạng nhất, là khí quan nối dài năng lực con người và là tiêu chuẩn phân biệt các thời đại kinh tế. Còn người lao động với trí tuệ và kỹ năng là chủ thể quyết định biến tư liệu sản xuất thành của cải.
+
+Song song với đó là Quan hệ sản xuất – mối quan hệ kinh tế khách quan giữa người với người gồm ba mặt gắn bó keo sơn: quan hệ sở hữu tư liệu sản xuất (mặt giữ vai trò hạt nhân), quan hệ tổ chức quản lý, và quan hệ phân phối sản phẩm.
+
+Sự vận động của lịch sử bắt đầu từ việc công cụ lao động biến đổi, dẫn tới LLSX đi trước một bước và đòi hỏi QHSX phải biến đổi theo."`,
+        tips: `• Dùng tay chỉ rõ sự tương phản giữa 2 cột: LLSX (Con người vs Tự nhiên) và QHSX (Người vs Người).\n• Nhấn mạnh: "Công cụ lao động là yếu tố động nhất, cách mạng nhất".\n• Thời gian mục tiêu: ~1 phút.`
+      },
+      3: {
+        script: `"Trong tác phẩm 'Sự khốn cùng của triết học' viết năm 1847, Karl Marx đã đúc kết một luận đề bất hủ:
+'Cái cối xay quay bằng tay đưa lại xã hội có lãnh chúa; cái cối xay chạy bằng hơi nước đưa lại xã hội có nhà tư bản công nghiệp'.
+
+Luận đề này khẳng định một chân lý: Mỗi khi có một công cụ lao động mới ra đời tạo nên bước nhảy vọt về chất, phương thức sản xuất của xã hội sẽ hoàn toàn đảo lộn.
+
+Nếu như thế kỷ 18, máy hơi nước ra đời đã cơ giới hóa sức mạnh cơ bắp của con người, thì ngày nay, Trí tuệ nhân tạo và các mô hình ngôn ngữ lớn đã tiến vào địa hạt tinh hoa nhất: trí tuệ hóa các thao tác tư duy logic trừu tượng.
+
+Cái cối xay hơi nước đã khai sinh ra giai cấp công nhân công nghiệp, vậy thì 'cối xay thuật toán AI' ngày nay đang khai sinh ra một phương thức tổ chức lao động trí tuệ hoàn toàn mới."`,
+        tips: `• Đọc câu trích dẫn của Mác thật chậm rãi, trang trọng.\n• So sánh trực quan giữa "máy hơi nước" và "cối xay thuật toán AI".\n• Thời gian mục tiêu: ~1 phút.`
+      },
+      4: {
+        script: `"Bước sang góc độ Kinh tế chính trị học Mác - Lênin, trong Chương 15 của bộ Tư bản Tập 1, Marx đã chỉ rõ: Máy móc dưới chế độ tư bản không đơn thuần được tạo ra để giải phóng người lao động khỏi sự vất vả.
+
+Mục đích tối hậu của nhà tư bản khi áp dụng máy móc là hạ thấp giá trị sức lao động thông qua việc sản xuất giá trị thặng dư tương đối. Bằng cách ứng dụng máy móc tự động, thời gian lao động tất yếu của công nhân để hoàn vốn tiền lương bị rút ngắn lại, mở rộng tối đa thời gian lao động thặng dư sinh lợi cho nhà tư bản.
+
+Đồng thời, Marx cảnh báo một nghịch lý biện chứng: chính sự tinh xảo hóa của máy móc sẽ biến công cụ lao động thành kẻ thù cạnh tranh trực tiếp với người công nhân, đẩy sức lao động phổ thông vào tình thế dư thừa cục bộ.
+
+Đây chính là chiếc chìa khóa lý luận soi rọi hiện tượng các tập đoàn công nghệ cắt giảm nhân sự quy mô lớn để dồn tiền đầu tư vào máy chủ AI ngày nay."`,
+        tips: `• Nhắc đến công thức cấu tạo hữu cơ của tư bản (c/v) để chứng minh chiều sâu học thuật.\n• Đưa ví dụ về các đợt sa thải của Big Tech để làm rõ luận điểm.\n• Thời gian mục tiêu: ~1 phút.`
+      },
+      5: {
+        script: `"Để kiểm chứng lý luận Mác - Lênin trong thực tiễn, chúng ta hãy nhìn vào các con số thực nghiệm chấn động của ngành Kỹ thuật Phần mềm.
+
+Báo cáo của McKinsey Global Institute chỉ ra rằng: một lập trình viên khi tích hợp các công cụ AI có thể hoàn thành tác vụ nhanh hơn 56% so với thao tác truyền thống, giúp cắt giảm tới 45% thời gian viết mã ban đầu.
+
+Khảo sát thường niên của Stack Overflow trên hơn 65.000 chuyên gia công nghệ toàn cầu cho thấy tỷ lệ lập trình viên sử dụng AI đã tăng vọt từ 76% năm 2024 lên 84% năm 2025.
+
+Rõ ràng, công cụ lao động không còn là một bộ soạn thảo thụ động chờ người gõ chữ, mà đã trở thành một hệ thống thông minh đồng hành. Sức sản xuất của xã hội trong ngành phần mềm đã thực hiện một bước nhảy vọt chưa từng có tiền lệ."`,
+        tips: `• Đọc to, rành rọt các con số: +56%, 45%, 84%.\n• Nhìn thẳng vào Thầy Cô khi khẳng định bước nhảy vọt năng suất.\n• Thời gian mục tiêu: ~1 phút.`
+      },
+      6: {
+        script: `"Khi lực lượng sản xuất phát triển nhảy vọt, quan hệ sản xuất tất yếu phải tái cấu trúc trên cả ba phương diện.
+
+Thứ nhất, về quan hệ sở hữu: trước đây, tư liệu sản xuất của lập trình viên chỉ đơn giản là chiếc máy vi tính cá nhân và mạng internet. Nhưng nay, tư liệu sản xuất cốt lõi đã chuyển thành các siêu cụm GPU hàng tỷ đô la và các mô hình nền tảng độc quyền do các tập đoàn Big Tech chi phối. Người lao động phụ thuộc hoàn toàn vào hạ tầng API của giới tư bản công nghệ.
+
+Thứ hai, về tổ chức quản lý: mô hình kim tự tháp truyền thống đã bị phá vỡ, thay thế bằng cấu trúc tinh gọn nơi một chuyên gia cộng với AI có thể tự cáng đáng toàn bộ dự án.
+
+Và thứ ba, về phân phối: của cải thặng dư tập trung mạnh mẽ vào tay các chủ sở hữu nền tảng công nghệ, trong khi mặt bằng lương và cơ hội gia nhập của tầng lớp lao động trẻ bị phong tỏa nghiêm ngặt."`,
+        tips: `• Trình bày lần lượt 3 mặt: Sở hữu -> Tổ chức -> Phân phối.\n• Nhấn mạnh: Ai nắm GPU và API, người đó chi phối toàn bộ chuỗi giá trị.\n• Thời gian mục tiêu: ~1.5 phút.`
+      },
+      7: {
+        script: `"Đi sâu vào quan hệ tổ chức lao động, một công trình nghiên cứu nổi tiếng của Hosseini Maasoum và cộng sự công bố năm 2025 trên ArXiv đã gọi tên hiện tượng này là 'Cơ chế hấp thụ' (The Absorption Mechanism).
+
+Trong lịch sử phát triển phần mềm, một kỹ sư trưởng luôn cần một đội ngũ các bạn sinh viên mới ra trường hoặc lập trình viên cấp thấp để làm các công việc lặp đi lặp lại như viết mã kiểm thử (unit tests), vá lỗi vặt và định dạng dữ liệu.
+
+Nhưng hiện nay, với sự trợ giúp của AI, chính vị kỹ sư cấp cao đó chỉ cần vài câu lệnh là đã hoàn thành những tác vụ trên một cách chuẩn xác. Toàn bộ khối lượng công việc sơ cấp bị 'hấp thụ' hoàn toàn vào quy trình làm việc giữa Senior và AI.
+
+Kết quả là các doanh nghiệp không còn nhu cầu tuyển dụng các vị trí tập sự theo lối mòn truyền thống nữa."`,
+        tips: `• Nhấn mạnh thuật ngữ học thuật "The Absorption Mechanism" (Cơ chế hấp thụ).\n• Khẳng định kỷ nguyên đếm dòng code (LOC) đã chính thức chấm dứt.\n• Thời gian mục tiêu: ~1 phút.`
+      },
+      8: {
+        script: `"Tại sao các doanh nghiệp lại hành xử như vậy? Câu trả lời nằm ở quy luật tối đa hóa lợi nhuận của chủ nghĩa tư bản.
+
+Một phân tích tài chính của AlterSquare Research năm 2025 đã chỉ ra một phép so sánh tàn nhẫn: Để tuyển dụng, trả lương và dành ra 500 giờ công của kỹ sư cấp cao kèm cặp một lập trình viên mới vào nghề trong 5 năm, công ty phải chi trả tới khoảng 585.000 USD.
+
+Trong khi đó, việc duy trì 10 tài khoản bản quyền trợ lý AI cao cấp trong suốt 5 năm chỉ tiêu tốn vỏn vẹn 6.000 USD – một sự chênh lệch chi phí gần 100 lần!
+
+Chính động cơ lợi nhuận kinh tế trước mắt đã thúc đẩy giới chủ thay thế lao động trẻ bằng máy móc. Hệ quả nhãn tiền là tin tuyển dụng vị trí sơ cấp giảm hơn 60%, và theo số liệu từ Ngân hàng Dự trữ Liên bang New York, tỷ lệ thất nghiệp của cử nhân công nghệ thông tin mới ra trường đã vọt lên 7,5%, cao hơn cả cử nhân ngành khoa học xã hội và nhân văn."`,
+        tips: `• Tạo sự bất ngờ với phép so sánh $585.000 vs $6.000 (chênh 100 lần).\n• Giọng nói mang tính chất cảnh báo và bóc trần bản chất lợi nhuận tư bản.\n• Thời gian mục tiêu: ~1.5 phút.`
+      },
+      9: {
+        script: `"Sự phân hóa của quan hệ sản xuất biểu hiện rõ nét nhất qua dữ liệu nhân khẩu học.
+
+Theo nghiên cứu phối hợp giữa Phòng thí nghiệm Kinh tế số Đại học Stanford và dữ liệu bảng lương thực tế của tập đoàn ADP: Thị trường việc làm công nghệ không biến mất hoàn toàn, mà bị xé toạc làm hai cực đối lập.
+
+Nhóm lao động trẻ trong độ tuổi 22 đến 25 chứng kiến số lượng việc làm sụt giảm tới 20% kể từ cuối năm 2022. Trái lại, nhóm kỹ sư kỳ cựu từ 41 đến 49 tuổi lại ghi nhận mức tăng trưởng việc làm dương 14%!
+
+Tại sao lại có nghịch lý này? Bởi vì những người đã có sẵn trực giác kiến trúc và kinh nghiệm thực chiến khi được trao vào tay công cụ AI thì sức lao động của họ được nhân lên gấp bội. Còn những người trẻ chưa có kinh nghiệm thì bị tước đoạt mất những nấc thang đầu tiên để bước chân vào thị trường."`,
+        tips: `• Dùng hai tay biểu thị 2 thái cực: -20% (người trẻ) và +14% (kỳ cựu).\n• Giải thích thuật ngữ "Signal Collapse" (Sụp đổ tín hiệu tuyển dụng).\n• Thời gian mục tiêu: ~1 phút.`
+      },
+      10: {
+        script: `"Từ hiện tượng trên, triết học Mác giúp chúng ta nhìn thấu mâu thuẫn biện chứng nội tại nguy hiểm: Đó là sự xung đột giữa tính chất xã hội hóa cao độ của lực lượng sản xuất với tính toán tư lợi ngắn hạn của các chủ doanh nghiệp.
+
+Trong giáo dục kỹ thuật, tri thức chuyên sâu và trực giác của một chuyên gia không bao giờ hình thành từ việc đọc lý thuyết, mà bắt buộc phải trải qua quá trình 'vật lộn để trưởng thành' (Productive Struggle) – tức là tự tay thức đêm gỡ lỗi, tự tìm nguyên nhân tràn bộ nhớ.
+
+Khi giao toàn bộ việc đó cho AI, chúng ta đang đứng trước nguy cơ tạo ra một thế hệ 'Senior rỗng' (Hollow Senior) – những người biết bấm nút sinh mã nhưng không hiểu bản chất bên dưới. Dữ liệu thực tế cho thấy mã do AI sinh ra làm tăng 50% các đoạn code rác trùng lặp, trong khi khả năng tái cấu trúc sâu giảm xuống dưới 10%.
+
+Vì lợi ích kinh tế trước mắt mà từ chối đào tạo người trẻ, các doanh nghiệp đang tự tay bóp chết nguồn cung chuyên gia kiến trúc và bảo mật của xã hội trong 10 năm tới. Quan hệ sản xuất lỗi thời đang kìm hãm chính sự phát triển bền vững của lực lượng sản xuất tương lai!"`,
+        tips: `• Giọng nói đanh thép, phê phán sự thiển cận của tư bản công nghệ.\n• Nhấn mạnh 2 khái niệm: "Productive Struggle" và "Hollow Senior".\n• Thời gian mục tiêu: ~1.5 phút.`
+      },
+      11: {
+        script: `"Vậy đứng trước quy luật khách quan đó, sinh viên chúng ta phải hành động như thế nào?
+
+Chủ nghĩa duy vật lịch sử dạy chúng ta rằng: Tuyệt đối không bao giờ được rơi vào tâm lý bài xích công nghệ theo chủ nghĩa đập phá máy móc Luddite của thế kỷ 19. Công cụ lao động mới là tất yếu của lịch sử. Để không bị đào thải, người lao động – với tư cách là chủ thể quyết định của LLSX – phải chủ động nâng cấp bản thân để tương thích với QHSX mới.
+
+Theo Diễn đàn Kinh tế Thế giới (WEF), sinh viên cần trang bị 4 trụ cột năng lực sống còn:
+
+Thứ nhất, chuyển từ học vẹt cú pháp sang tư duy thiết kế kiến trúc hệ thống tổng thể.
+Thứ hai, nâng tầm từ người gõ mã thành người chỉ huy và kiểm toán an toàn kết quả của AI, kiểm soát lỗi ảo giác của mô hình.
+Thứ ba, tích lũy tri thức chuyên ngành thực tế – bởi AI có thể viết code nhưng không hiểu được nghiệp vụ ngân hàng hay pháp luật bản địa.
+Và thứ tư, tinh thần học tập suốt đời, bởi chu kỳ bán rã của một kỹ năng công nghệ hiện nay đã rút ngắn xuống dưới 5 năm."`,
+        tips: `• Đếm 4 ngón tay dứt khoát 1 - 2 - 3 - 4.\n• Thể hiện tinh thần chủ động, tích cực của sinh viên FPT.\n• Thời gian mục tiêu: ~1.5 phút.`
+      },
+      12: {
+        script: `"Để khép lại bài thuyết trình hôm nay, nhóm chúng em xin nhấn mạnh thông điệp cốt lõi:
+
+'Trí tuệ nhân tạo không thay thế con người, mà AI chỉ loại bỏ những ai từ chối nâng cấp sức lao động của chính mình để thích ứng với thời đại mới'.
+
+Quy luật quan hệ sản xuất phù hợp với trình độ phát triển của lực lượng sản xuất trong triết học Mác - Lênin không phải là một giáo điều trừu tượng trên trang sách, mà chính là kim chỉ nam soi sáng giúp thế hệ trẻ chúng ta định vị bản thân. Thay vì hoang mang lo sợ, việc thấu hiểu quy luật khách quan sẽ giúp chúng ta vững vàng rèn luyện tư duy, biến AI thành công cụ nối dài trí tuệ và tự tin khẳng định vị thế chủ thể sáng tạo của thời đại số.
+
+Chúng em xin chân thành cảm ơn quý Thầy Cô và các bạn đã chú ý lắng nghe. Nhóm rất mong nhận được những câu hỏi và đóng góp quý báu trong phần thảo luận tiếp theo!"`,
+        tips: `• Đọc thông điệp cốt lõi với âm lượng vang và tự tin.\n• Cúi đầu chào trân trọng Thầy Cô và mở đầu phần Q&A.\n• Thời gian mục tiêu: ~1 phút.`
+      }
+    };
+
+    // State
+    let currentSlide = 1;
+    const totalSlides = 12;
+    const slides = document.querySelectorAll('.slide-wrapper');
+    const progressBar = document.getElementById('progressBar');
+    const notesPanel = document.getElementById('notesPanel');
+    const notesScriptContent = document.getElementById('notesScriptContent');
+    const notesTipsContent = document.getElementById('notesTipsContent');
+    const notesSlideIndicator = document.getElementById('notesSlideIndicator');
+    const toggleNotesBtn = document.getElementById('toggleNotesBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+    function updateSlide(slideIndex) {
+      if (slideIndex < 1 || slideIndex > totalSlides) return;
+      currentSlide = slideIndex;
+
+      slides.forEach(s => s.classList.remove('active'));
+      const activeSlide = document.querySelector(`.slide-wrapper[data-slide="${currentSlide}"]`);
+      if (activeSlide) activeSlide.classList.add('active');
+
+      // Update progress
+      const progressPercent = (currentSlide / totalSlides) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+
+      // Update notes
+      if (slideNotes[currentSlide]) {
+        notesScriptContent.textContent = slideNotes[currentSlide].script;
+        notesTipsContent.innerHTML = '<strong>GỢI Ý CỬ CHỈ & ĐIỂM NHẤN:</strong>' + slideNotes[currentSlide].tips.replace(/\n/g, '<br>');
+        notesSlideIndicator.textContent = `Slide ${currentSlide}/${totalSlides}`;
+      }
+    }
+
+    // Navigation buttons
+    document.getElementById('prevBtn').addEventListener('click', () => updateSlide(currentSlide - 1));
+    document.getElementById('nextBtn').addEventListener('click', () => updateSlide(currentSlide + 1));
+
+    // Keyboard Events
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        updateSlide(currentSlide + 1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        updateSlide(currentSlide - 1);
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullScreen();
+      } else if (e.key === 's' || e.key === 'S') {
+        toggleNotes();
+      }
+    });
+
+    // Notes Toggle
+    function toggleNotes() {
+      const isVisible = notesPanel.style.display !== 'none';
+      notesPanel.style.display = isVisible ? 'none' : 'flex';
+      toggleNotesBtn.classList.toggle('active', !isVisible);
+    }
+    toggleNotesBtn.addEventListener('click', toggleNotes);
+
+    // Fullscreen Toggle
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => alert(err.message));
+        document.body.classList.add('is-fullscreen');
+        fullscreenBtn.textContent = '✖ Thoát Fullscreen';
+      } else {
+        document.exitFullscreen();
+        document.body.classList.remove('is-fullscreen');
+        fullscreenBtn.textContent = '⛶ Toàn màn hình';
+      }
+    }
+    fullscreenBtn.addEventListener('click', toggleFullScreen);
+
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) {
+        document.body.classList.remove('is-fullscreen');
+        fullscreenBtn.textContent = '⛶ Toàn màn hình';
+      }
+    });
+
+    // Timer Logic
+    let timerInterval = null;
+    let timerSeconds = 0;
+    const timerDisplay = document.getElementById('timerDisplay');
+    const toggleTimerBtn = document.getElementById('toggleTimerBtn');
+    const resetTimerBtn = document.getElementById('resetTimerBtn');
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60).toString().padStart(2, '0');
+      const s = (sec % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    toggleTimerBtn.addEventListener('click', () => {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        toggleTimerBtn.textContent = 'Tiếp tục';
+      } else {
+        timerInterval = setInterval(() => {
+          timerSeconds++;
+          timerDisplay.textContent = formatTime(timerSeconds);
+        }, 1000);
+        toggleTimerBtn.textContent = 'Tạm dừng';
+      }
+    });
+
+    resetTimerBtn.addEventListener('click', () => {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      timerSeconds = 0;
+      timerDisplay.textContent = '00:00';
+      toggleTimerBtn.textContent = 'Bắt đầu';
+    });
+
+    // Initial load
+    updateSlide(1);
+  </script>
+</body>
+</html>

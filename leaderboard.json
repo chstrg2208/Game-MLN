@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "name": "Nguyễn Hoàng (SE17)",
+    "score": 2850,
+    "quizCorrect": 18,
+    "level": 4,
+    "stars": 6,
+    "date": "10:15"
+  },
+  {
+    "id": 2,
+    "name": "Trần Minh Quân",
+    "score": 2240,
+    "quizCorrect": 15,
+    "level": 4,
+    "stars": 5,
+    "date": "10:20"
+  },
+  {
+    "id": 3,
+    "name": "Lê Bảo Ngọc",
+    "score": 1780,
+    "quizCorrect": 13,
+    "level": 3,
+    "stars": 4,
+    "date": "10:24"
+  },
+  {
+    "id": 4,
+    "name": "Phạm Gia Huy",
+    "score": 1350,
+    "quizCorrect": 11,
+    "level": 2,
+    "stars": 3,
+    "date": "10:30"
+  },
+  {
+    "id": 5,
+    "name": "Vũ Đăng Khoa",
+    "score": 980,
+    "quizCorrect": 9,
+    "level": 2,
+    "stars": 2,
+    "date": "10:35"
+  }
+]

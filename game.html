@@ -1,0 +1,3699 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a1128">
+<title>⚔️ Biện Chứng Kỷ Nguyên AI — MLN Game</title>
+<script src="qrcode.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap');
+
+:root {
+  --cyan: #38bdf8; --orange: #f97316; --gold: #fbbf24;
+  --green: #34d399; --red: #f87171; --purple: #a78bfa;
+  --dark: #0a1128; --card: #111827; --border: #1e3a5f;
+  --text: #f1f5f9; --muted: #64748b;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: radial-gradient(ellipse at 50% 0%, #0d1f3c 0%, #050a16 60%);
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+  font-family: 'Exo 2', 'Segoe UI', sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+/* ── OUTER WRAPPER ── */
+#wrapper {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center;
+  width: 100%;
+  max-width: 960px;
+  height: 100%;
+  justify-content: center;
+}
+
+/* ── CANVAS ── */
+#gameCanvas {
+  border-radius: 12px;
+  box-shadow: 0 0 0 1px #1e3a5f, 0 0 40px rgba(56,189,248,.15), 0 20px 60px rgba(0,0,0,.6);
+  display: block;
+  image-rendering: pixelated;
+  width: 100%;
+  height: auto;
+  max-height: calc(100dvh - 120px);
+  aspect-ratio: 16 / 9;
+  touch-action: none;
+  transition: box-shadow .3s;
+}
+
+/* ── TOP BAR (HUD outside canvas) ── */
+#topBar {
+  width: 100%; display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0 8px;
+  display: none;
+}
+#topBar.show { display: flex; }
+.hud-pill {
+  background: rgba(17,24,39,.85); border: 1px solid #1e3a5f;
+  border-radius: 20px; padding: 4px 14px; font-size: 12px;
+  color: var(--muted); display: flex; align-items: center; gap: 8px;
+  backdrop-filter: blur(8px);
+}
+.hud-pill span { color: var(--text); font-weight: 700; }
+
+/* ── BOTTOM CONTROLS BAR ── */
+#ctrlBar {
+  display: none; align-items: center; justify-content: center;
+  gap: 16px; padding: 8px 0 0;
+  flex-wrap: wrap;
+}
+#ctrlBar.show { display: flex; }
+.ctrl-badge {
+  background: rgba(17,24,39,.7); border: 1px solid #1e3a5f;
+  border-radius: 8px; padding: 4px 10px;
+  font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 5px;
+}
+.ctrl-badge kbd {
+  background: #1e293b; border: 1px solid #334155;
+  border-radius: 4px; padding: 1px 5px;
+  font-family: monospace; font-size: 11px; color: var(--cyan);
+}
+
+/* ── OVERLAY ── */
+#overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none; z-index: 20;
+  padding: 12px;
+}
+#overlay.active { pointer-events: auto; }
+
+/* ── MODALS ── */
+.modal {
+  display: none; flex-direction: column; gap: 18px;
+  background: linear-gradient(160deg, #0d1b33 0%, #080f1e 100%);
+  border: 1px solid rgba(56,189,248,.25);
+  border-radius: 20px; padding: 36px 40px;
+  width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 0 0 1px rgba(56,189,248,.08), 0 0 80px rgba(56,189,248,.08), 0 30px 80px rgba(0,0,0,.7);
+  animation: modalIn .35s cubic-bezier(.34,1.56,.64,1) both;
+  scrollbar-width: thin; scrollbar-color: #1e3a5f #080f1e;
+  pointer-events: auto;
+}
+.modal::-webkit-scrollbar { width: 4px; }
+.modal::-webkit-scrollbar-track { background: #080f1e; }
+.modal::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 2px; }
+.modal.show { display: flex; }
+@keyframes modalIn {
+  from { opacity:0; transform:scale(.92) translateY(20px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+
+.modal-logo {
+  text-align: center; font-family: 'Orbitron', monospace;
+  font-size: 26px; font-weight: 900; letter-spacing: 2px;
+  background: linear-gradient(135deg, var(--cyan) 0%, var(--orange) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  text-shadow: none; line-height: 1.2;
+}
+.modal-sub {
+  text-align: center; font-size: 13px; color: var(--muted);
+  letter-spacing: .5px; margin-top: -8px;
+}
+.modal h2 { font-size: 20px; font-weight: 700; color: var(--orange); }
+.modal p, .modal li { font-size: 14px; line-height: 1.65; color: #94a3b8; }
+.modal ul { padding-left: 18px; }
+.modal strong { color: var(--text); }
+
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(56,189,248,.2), transparent);
+}
+
+/* Info cards inside modal */
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.info-card {
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06);
+  border-radius: 12px; padding: 14px 16px;
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.info-card .ico { font-size: 22px; flex-shrink: 0; }
+.info-card .txt { display: flex; flex-direction: column; gap: 2px; }
+.info-card .txt strong { font-size: 13px; color: var(--text); }
+.info-card .txt span { font-size: 12px; color: var(--muted); }
+
+/* Controls table */
+.ctrl-grid {
+  display: grid; grid-template-columns: auto 1fr;
+  gap: 8px 16px; align-items: center;
+  background: rgba(255,255,255,.02); border-radius: 12px; padding: 16px;
+  border: 1px solid rgba(255,255,255,.05);
+}
+.ctrl-grid kbd {
+  background: #1e293b; border: 1px solid #334155;
+  border-radius: 6px; padding: 3px 8px;
+  font-family: monospace; font-size: 12px; color: var(--cyan);
+  white-space: nowrap;
+}
+.ctrl-grid span { font-size: 13px; color: #94a3b8; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 13px 28px; border-radius: 12px;
+  font-size: 15px; font-weight: 700; font-family: 'Exo 2', sans-serif;
+  cursor: pointer; border: none; text-decoration: none;
+  transition: all .2s cubic-bezier(.34,1.56,.64,1);
+  letter-spacing: .3px; align-self: center;
+  pointer-events: auto !important;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  border: 1px solid rgba(56,189,248,.4);
+  color: #fff; box-shadow: 0 4px 20px rgba(56,189,248,.2);
+}
+.btn-primary:hover { transform:translateY(-3px) scale(1.02); box-shadow:0 8px 30px rgba(56,189,248,.35); }
+.btn-orange {
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  border: 1px solid rgba(249,115,22,.4);
+  color: #fff; box-shadow: 0 4px 20px rgba(249,115,22,.2);
+}
+.btn-orange:hover { transform:translateY(-3px) scale(1.02); box-shadow:0 8px 30px rgba(249,115,22,.4); }
+.btn-green {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border: 1px solid rgba(52,211,153,.4);
+  color: #fff; box-shadow: 0 4px 20px rgba(52,211,153,.2);
+}
+.btn-green:hover { transform:translateY(-3px) scale(1.02); box-shadow:0 8px 30px rgba(52,211,153,.3); }
+
+/* Quiz */
+.quiz-q {
+  font-size: 16px; font-weight: 600; color: var(--text);
+  line-height: 1.55; padding: 16px; background: rgba(255,255,255,.03);
+  border-radius: 12px; border-left: 3px solid var(--cyan);
+}
+.quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+.quiz-opt {
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px; padding: 13px 16px;
+  font-size: 14px; color: #cbd5e1; cursor: pointer; text-align: left;
+  transition: all .18s ease; display: flex; align-items: center; gap: 12px;
+  font-family: 'Exo 2', sans-serif;
+}
+.quiz-opt .opt-letter {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: rgba(255,255,255,.06); display: flex;
+  align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px; color: var(--cyan);
+  flex-shrink: 0; transition: all .18s;
+}
+.quiz-opt:hover { border-color: var(--cyan); background:rgba(56,189,248,.06); transform:translateX(4px); }
+.quiz-opt:hover .opt-letter { background:var(--cyan); color:#000; }
+.quiz-opt.correct { border-color: var(--green) !important; background:rgba(52,211,153,.1) !important; color: var(--green); pointer-events:none; }
+.quiz-opt.correct .opt-letter { background:var(--green); color:#000; }
+.quiz-opt.wrong { border-color: var(--red) !important; background:rgba(248,113,113,.1) !important; color: var(--red); pointer-events:none; }
+.quiz-opt.wrong .opt-letter { background:var(--red); color:#000; }
+.quiz-opt.disabled { pointer-events:none; opacity:.5; }
+.quiz-opt.disabled.correct { opacity:1; }
+
+/* Feedback box */
+.feedback-box {
+  border-radius: 12px; padding: 14px 16px;
+  font-size: 13px; line-height: 1.6; display:none;
+  gap: 8px; flex-direction: column;
+}
+.feedback-box.show { display:flex; }
+.feedback-box.ok { background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.3); color:#86efac; }
+.feedback-box.err { background:rgba(248,113,113,.08); border:1px solid rgba(248,113,113,.3); color:#fca5a5; }
+.feedback-box strong { font-size: 15px; }
+
+/* Stats grid */
+.stats-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; }
+.stat-card {
+  background: rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06);
+  border-radius: 14px; padding:16px 12px; text-align:center;
+  display:flex; flex-direction:column; gap:4px;
+}
+.stat-val { font-size: 30px; font-weight: 900; font-family:'Orbitron',monospace; }
+.stat-lbl { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+
+/* Progress bar for quiz rounds */
+.quiz-progress { display:flex; gap:4px; align-items:center; }
+.quiz-pip { flex:1; height:4px; border-radius:2px; background:rgba(255,255,255,.1); transition:background .3s; }
+.quiz-pip.done { background:var(--green); }
+.quiz-pip.active { background:var(--cyan); }
+
+/* Level intro accent */
+.boss-preview {
+  display:flex; align-items:center; gap:16px;
+  background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.06);
+  border-radius:14px; padding:16px;
+}
+.boss-icon { font-size:48px; line-height:1; }
+.boss-info strong { font-size:16px; color:var(--text); display:block; margin-bottom:4px; }
+.boss-info span { font-size:13px; color:var(--muted); }
+
+/* Tip box */
+.tip-box {
+  background:rgba(251,191,36,.05); border:1px solid rgba(251,191,36,.2);
+  border-radius:12px; padding:14px 16px;
+  font-size:13px; color:#fde68a; line-height:1.6;
+}
+.tip-box strong { color:var(--gold); }
+
+/* ── HUD ACTION BUTTONS (TOP BAR) ── */
+.hud-btn {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid #1e3a5f;
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cyan);
+  cursor: pointer;
+  transition: all .2s ease;
+  font-family: 'Exo 2', sans-serif;
+  display: flex; align-items: center; gap: 6px;
+  backdrop-filter: blur(6px);
+}
+.hud-btn:hover {
+  background: var(--cyan);
+  color: #040914;
+  border-color: var(--cyan);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.4);
+}
+.hud-btn.gold {
+  color: var(--gold);
+  border-color: rgba(251, 191, 36, 0.4);
+}
+.hud-btn.gold:hover {
+  background: var(--gold);
+  color: #000;
+  box-shadow: 0 4px 14px rgba(251, 191, 36, 0.4);
+}
+
+/* ── QR CODE MODAL & CARDS ── */
+.qr-container-card {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  width: 100%;
+}
+.qr-frame {
+  background: #ffffff;
+  padding: 14px;
+  border-radius: 14px;
+  box-shadow: 0 0 35px rgba(56, 189, 248, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 228px;
+  min-height: 228px;
+}
+.qr-frame img, .qr-frame canvas {
+  display: block;
+  border-radius: 6px;
+}
+.qr-url-box {
+  background: rgba(2, 6, 23, 0.85);
+  border: 1px solid #1e3a5f;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-family: monospace;
+  font-size: 13px;
+  color: var(--cyan);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+}
+.qr-url-box span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--cyan);
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 700;
+  transition: all .15s;
+}
+.btn-sm:hover {
+  background: var(--cyan);
+  color: #000;
+}
+
+/* ── LEADERBOARD TOP 5 STYLES ── */
+.lb-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin: 10px 0;
+}
+.lb-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: all .2s ease;
+}
+.lb-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateX(3px);
+}
+.lb-rank-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.lb-rank-1 {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(217, 119, 6, 0.4));
+  border: 1px solid #fbbf24;
+  color: #fbbf24;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+}
+.lb-rank-2 {
+  background: linear-gradient(135deg, rgba(203, 213, 225, 0.3), rgba(148, 163, 184, 0.4));
+  border: 1px solid #cbd5e1;
+  color: #cbd5e1;
+}
+.lb-rank-3 {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.3), rgba(194, 65, 12, 0.4));
+  border: 1px solid #f97316;
+  color: #f97316;
+}
+.lb-rank-other {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--muted);
+}
+.lb-info {
+  flex: 1;
+  text-align: left;
+}
+.lb-player-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f8fafc;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.lb-meta {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.lb-score-val {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 18px;
+  color: var(--green);
+  text-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ── SCORE SUBMISSION FORM ── */
+.submit-score-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: 12px;
+  padding: 14px;
+  margin: 12px 0;
+  text-align: center;
+  width: 100%;
+}
+.submit-input-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 8px;
+}
+.submit-input {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #f8fafc;
+  font-size: 14px;
+  font-family: 'Exo 2', sans-serif;
+  outline: none;
+  flex: 1;
+  max-width: 280px;
+}
+.submit-input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+/* ── MOBILE TOUCH CONTROLS ── */
+#touchControls {
+  position: fixed;
+  bottom: 14px;
+  left: 0;
+  right: 0;
+  display: none;
+  justify-content: space-between;
+  padding: 0 18px;
+  pointer-events: none;
+  z-index: 100;
+}
+#touchControls.active {
+  display: flex;
+}
+.touch-cluster {
+  display: flex;
+  gap: 10px;
+  pointer-events: auto;
+  align-items: flex-end;
+}
+.t-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.85);
+  border: 2px solid rgba(56, 189, 248, 0.4);
+  color: #f8fafc;
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+  cursor: pointer;
+}
+.t-btn:active, .t-btn.active {
+  background: rgba(56, 189, 248, 0.45);
+  border-color: var(--cyan);
+  transform: scale(0.92);
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
+}
+.t-btn-act {
+  width: 56px;
+  height: 56px;
+  border-color: rgba(249, 115, 22, 0.5);
+}
+.t-btn-act:active, .t-btn-act.active {
+  background: rgba(249, 115, 22, 0.45);
+  border-color: var(--orange);
+  transform: scale(0.92);
+  box-shadow: 0 0 15px rgba(249, 115, 22, 0.6);
+}
+.t-sub {
+  font-size: 8px;
+  font-family: 'Exo 2', sans-serif;
+  color: var(--muted);
+  font-weight: 700;
+  margin-top: 1px;
+}
+
+/* ── PLAYER MOBILE START SCREEN STYLES ── */
+.player-name-card {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: left;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  width: 100%;
+}
+.player-big-input {
+  width: 100%;
+  background: #060d1a;
+  border: 2px solid #334155;
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 16px;
+  font-family: 'Exo 2', sans-serif;
+  color: #f8fafc;
+  outline: none;
+  transition: all .2s;
+}
+.player-big-input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+}
+.rules-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  width: 100%;
+}
+.rule-item {
+  font-size: 12px;
+  color: #cbd5e1;
+  line-height: 1.45;
+}
+.rule-item strong {
+  color: var(--gold);
+}
+.btn-glow {
+  box-shadow: 0 0 25px rgba(249, 115, 22, 0.45);
+  animation: startGlow 1.5s infinite alternate ease-in-out;
+}
+@keyframes startGlow {
+  0% { transform: scale(1); box-shadow: 0 0 15px rgba(249, 115, 22, 0.3); }
+  100% { transform: scale(1.02); box-shadow: 0 0 30px rgba(249, 115, 22, 0.6); }
+}
+.auto-submit-banner {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+  margin: 10px 0;
+  width: 100%;
+}
+
+/* ── LOBBY / WAITING ROOM STYLES ── */
+.lobby-admin-box {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  border-radius: 14px;
+  padding: 14px 16px;
+  width: 100%;
+  margin-top: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  text-align: left;
+}
+.lobby-admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.lobby-count-pill {
+  background: rgba(56, 189, 248, 0.2);
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 800;
+  font-family: 'Orbitron', monospace;
+}
+.lobby-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 110px;
+  overflow-y: auto;
+  padding: 6px;
+  background: rgba(2, 6, 23, 0.6);
+  border-radius: 8px;
+  border: 1px solid #1e293b;
+  min-height: 44px;
+  align-items: center;
+}
+.lobby-chip {
+  background: rgba(30, 58, 95, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #f8fafc;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  animation: chipFadeIn .3s ease-out;
+}
+@keyframes chipFadeIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.lobby-pulse-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 10px #34d399;
+  display: inline-block;
+  animation: pulseDot 1.4s infinite ease-in-out;
+}
+@keyframes pulseDot {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 15px #34d399; }
+  100% { transform: scale(0.9); opacity: 0.6; }
+}
+.waiting-radar-container {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.radar-circle {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--cyan);
+  animation: radarRipple 2s infinite ease-out;
+}
+@keyframes radarRipple {
+  0% { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+.radar-icon {
+  font-size: 36px;
+  z-index: 2;
+  animation: radarFloat 2.5s infinite ease-in-out;
+}
+@keyframes radarFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+.countdown-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(2, 6, 23, 0.94);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+}
+.countdown-number {
+  font-family: 'Orbitron', monospace;
+  font-size: 110px;
+  font-weight: 900;
+  color: var(--orange);
+  text-shadow: 0 0 35px rgba(249, 115, 22, 0.8), 0 0 70px rgba(249, 115, 22, 0.5);
+  animation: countdownZoom 1s infinite ease-in-out;
+}
+@keyframes countdownZoom {
+  0% { transform: scale(1.3); opacity: 0; }
+  30% { transform: scale(1); opacity: 1; }
+  80% { transform: scale(0.95); opacity: 1; }
+  100% { transform: scale(0.85); opacity: 0; }
+}
+.countdown-sub {
+  font-family: 'Orbitron', monospace;
+  font-size: 20px;
+  font-weight: 800;
+  color: #f8fafc;
+  letter-spacing: 2px;
+  margin-top: 10px;
+}
+
+/* ── COMPREHENSIVE MOBILE RESPONSIVE OPTIMIZATIONS ── */
+.mobile-hint {
+  display: none;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 11.5px;
+  color: #bae6fd;
+  text-align: center;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 0;
+    justify-content: flex-start;
+  }
+  #wrapper {
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    justify-content: flex-start;
+  }
+  #gameCanvas {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16 / 9;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    max-height: 44vh;
+    touch-action: none;
+  }
+  #topBar {
+    padding: 6px 10px;
+    font-size: 11px;
+    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  .hud-pill {
+    padding: 3px 8px;
+    font-size: 11px;
+    gap: 4px;
+  }
+  .hud-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  #ctrlBar {
+    display: none !important; /* Ẩn phím bàn phím trên điện thoại */
+  }
+
+  /* Modals on mobile */
+  #overlay {
+    padding: 8px;
+    align-items: center;
+  }
+  .modal {
+    padding: 18px 14px;
+    border-radius: 16px;
+    max-height: 92vh;
+    max-height: 92dvh;
+    gap: 12px;
+  }
+  .modal-logo {
+    font-size: 17px;
+    letter-spacing: 0.5px;
+  }
+  .modal-sub {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .info-card {
+    padding: 8px 10px;
+  }
+  .info-card .ico {
+    font-size: 18px;
+  }
+  .info-card .txt strong {
+    font-size: 12.5px;
+  }
+  .info-card .txt span {
+    font-size: 11px;
+  }
+  .ctrl-grid {
+    grid-template-columns: 1fr;
+    gap: 5px;
+    font-size: 11px;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .stat-card {
+    padding: 8px;
+  }
+  .stat-val {
+    font-size: 22px;
+  }
+  .stat-lbl {
+    font-size: 10px;
+  }
+  .quiz-q {
+    font-size: 14px;
+    padding: 12px;
+  }
+  .quiz-opt {
+    padding: 11px 12px;
+    font-size: 13px;
+  }
+
+  /* Touch controls mobile placement */
+  #touchControls {
+    position: relative;
+    bottom: 0;
+    padding: 8px 14px calc(12px + env(safe-area-inset-bottom, 0px));
+    width: 100%;
+    margin-top: auto;
+    background: linear-gradient(to top, rgba(10,17,40,0.98), transparent);
+  }
+  .touch-cluster {
+    gap: 8px;
+  }
+  .t-btn {
+    width: 54px;
+    height: 54px;
+    font-size: 14px;
+  }
+  .t-btn-act {
+    width: 54px;
+    height: 54px;
+  }
+
+  /* QR & Leaderboard on mobile */
+  .qr-container-card {
+    padding: 12px;
+  }
+  .qr-frame {
+    min-width: 170px;
+    min-height: 170px;
+    padding: 8px;
+  }
+  .qr-frame img, .qr-frame canvas {
+    width: 170px !important;
+    height: 170px !important;
+  }
+  .lb-card {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .lb-rank-badge {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
+  .lb-player-name {
+    font-size: 13px;
+  }
+  .lb-meta {
+    font-size: 10px;
+  }
+  .lb-score-val {
+    font-size: 14px;
+  }
+  .submit-input-row {
+    flex-direction: column;
+  }
+  .submit-input {
+    max-width: 100%;
+  }
+  .mobile-hint {
+    display: block;
+  }
+}
+
+/* Landscape Mode on mobile */
+@media (max-width: 900px) and (orientation: landscape) {
+  body {
+    justify-content: center;
+  }
+  #wrapper {
+    height: 100vh;
+    height: 100dvh;
+    justify-content: center;
+  }
+  #gameCanvas {
+    width: auto !important;
+    height: 88vh !important;
+    height: 88dvh !important;
+    aspect-ratio: 16 / 9;
+    border-radius: 8px;
+    touch-action: none;
+  }
+  #touchControls {
+    position: fixed;
+    bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+    left: 0;
+    right: 0;
+    padding: 0 calc(12px + env(safe-area-inset-right, 0px)) 0 calc(12px + env(safe-area-inset-left, 0px));
+    background: none;
+  }
+  .t-btn {
+    width: 48px;
+    height: 48px;
+    background: rgba(15, 23, 42, 0.65);
+  }
+  .modal {
+    max-height: 94vh;
+    max-height: 94dvh;
+    padding: 14px 18px;
+  }
+  .mobile-hint {
+    display: none;
+  }
+}
+</style>
+</head>
+<body>
+
+<div id="wrapper">
+  <!-- Top HUD (outside canvas) -->
+  <div id="topBar">
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+      <div class="hud-pill" id="hudPlayerPill" style="display:none;color:var(--gold);font-weight:700;">👤 <span id="hudPlayerNameText"></span></div>
+      <div class="hud-pill">Màn <span id="hudLevel">1</span>/4</div>
+      <div class="hud-pill">⭐ <span id="hudStars">0</span> &nbsp;|&nbsp; 🏆 <span id="hudScore">0</span></div>
+      <div class="hud-pill">✅ <span id="hudQuiz">0/0</span> đúng</div>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <button class="hud-btn gold" onclick="UI.showLeaderboardModal()">🏆 Top 5</button>
+      <button class="hud-btn" id="btnTopBarQR" onclick="UI.showQRModal()">📱 Quét QR</button>
+      <button class="hud-btn" id="btnFullscreen" onclick="UI.toggleFullscreen()" title="Toàn màn hình">⛶</button>
+    </div>
+  </div>
+
+  <!-- CANVAS -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Bottom Controls -->
+  <div id="ctrlBar">
+    <div class="ctrl-badge"><kbd>A</kbd><kbd>D</kbd> Di chuyển</div>
+    <div class="ctrl-badge"><kbd>W</kbd> Nhảy 2 bước</div>
+    <div class="ctrl-badge"><kbd>S</kbd> Xuống bệ</div>
+    <div class="ctrl-badge"><kbd>Shift</kbd><kbd>L</kbd> Lướt né đạn (Dash)</div>
+    <div class="ctrl-badge"><kbd>J</kbd><kbd>Space</kbd> Giữ bắn Laser</div>
+    <div class="ctrl-badge"><kbd>K</kbd> Đại pháo (3⭐)</div>
+    <div class="ctrl-badge"><kbd>P</kbd> Tạm dừng</div>
+  </div>
+
+  <!-- Mobile Touch Controls -->
+  <div id="touchControls">
+    <div class="touch-cluster">
+      <div class="t-btn" id="btnTouchLeft">◀<span class="t-sub">Trái</span></div>
+      <div class="t-btn" id="btnTouchRight">▶<span class="t-sub">Phải</span></div>
+      <div class="t-btn" id="btnTouchDown">▼<span class="t-sub">Xuống</span></div>
+    </div>
+    <div class="touch-cluster">
+      <div class="t-btn t-btn-act" id="btnTouchDash">⚡<span class="t-sub">Lướt</span></div>
+      <div class="t-btn t-btn-act" id="btnTouchJump">▲<span class="t-sub">Nhảy</span></div>
+      <div class="t-btn t-btn-act" id="btnTouchShoot">🔫<span class="t-sub">Bắn</span></div>
+      <div class="t-btn t-btn-act" id="btnTouchUlt">💥<span class="t-sub">3⭐</span></div>
+    </div>
+  </div>
+
+  <!-- OVERLAY -->
+  <div id="overlay" class="active">
+
+    <!-- ── PLAYER MOBILE START SCREEN (KHI ĐIỆN THOẠI QUÉT QR VÀO CHƠI) ── -->
+    <div class="modal" id="screenPlayerStart">
+      <div class="mobile-hint" style="display:block;">💡 <strong>Mẹo:</strong> Xoay ngang màn hình hoặc ấn <strong>⛶</strong> để chơi toàn màn hình!</div>
+      <div class="modal-logo">⚔️ ĐẤU TRƯỜNG TRIẾT HỌC AI</div>
+      <div class="modal-sub">ĐUA TOP TRANH HẠNG TRỰC TIẾP TRÊN MÁY CHIẾU | FPT University</div>
+      <div class="divider"></div>
+
+      <!-- BANNER CẢNH BÁO NẾU ĐÃ HOÀN THÀNH 1 LƯỢT THI ĐẤU -->
+      <div id="playerPlayedWarning" class="auto-submit-banner" style="display:none;margin-bottom:12px;"></div>
+
+      <!-- Ô BẮT BUỘC NHẬP HỌ TÊN -->
+      <div class="player-name-card" id="playerNameCard">
+        <label for="inputPlayerName" style="display:block;font-size:13px;font-weight:700;color:var(--gold);margin-bottom:8px;">
+          👤 NHẬP HỌ TÊN HOẶC MSSV CỦA BẠN: <span style="color:#f87171;">*</span>
+        </label>
+        <input type="text" id="inputPlayerName" class="player-big-input" placeholder="Ví dụ: Nguyễn Văn A - SE17xxxx" maxlength="25" autocomplete="name" required onkeydown="if(event.key==='Enter') UI.startPlayerGame()">
+        <div id="playerNameError" style="display:none;color:#f87171;font-size:12px;margin-top:8px;font-weight:700;">
+          ⚠️ VUI LÒNG NHẬP HỌ TÊN HOẶC MSSV ĐỂ VÀO THI ĐẤU!
+        </div>
+      </div>
+
+      <!-- THỂ LỆ 1 MẠNG DUY NHẤT -->
+      <div class="rules-card">
+        <div class="rule-item">🎯 <strong>1 Mạng Duy Nhất:</strong> Thi đấu 1 lượt duy nhất! Khi kết thúc, điểm số sẽ tự động lưu thẳng về máy chiếu Admin.</div>
+        <div class="rule-item">📝 <strong>18 Câu Trắc Nghiệm:</strong> Trả lời đúng để hồi +50 HP và tăng sức mạnh súng Laser.</div>
+        <div class="rule-item">📱 <strong>Phím Ảo Cảm Ứng:</strong> Dùng các nút tròn bên dưới màn hình để di chuyển, nhảy né đạn và giữ bắn liên thanh.</div>
+      </div>
+
+      <button class="btn btn-orange btn-glow" id="btnStartPlayerGame" onclick="UI.startPlayerGame()" style="font-size:16px;padding:15px;width:100%;font-weight:900;">
+        🚀 ĐĂNG KÝ VÀO PHÒNG CHỜ!
+      </button>
+      <button class="btn btn-green" onclick="UI.showLeaderboardModal()" style="width:100%;font-size:13px;">
+        🏆 Xem Bảng Xếp Hạng TOP 5
+      </button>
+    </div>
+
+    <!-- ── PLAYER WAITING ROOM MODAL (PHÒNG CHỜ THÍ SINH) ── -->
+    <div class="modal" id="screenPlayerWaiting">
+      <div class="waiting-radar-container">
+        <div class="radar-circle"></div>
+        <div class="radar-icon">🎮</div>
+      </div>
+      <div class="modal-logo" style="color:var(--cyan);font-size:20px;">PHÒNG CHỜ THI ĐẤU</div>
+      <div style="font-size:13px;color:var(--gold);font-weight:700;">
+        👤 Thí sinh: <span id="waitingPlayerName"></span>
+      </div>
+      <div class="divider"></div>
+
+      <div class="auto-submit-banner" style="background:rgba(56,189,248,0.12);border-color:rgba(56,189,248,0.4);padding:12px;">
+        <div style="display:flex;align-items:center;gap:8px;justify-content:center;">
+          <span class="lobby-pulse-dot"></span>
+          <span style="font-size:14px;font-weight:800;color:#f8fafc;">ĐÃ KẾT NỐI VÀO PHÒNG CHỜ!</span>
+        </div>
+        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin-top:6px;">
+          Vui lòng theo dõi màn hình máy chiếu.<br>
+          <strong style="color:var(--orange);">Trận đấu sẽ tự động bắt đầu khi Người Chủ Trì bấm lệnh!</strong>
+        </p>
+      </div>
+
+      <div class="lobby-admin-box" style="margin-top:4px;">
+        <div class="lobby-admin-header">
+          <span style="font-size:12px;font-weight:700;color:var(--gold);">👥 BẠN CÙNG PHÒNG CHỜ:</span>
+          <span class="lobby-count-pill" id="playerWaitingCount">1 người</span>
+        </div>
+        <div class="lobby-chips" id="playerWaitingChips">
+          <div style="color:var(--muted);font-size:12px;font-style:italic;">Đang kết nối danh sách bạn cùng phòng...</div>
+        </div>
+      </div>
+
+      <div class="rules-card" style="margin-top:8px;">
+        <div class="rule-item">💡 <strong>Mẹo sẵn sàng:</strong> Hãy làm quen các nút cảm ứng bên dưới (Nhảy 2 bước, Lướt né đạn, Bắn liên thanh). Game chỉ có 1 mạng duy nhất!</div>
+      </div>
+    </div>
+
+    <!-- ── FULLSCREEN COUNTDOWN OVERLAY ── -->
+    <div id="countdownOverlay" class="countdown-overlay" style="display:none;">
+      <div class="countdown-number" id="countdownNumber">3</div>
+      <div class="countdown-sub" id="countdownSub">CHUẨN BỊ CHIẾN ĐẤU!</div>
+    </div>
+
+    <!-- ── ADMIN START SCREEN (MÁY CHỦ THUYẾT TRÌNH) ── -->
+    <div class="modal show" id="screenStart">
+      <div class="mobile-hint">💡 <strong>Mẹo điện thoại:</strong> Xoay ngang màn hình (Landscape) hoặc bấm nút <strong>⛶</strong> để chơi toàn màn hình cực đã!</div>
+      <div class="modal-logo">⚔️ BIỆN CHỨNG KỶ NGUYÊN AI</div>
+      <div class="modal-sub">GAME ÔN TẬP TRIẾT HỌC MÁC - LÊNIN | Chương 3: CNDVLS | FPT University</div>
+      <div class="divider"></div>
+      <div class="info-grid">
+        <div class="info-card">
+          <span class="ico">🤖</span>
+          <div class="txt"><strong>4 Màn Boss AI Độc Bản</strong><span>Mỗi Boss sở hữu 3-4 chiêu thức ma trận đạn và cơ chế riêng</span></div>
+        </div>
+        <div class="info-card">
+          <span class="ico">📝</span>
+          <div class="txt"><strong>18 Câu trắc nghiệm Triết</strong><span>Trả lời đúng: Hồi +50 HP & Tăng sát thương súng Laser!</span></div>
+        </div>
+        <div class="info-card">
+          <span class="ico">⭐</span>
+          <div class="txt"><strong>Đại pháo hủy diệt (K)</strong><span>Gom đủ 3 sao để xóa sạch đạn Boss và dồn sát thương cực khủng</span></div>
+        </div>
+        <div class="info-card">
+          <span class="ico">⚡</span>
+          <div class="txt"><strong>Cơ động cao (Mario-style)</strong><span>Nhảy 2 bước (Double Jump) & Lướt né bất tử (Dash Shift/L)</span></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <p style="color:#64748b;font-size:13px;text-align:center;margin-bottom:-6px;">🕹️ Hướng Dẫn Phím Điều Khiển</p>
+      <div class="ctrl-grid">
+        <kbd>A / D hoặc ◀ / ▶</kbd><span>Di chuyển mượt mà trái / phải</span>
+        <kbd>W hoặc ▲</kbd><span>Nhảy & Nhảy 2 bước trên không (Double Jump)</span>
+        <kbd>S hoặc ▼</kbd><span>Rơi xuyên bệ lơ lửng xuống tầng dưới</span>
+        <kbd>Shift hoặc L</kbd><span>Lướt né siêu tốc (Dash) — Bất tử 0.2s né đạn ma trận</span>
+        <kbd>J hoặc Space</kbd><span>Bắn súng Laser (Giữ phím để xả đạn liên tục)</span>
+        <kbd>K</kbd><span>Đại pháo năng lượng (cần 3⭐ — xóa sạch đạn Boss)</span>
+        <kbd>P</kbd><span>Tạm dừng / Tiếp tục</span>
+      </div>
+
+      <!-- LOBBY STATUS CARD CHO CHỦ TRÌ (MÁY CHIẾU) -->
+      <div class="lobby-admin-box">
+        <div class="lobby-admin-header">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="lobby-pulse-dot"></span>
+            <span style="font-weight:900;font-size:15px;color:var(--gold);">👥 PHÒNG CHỜ CẢ LỚP (REAL-TIME)</span>
+          </div>
+          <span class="lobby-count-pill" id="adminLobbyCount">0 người đã sẵn sàng</span>
+        </div>
+        <div class="lobby-chips" id="adminLobbyChips">
+          <div style="color:var(--muted);font-size:12px;font-style:italic;">Chưa có ai vào phòng. Quét mã QR để tham gia!</div>
+        </div>
+        <div style="display:flex;gap:10px;width:100%;margin-top:12px;">
+          <button class="btn btn-orange btn-glow" id="btnAdminStartAll" onclick="UI.adminStartTournament()" style="flex:2;font-size:16px;font-weight:900;padding:14px;">
+            🚀 PHÁT LỆNH BẮT ĐẦU CHO CẢ LỚP!
+          </button>
+          <button class="btn btn-primary" onclick="UI.adminResetLobby()" style="flex:1;font-size:12px;">
+            🔄 Mở lại phòng
+          </button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:10px;width:100%;">
+        <button class="btn btn-primary" onclick="UI.showQRModal()" style="flex:1;">📱 Quét Mã QR (Dành Cho Cả Lớp)</button>
+        <button class="btn btn-green" onclick="UI.showLeaderboardModal()" style="flex:1;">🏆 Bảng Xếp Hạng TOP 5</button>
+      </div>
+      <button class="btn btn-orange" onclick="UI.startGame()" style="margin-top:10px;">🚀 BẮT ĐẦU CHIẾN ĐẤU (MÀN HÌNH CHÍNH)!</button>
+    </div>
+
+    <!-- ── QR CODE MODAL ── -->
+    <div class="modal" id="screenQR">
+      <div class="modal-logo">📱 THAM GIA ĐUA TOP TRIẾT HỌC</div>
+      <div class="modal-sub">DÀNH CHO KHÁN GIẢ & CẢ LỚP | Quét mã bằng camera điện thoại để vào chơi ngay!</div>
+      <div class="divider"></div>
+      
+      <div class="qr-container-card">
+        <div class="qr-frame" id="qrCodeContainer"></div>
+        <div class="qr-url-box">
+          <span id="qrUrlDisplay">Đang tải địa chỉ kết nối...</span>
+          <button class="btn-sm" onclick="UI.copyQRUrl()">📋 Copy</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);width:100%;justify-content:center;flex-wrap:wrap;">
+          <span>Đổi IP Wi-Fi/Mạng:</span>
+          <select id="qrIpSelect" onchange="UI.onSelectIp(this.value)" style="background:#0f172a;border:1px solid #334155;color:#38bdf8;padding:4px 8px;border-radius:6px;font-size:12px;outline:none;">
+          </select>
+        </div>
+      </div>
+
+      <!-- Live lobby count inside QR modal so whole class sees names join live on screen -->
+      <div class="lobby-admin-box" style="margin-top:6px;width:100%;">
+        <div class="lobby-admin-header">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="lobby-pulse-dot"></span>
+            <span style="font-weight:800;font-size:14px;color:var(--gold);">👥 ĐÃ VÀO PHÒNG CHỜ:</span>
+          </div>
+          <span class="lobby-count-pill" id="qrLobbyCount">0 người</span>
+        </div>
+        <div class="lobby-chips" id="qrLobbyChips" style="max-height:85px;">
+          <div style="color:var(--muted);font-size:12px;font-style:italic;">Quét mã phía trên để tên bạn xuất hiện tại đây...</div>
+        </div>
+        <button class="btn btn-orange btn-glow" onclick="UI.adminStartTournament()" style="width:100%;margin-top:10px;font-size:15px;font-weight:900;padding:13px;">
+          🚀 PHÁT LỆNH BẮT ĐẦU CHO CẢ LỚP!
+        </button>
+      </div>
+
+      <div class="divider"></div>
+      <div style="display:flex;gap:10px;width:100%;">
+        <button class="btn btn-green" onclick="UI.showLeaderboardModal()" style="flex:1;">🏆 Xem Bảng Xếp Hạng TOP 5</button>
+        <button class="btn btn-primary" onclick="UI.closeModal()" style="flex:1;">✕ Đóng</button>
+      </div>
+    </div>
+
+    <!-- ── LEADERBOARD MODAL ── -->
+    <div class="modal" id="screenLeaderboard">
+      <div class="modal-logo">🏆 BẢNG VINH DANH TOP 5</div>
+      <div class="modal-sub">TRIẾT GIA AI XUẤT SẮC NHẤT | FPT University</div>
+      <div class="divider"></div>
+
+      <div class="lb-wrapper" id="leaderboardList">
+        <div style="text-align:center;color:var(--muted);padding:20px;">Đang tải danh sách Top 5...</div>
+      </div>
+
+      <div class="divider"></div>
+      <div style="display:flex;gap:10px;width:100%;">
+        <button class="btn btn-green" onclick="UI.fetchLeaderboard(true)" style="flex:1;">🔄 Làm mới</button>
+        <button class="btn btn-primary" id="btnLbShowQR" onclick="UI.showQRModal()" style="flex:1;">📱 Hiện mã QR</button>
+        <button class="btn btn-orange" onclick="UI.closeModal()" style="flex:1;">✕ Đóng</button>
+      </div>
+      <div id="adminResetContainer" style="text-align:right;margin-top:8px;">
+        <button id="btnResetLeaderboard" onclick="UI.resetLeaderboard()" style="background:none;border:none;color:#ef4444;font-size:11px;cursor:pointer;text-decoration:underline;">🗑️ Đặt lại giải đấu mới</button>
+      </div>
+    </div>
+
+    <!-- ── LEVEL INTRO ── -->
+    <div class="modal" id="screenIntro">
+      <div id="introLevelTag" style="font-size:12px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;"></div>
+      <div id="introTitle" style="font-family:'Orbitron',monospace;font-size:22px;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;"></div>
+      <div id="introBossPreview" class="boss-preview"></div>
+      <p id="introDesc"></p>
+      <div id="introTip" class="tip-box"></div>
+      <button class="btn btn-orange" onclick="UI.startLevel()">⚔️ Chiến đấu!</button>
+    </div>
+
+    <!-- ── QUIZ SCREEN ── -->
+    <div class="modal" id="screenQuiz">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div id="quizLabel" style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">Câu hỏi ôn tập</div>
+        <div id="quizPips" class="quiz-progress"></div>
+      </div>
+      <div id="quizQ" class="quiz-q"></div>
+      <div id="quizOpts" class="quiz-opts"></div>
+      <div id="quizFeedback" class="feedback-box"></div>
+      <button class="btn btn-green" id="quizNextBtn" style="display:none;" onclick="UI.quizNext()">Câu tiếp theo ▶</button>
+    </div>
+
+    <!-- ── VICTORY ── -->
+    <div class="modal" id="screenVictory">
+      <div class="modal-logo">🏆 CHIẾN THẮNG VINH QUANG!</div>
+      <div class="divider"></div>
+      <p style="text-align:center;font-size:16px;color:var(--green);font-weight:600;line-height:1.6;">
+        "AI không loại bỏ con người —<br>AI chỉ loại bỏ những ai từ chối nâng cấp sức lao động của chính mình."
+      </p>
+      <div class="divider"></div>
+      <div class="stats-grid" id="victoryStats"></div>
+
+      <!-- Auto submit banner cho người chơi di động -->
+      <div id="playerSubmitBannerVictory" class="auto-submit-banner" style="display:none;">
+        <div style="font-size:15px;font-weight:900;color:#34d399;margin-bottom:4px;">
+          ✅ ĐÃ TỰ ĐỘNG GỬI ĐIỂM VỀ MÁY CHIẾU ADMIN!
+        </div>
+        <div style="font-size:13px;color:#f8fafc;margin-bottom:4px;">
+          Thí sinh: <strong class="submitted-player-name" style="color:var(--gold);"></strong>
+        </div>
+        <div style="font-size:11.5px;color:var(--muted);">
+          ⭐ Bạn đã hoàn thành lượt thi đấu của mình. Hãy theo dõi bảng xếp hạng trên màn hình máy chiếu!
+        </div>
+      </div>
+
+      <!-- Khung nộp điểm cho Admin máy chủ -->
+      <div class="submit-score-box" id="submitBoxVictory">
+        <p style="font-weight:700;color:var(--gold);margin-bottom:4px;">🎖️ ĐẠT ĐƯỢC: <span id="victoryScoreDisplay">0</span> ĐIỂM!</p>
+        <p style="font-size:12px;color:var(--muted);">Nhập Họ Tên / MSSV để lưu danh vào TOP 5:</p>
+        <div class="submit-input-row">
+          <input type="text" id="playerNameVictory" class="submit-input" placeholder="Tên bạn (vd: Hoàng - SE17...)" maxlength="25">
+          <button class="btn btn-green" style="padding:10px 18px;" onclick="UI.submitScore('victory')">🚀 Nộp điểm</button>
+        </div>
+        <div id="submitMsgVictory" style="font-size:12px;margin-top:6px;font-weight:700;"></div>
+      </div>
+
+      <div style="display:flex;gap:10px;width:100%;margin-top:10px;">
+        <button class="btn btn-green" onclick="UI.showLeaderboardModal()" style="flex:1;">🏆 Xem Bảng Xếp Hạng TOP 5</button>
+        <button class="btn btn-orange" id="btnVictoryReplay" onclick="location.reload()" style="flex:1;">🔄 Chơi lại</button>
+      </div>
+    </div>
+
+    <!-- ── GAME OVER ── -->
+    <div class="modal" id="screenGameover">
+      <div style="font-family:'Orbitron',monospace;font-size:24px;font-weight:900;color:var(--red);text-align:center;">💀 GAME OVER</div>
+      <div class="divider"></div>
+      <p id="goMsg" style="text-align:center;color:#fca5a5;font-size:15px;"></p>
+      <div class="stats-grid" id="goStats"></div>
+
+      <!-- Auto submit banner cho người chơi di động -->
+      <div id="playerSubmitBannerGameover" class="auto-submit-banner" style="display:none;">
+        <div style="font-size:15px;font-weight:900;color:#34d399;margin-bottom:4px;">
+          ✅ ĐÃ TỰ ĐỘNG GỬI ĐIỂM VỀ MÁY CHIẾU ADMIN!
+        </div>
+        <div style="font-size:13px;color:#f8fafc;margin-bottom:4px;">
+          Thí sinh: <strong class="submitted-player-name" style="color:var(--gold);"></strong>
+        </div>
+        <div style="font-size:11.5px;color:var(--muted);">
+          ⭐ Lượt thi đấu (1 mạng duy nhất) đã kết thúc. Hãy theo dõi vị trí trên máy chiếu lớp!
+        </div>
+      </div>
+
+      <!-- Khung nộp điểm cho Admin máy chủ -->
+      <div class="submit-score-box" id="submitBoxGameover">
+        <p style="font-weight:700;color:var(--gold);margin-bottom:4px;">🎖️ ĐẠT ĐƯỢC: <span id="goScoreDisplay">0</span> ĐIỂM!</p>
+        <p style="font-size:12px;color:var(--muted);">Nhập Họ Tên / MSSV để lưu danh vào TOP 5:</p>
+        <div class="submit-input-row">
+          <input type="text" id="playerNameGameover" class="submit-input" placeholder="Tên bạn (vd: Hoàng - SE17...)" maxlength="25">
+          <button class="btn btn-green" style="padding:10px 18px;" onclick="UI.submitScore('gameover')">🚀 Nộp điểm</button>
+        </div>
+        <div id="submitMsgGameover" style="font-size:12px;margin-top:6px;font-weight:700;"></div>
+      </div>
+
+      <div style="display:flex;gap:10px;width:100%;margin-top:10px;">
+        <button class="btn btn-green" onclick="UI.showLeaderboardModal()" style="flex:1;">🏆 Xem Bảng Xếp Hạng TOP 5</button>
+        <button class="btn btn-orange" id="btnGameOverReplay" onclick="location.reload()" style="flex:1;">🔄 Thử lại ngay</button>
+      </div>
+    </div>
+
+    <!-- ── PAUSE ── -->
+    <div class="modal" id="screenPause">
+      <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:900;color:var(--gold);text-align:center;">⏸ TẠM DỪNG</div>
+      <div class="divider"></div>
+      <div class="ctrl-grid">
+        <kbd>A / D</kbd><span>Di chuyển trái / phải</span>
+        <kbd>W / ↑</kbd><span>Nhảy né đạn</span>
+        <kbd>J / Space</kbd><span>Bắn súng Laser</span>
+        <kbd>K</kbd><span>Đại pháo năng lượng (cần 3⭐)</span>
+        <kbd>P</kbd><span>Tiếp tục chơi</span>
+      </div>
+      <button class="btn btn-primary" onclick="UI.resume()">▶ Tiếp tục</button>
+    </div>
+
+  </div><!-- /overlay -->
+</div><!-- /wrapper -->
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CONSTANTS & SETUP
+// ═══════════════════════════════════════════════════════
+const C = document.getElementById('gameCanvas');
+const X = C.getContext('2d');
+const GW = 960, GH = 540;
+C.width = GW; C.height = GH;
+
+// Safe roundRect polyfill
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    if (typeof r === 'undefined') r = 0;
+    if (typeof r === 'number') r = {tl: r, tr: r, br: r, bl: r};
+    r.tl = Math.min(r.tl || 0, w / 2, h / 2);
+    r.tr = Math.min(r.tr || 0, w / 2, h / 2);
+    r.br = Math.min(r.br || 0, w / 2, h / 2);
+    r.bl = Math.min(r.bl || 0, w / 2, h / 2);
+    this.moveTo(x + r.tl, y);
+    this.lineTo(x + w - r.tr, y);
+    this.quadraticCurveTo(x + w, y, x + w, y + r.tr);
+    this.lineTo(x + w, y + h - r.br);
+    this.quadraticCurveTo(x + w, y + h, x + w - r.br, y + h);
+    this.lineTo(x + r.bl, y + h);
+    this.quadraticCurveTo(x, y + h, x, y + h - r.bl);
+    this.lineTo(x, y + r.tl);
+    this.quadraticCurveTo(x, y, x + r.tl, y);
+    return this;
+  };
+}
+
+function resizeCanvas() {
+  const s = Math.min((window.innerWidth - 24) / GW, (window.innerHeight - 140) / GH);
+  C.style.width  = (GW * s) + 'px';
+  C.style.height = (GH * s) + 'px';
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// ═══════════════════════════════════════════════════════
+// INPUT
+// ═══════════════════════════════════════════════════════
+const K = {};
+const Kprev = {};
+window.addEventListener('keydown', e => {
+  K[e.key.toLowerCase()] = true;
+  
+  // Also allow Enter / Space on start & intro screens
+  if (e.key === 'Enter' || e.key === ' ') {
+    const sStart = document.getElementById('screenStart');
+    if (sStart && sStart.classList.contains('show')) {
+      e.preventDefault();
+      UI.startGame();
+      return;
+    }
+    const sIntro = document.getElementById('screenIntro');
+    if (sIntro && sIntro.classList.contains('show')) {
+      e.preventDefault();
+      UI.startLevel();
+      return;
+    }
+  }
+
+  if ([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase())) e.preventDefault();
+});
+window.addEventListener('keyup', e => { K[e.key.toLowerCase()] = false; });
+
+function keyJustPressed(k) {
+  const r = K[k] && !Kprev[k];
+  return r;
+}
+function snapshotKeys() {
+  Object.keys(K).forEach(k => { Kprev[k] = K[k]; });
+}
+
+// ═══════════════════════════════════════════════════════
+// QUIZ DATA
+// ═══════════════════════════════════════════════════════
+const QUIZZES = [
+  // ── MÀN 1 ──
+  { q:"Theo Mác - Lênin, yếu tố nào trong LLSX được coi là 'động nhất, cách mạng nhất'?",
+    opts:["Người lao động","Đối tượng lao động","Công cụ lao động","Tư liệu sinh hoạt"], ans:2,
+    ex:"Công cụ lao động là khí quan nối dài năng lực con người và tiêu chuẩn phân biệt các thời đại kinh tế." },
+  { q:"Quan hệ sản xuất (QHSX) gồm mấy mặt thống nhất hữu cơ?",
+    opts:["2 mặt","3 mặt","4 mặt","5 mặt"], ans:1,
+    ex:"QHSX gồm 3 mặt: Sở hữu TLSX (hạt nhân), Tổ chức quản lý, và Phân phối sản phẩm." },
+  { q:"Mặt nào trong QHSX giữ vai trò 'hạt nhân chi phối'?",
+    opts:["Quan hệ phân phối sản phẩm","Quan hệ tổ chức quản lý","Quan hệ sở hữu đối với TLSX","Quan hệ lao động - việc làm"], ans:2,
+    ex:"Quan hệ sở hữu TLSX quyết định địa vị kinh tế và bản chất phân phối của cải trong xã hội." },
+  { q:"Ai giữ vai trò 'chủ thể quyết định' trong Lực lượng sản xuất?",
+    opts:["Máy móc hiện đại","Người lao động","Nhà tư bản","Trí tuệ nhân tạo"], ans:1,
+    ex:"Người lao động với thể lực, trí lực và kinh nghiệm là chủ thể quyết định của LLSX." },
+  // ── MÀN 2 ──
+  { q:"Câu nói 'Cái cối xay quay bằng tay đưa lại xã hội có lãnh chúa...' xuất phát từ tác phẩm nào của Marx?",
+    opts:["Tuyên ngôn Đảng Cộng sản (1848)","Tư bản (1867)","Sự khốn cùng của triết học (1847)","Hệ tư tưởng Đức (1846)"], ans:2,
+    ex:"Luận đề này nằm trong 'Sự khốn cùng của triết học' (1847), Chương 2 của Karl Marx." },
+  { q:"Mục đích tối hậu của nhà tư bản khi áp dụng máy móc theo Marx là gì?",
+    opts:["Giải phóng người lao động","Sản xuất giá trị thặng dư tương đối","Tăng chất lượng sản phẩm","Giảm thời gian lao động tổng thể"], ans:1,
+    ex:"Máy móc dưới CNTB rút ngắn thời gian lao động tất yếu, kéo dài thời gian lao động thặng dư — tối đa hóa giá trị thặng dư tương đối." },
+  { q:"Cấu tạo hữu cơ của Tư bản (c/v) phản ánh tỷ lệ giữa hai yếu tố nào?",
+    opts:["Lợi nhuận và chi phí","Tư bản bất biến (c) và Tư bản khả biến (v)","Doanh thu và thuế","Tiền lương và phúc lợi"], ans:1,
+    ex:"c/v = Tư bản bất biến (máy móc, nguyên liệu) ÷ Tư bản khả biến (quỹ lương)." },
+  { q:"AI trong ngành phần mềm tương đương với hiện tượng nào trong lý luận Marx?",
+    opts:["Cuộc cách mạng xã hội","Bước nhảy vọt về chất của công cụ lao động","Sự sụp đổ của CNTB","Cuộc đấu tranh giai cấp"], ans:1,
+    ex:"AI là bước nhảy vọt về chất của công cụ lao động: từ cơ giới hóa cơ bắp (máy hơi nước) sang trí tuệ hóa tư duy (LLM/AI)." },
+  // ── MÀN 3 ──
+  { q:"Theo McKinsey, lập trình viên dùng AI hoàn thành tác vụ nhanh hơn bao nhiêu %?",
+    opts:["+25%","+56%","+80%","+120%"], ans:1,
+    ex:"McKinsey Global Institute chỉ ra lập trình viên tích hợp AI hoàn thành tác vụ nhanh hơn 56%." },
+  { q:"'Absorption Mechanism' (Cơ chế Hấp thụ) trong ngành phần mềm mô tả điều gì?",
+    opts:["AI thay thế toàn bộ kỹ sư","Senior + AI hấp thụ hết tác vụ sơ cấp của Junior","Junior học nhanh hơn nhờ AI","Doanh nghiệp tuyển thêm nhiều nhân sự hơn"], ans:1,
+    ex:"1 Senior + AI xử lý toàn bộ tác vụ phụ trợ (test, sửa lỗi vặt) với chi phí ≈ 0, triệt tiêu nhu cầu tuyển Junior." },
+  { q:"Chi phí đào tạo 1 Junior Dev 5 năm so với 10 AI Copilot chênh lệch khoảng bao nhiêu lần?",
+    opts:["~10 lần","~50 lần","~100 lần","~200 lần"], ans:2,
+    ex:"~$585.000 (Junior 5 năm) so với ~$6.000 (10 Copilot) = chênh lệch gần 100 lần!" },
+  { q:"Tỷ lệ thất nghiệp cử nhân CS/IT mới ra trường theo Fed New York đã lên tới bao nhiêu?",
+    opts:["3.2%","5.0%","6.1% – 7.5%","12.0%"], ans:2,
+    ex:"6.1% – 7.5%, vượt qua cả khối ngành Khoa học xã hội và Nhân văn." },
+  // ── MÀN 4 ──
+  { q:"'Signal Collapse' (Sụp đổ tín hiệu tuyển dụng) là hiện tượng gì?",
+    opts:["Doanh nghiệp ngừng đăng tin","Tuyển Junior nhưng đòi năng lực Mid/Senior","AI tự động phỏng vấn ứng viên","Sinh viên từ chối đi làm"], ans:1,
+    ex:"Doanh nghiệp đăng mác 'Junior' nhưng đòi hỏi kinh nghiệm và năng lực kiến trúc của cấp bậc trung cấp trở lên." },
+  { q:"'Hollow Senior' (Kỹ sư rỗng) mô tả hiện tượng gì?",
+    opts:["Senior nghỉ việc hàng loạt","Senior giỏi nhưng lương thấp","Kỹ sư biết dùng AI sinh code nhưng không hiểu bản chất kiến trúc","Senior không biết dùng công nghệ mới"], ans:2,
+    ex:"Hollow Senior: biết bấm nút sinh mã nhưng rỗng kiến thức nền. Code AI tăng 50% trùng lặp, refactoring sâu giảm dưới 10%." },
+  { q:"Theo WEF, 4 trụ cột năng lực sinh viên cần trang bị KHÔNG bao gồm cái nào?",
+    opts:["Kiến trúc hệ thống & Tư duy phức hợp","Chỉ huy & Kiểm toán An toàn AI","Học thuộc lòng mọi cú pháp lập trình","Học tập suốt đời & Thích ứng linh hoạt"], ans:2,
+    ex:"4 trụ cột: Kiến trúc hệ thống, Chỉ huy AI, Tri thức chuyên ngành, Học tập suốt đời. Học thuộc cú pháp không còn giá trị!" },
+  { q:"Chủ nghĩa duy vật lịch sử cảnh báo sinh viên KHÔNG nên rơi vào tâm lý nào?",
+    opts:["Chủ nghĩa Luddite — bài xích và đập phá công nghệ mới","Chủ nghĩa thực dụng — tận dụng công nghệ","Chủ nghĩa lạc quan — tin vào tương lai","Chủ nghĩa hiện thực — nhìn nhận khách quan"], ans:0,
+    ex:"Không bài xích công nghệ theo chủ nghĩa Luddite (đập phá máy móc thế kỷ 19). Công cụ mới là tất yếu lịch sử!" },
+  { q:"Nhóm kỹ sư nào tăng trưởng việc làm +14% trong kỷ nguyên AI?",
+    opts:["22–25 tuổi (Mới ra trường)","26–30 tuổi (Mid-level)","41–49 tuổi (Senior/Lead)","Trên 55 tuổi (Sắp nghỉ hưu)"], ans:2,
+    ex:"Kỹ sư 41–49 tuổi: AI nhân bội trực giác kiến trúc sẵn có → +14%. Nhóm 22–25 tuổi giảm -20%." },
+  { q:"Thông điệp cốt lõi của bài thuyết trình là gì?",
+    opts:["AI sẽ thay thế hoàn toàn con người","Sinh viên CNTT nên chuyển ngành","AI không loại bỏ con người — chỉ loại bỏ ai từ chối nâng cấp","Chỉ cần giỏi code là đủ để tồn tại"], ans:2,
+    ex:"AI không loại bỏ con người — AI chỉ loại bỏ những ai từ chối nâng cấp sức lao động của chính mình." },
+];
+
+// ═══════════════════════════════════════════════════════
+// LEVEL DEFINITIONS
+// ═══════════════════════════════════════════════════════
+const LEVELS = [
+  { id:1, tag:"MÀN 1 / 4", title:"CỐI XAY THUẬT TOÁN",
+    desc:"AI đang làm đảo lộn phương thức sản xuất. Chiến đấu để chứng minh bạn hiểu quy luật biện chứng Mác - Lênin!",
+    bossIcon:"⚙️", bossName:"CỐI XAY THUẬT TOÁN", bossDesc:"Boss đại diện cho bước nhảy vọt của công cụ lao động",
+    tip:"<strong>Luận đề bất hủ của Marx:</strong> 'Cái cối xay quay bằng tay đưa lại xã hội có lãnh chúa; cái cối xay chạy bằng hơi nước đưa lại xã hội có nhà tư bản công nghiệp.'",
+    bossColor:'#38bdf8', bossHP:950, bg:'factory', quizIdx:[0,1,2,3] },
+  { id:2, tag:"MÀN 2 / 4", title:"TƯ BẢN CÔNG NGHỆ",
+    desc:"Nhà tư bản dùng AI bòn rút giá trị thặng dư tương đối. Cấu tạo hữu cơ c/v tăng vọt — đánh bại bản chất tha hóa!",
+    bossIcon:"💰", bossName:"TƯ BẢN CÔNG NGHỆ", bossDesc:"Boss đại diện cho giá trị thặng dư & cấu tạo hữu cơ c/v",
+    tip:"<strong>Công thức quan trọng:</strong> c/v tăng vọt: c (GPU, AI) ↑ không ngừng, trong khi v (quỹ lương Junior) bị thắt chặt.",
+    bossColor:'#f97316', bossHP:1600, bg:'datacenter', quizIdx:[4,5,6,7] },
+  { id:3, tag:"MÀN 3 / 4", title:"CƠ CHẾ HẤP THỤ",
+    desc:"Tin tuyển Junior giảm 67%. Chi phí chênh lệch 100 lần! Hãy chiến đấu để hiểu rõ cuộc khủng hoảng thế hệ!",
+    bossIcon:"🌀", bossName:"CƠ CHẾ HẤP THỤ", bossDesc:"Boss đại diện cho khủng hoảng tuyển dụng Junior",
+    tip:"<strong>Số liệu then chốt:</strong> $585.000 (đào tạo 1 Junior 5 năm) vs $6.000 (10 AI Copilot 5 năm) = chênh lệch ~100 lần!",
+    bossColor:'#f87171', bossHP:2400, bg:'office', quizIdx:[8,9,10,11] },
+  { id:4, tag:"MÀN CUỐI", title:"SỰ THA HÓA",
+    desc:"Mâu thuẫn biện chứng tột cùng: Hollow Senior, đứt gãy thế hệ. Hãy khẳng định vị thế CHỦ THỂ LỊCH SỬ!",
+    bossIcon:"👻", bossName:"SỰ THA HÓA", bossDesc:"Final Boss — đại diện cho mâu thuẫn biện chứng sâu sắc nhất",
+    tip:"<strong>4 Trụ cột WEF:</strong> Kiến trúc hệ thống · Chỉ huy AI · Tri thức chuyên ngành · Học tập suốt đời",
+    bossColor:'#a78bfa', bossHP:3400, bg:'void', quizIdx:[12,13,14,15,16,17] },
+];
+
+// ═══════════════════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════════════════
+let gs = {
+  state: 'menu', // menu|intro|playing|quiz|paused|victory|gameover
+  level: 0,
+  score: 0, stars: 0,
+  quizCorrect: 0, quizTotal: 0,
+  bossesKilled: 0,
+};
+
+const GROUND = GH - 68;
+
+// Player (Mario-style Jump Physics & Balanced Stats)
+let P = {};
+function resetPlayer() {
+  P = {
+    x:120, y: GROUND - 52, w:36, h:52,
+    vx:0, vy:0, grounded:true,
+    hp:250, maxHp:250, atk:14,
+    facing:1, stars:0,
+    atkTimer:0, atkCool:0,
+    iframes:0, specialTimer:0,
+    coyoteTime:0, jumpBuffer:0,
+    jumpsLeft:2, maxJumps:2,
+    dashCool:0, dashTimer:0, dropTimer:0,
+    animTick:0, breathTick:0,
+    trail:[],
+  };
+}
+
+let Boss = null;
+function spawnBoss(li) {
+  const l = LEVELS[li];
+  Boss = {
+    x: GW - 200, y: GROUND - 76,
+    w: 68, h: 76,
+    hp: l.bossHP, maxHp: l.bossHP,
+    color: l.bossColor,
+    vx:0, phase:1,
+    atkCool:45, pattern:0,
+    iframes:0, stunTimer:0,
+    animTick:0, defeatTimer:0,
+    defeated:false,
+    currentSkill:'', skillTimer:0,
+  };
+}
+
+let platforms = [], particles = [], projectiles = [],
+    pickups = [], dmgNums = [], shockwaves = [];
+let shake = 0;
+let bgTick = 0;
+
+// ═══════════════════════════════════════════════════════
+// MATH HELPERS
+// ═══════════════════════════════════════════════════════
+function lerp(a,b,t){ return a+(b-a)*t; }
+function rand(a,b){ return a+Math.random()*(b-a); }
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+function overlap(ax,ay,aw,ah, bx,by,bw,bh){
+  return ax<bx+bw && ax+aw>bx && ay<by+bh && ay+ah>by;
+}
+
+// ═══════════════════════════════════════════════════════
+// PARTICLES
+// ═══════════════════════════════════════════════════════
+function spawnParticles(x,y,color,n,speed,life){
+  for(let i=0;i<n;i++){
+    const a = rand(0, Math.PI*2);
+    const s = rand(speed*.3, speed);
+    particles.push({
+      x,y, vx:Math.cos(a)*s, vy:Math.sin(a)*s-rand(0,2),
+      life:rand(life*.6,life), maxLife:life,
+      color, size:rand(2,6), grav:.12
+    });
+  }
+}
+function spawnShockwave(x,y,color){
+  shockwaves.push({ x,y, r:4, maxR:120, life:25, maxLife:25, color });
+}
+function spawnPickup(x,y){
+  pickups.push({ x,y, vy:rand(-5,-2), w:20, h:20, life:350 });
+}
+function spawnDmgNum(x,y,val,color){
+  dmgNums.push({ x,y, val:Math.round(val), color,
+    vy:rand(-2.5,-1.5), vx:rand(-1,1), life:55 });
+}
+
+// ═══════════════════════════════════════════════════════
+// PLATFORM GENERATION
+// ═══════════════════════════════════════════════════════
+function buildPlatforms(li){
+  platforms = [{ x:0, y:GROUND, w:GW, h:68, ground:true }];
+  const configs = [
+    [[160,370,160],[440,300,130],[700,360,140]],
+    [[90,350,120],[340,275,130],[570,330,140],[760,260,120]],
+    [[70,380,110],[280,295,130],[510,240,110],[710,315,140],[400,395,100]],
+    [[130,355,100],[310,275,120],[530,195,100],[710,295,130],[210,195,100],[820,375,100]],
+  ];
+  configs[li].forEach(([px,py,pw])=>{
+    platforms.push({ x:px, y:py, w:pw, h:18, ground:false });
+  });
+}
+
+// Initial state setup so canvas never renders undefined/NaN
+resetPlayer();
+buildPlatforms(0);
+spawnBoss(0);
+let levelBannerTimer = 0;
+
+// ═══════════════════════════════════════════════════════
+// BOSS ATTACK PATTERNS
+// ═══════════════════════════════════════════════════════
+function bossAttack(li){
+  if(!Boss || Boss.stunTimer>0) return;
+  const phase2 = Boss.phase===2;
+  // Nhịp độ tấn công dồn dập, thử thách phản xạ né đòn
+  Boss.atkCool = phase2 ? rand(45,65) : rand(65,88);
+
+  const dx = P.x - Boss.x, dy = P.y - Boss.y;
+  const d = Math.sqrt(dx*dx+dy*dy)||1;
+  const nx=dx/d, ny=dy/d;
+  const spd = phase2 ? 4.2 : 3.4;
+
+  if(li===0){
+    // ⚙️ BOSS 1: CỐI XAY THUẬT TOÁN
+    const pattern = (Boss.pattern++) % 3;
+    if(pattern === 0){
+      Boss.currentSkill = "⚙️ BÃO BÁNH RĂNG NAN QUẠT";
+      Boss.skillTimer = 55;
+      const n = phase2 ? 7 : 5;
+      for(let i=0; i<n; i++){
+        const spread = (i - (n-1)/2) * 0.22;
+        projectiles.push({
+          x: Boss.x + Boss.w/2, y: Boss.y + Boss.h/2,
+          vx: (nx * spd + spread) * 1.1, vy: ny * spd + spread * 0.8,
+          w: 16, h: 16, color: '#38bdf8', damage: 8, life: 150,
+          owner: 'boss', rot: 0, rotSpd: 0.16
+        });
+      }
+    } else if(pattern === 1){
+      Boss.currentSkill = "⚡ QUÉT NĂNG LƯỢNG LLSX";
+      Boss.skillTimer = 55;
+      for(let i=0; i<(phase2?4:3); i++){
+        projectiles.push({
+          x: Boss.x - 20 - i*50, y: GROUND - 14,
+          vx: -7.5, vy: 0,
+          w: 34, h: 14, color: '#0ea5e9', damage: 10, life: 140,
+          owner: 'boss', rot: 0, rotSpd: 0
+        });
+      }
+    } else {
+      Boss.currentSkill = "🔄 BÁNH RĂNG NẢY SÀN";
+      Boss.skillTimer = 55;
+      for(let i=0; i<(phase2?3:2); i++){
+        projectiles.push({
+          x: Boss.x - 15, y: Boss.y + 10,
+          vx: -(3.8 + i*2.2), vy: -5,
+          w: 22, h: 22, color: '#38bdf8', damage: 9, life: 200,
+          bouncing: true, owner: 'boss', rot: 0, rotSpd: 0.2
+        });
+      }
+    }
+  } else if(li===1){
+    // 💰 BOSS 2: TƯ BẢN CÔNG NGHỆ
+    const pattern = (Boss.pattern++) % 3;
+    if(pattern === 0){
+      Boss.currentSkill = "💰 MƯA DOLLAR BẤT BIẾN";
+      Boss.skillTimer = 55;
+      const n = phase2 ? 9 : 6;
+      for(let i=0; i<n; i++){
+        projectiles.push({
+          x: rand(60, GW - 60), y: -25,
+          vx: rand(-0.4, 0.4), vy: rand(3.8, 5.2),
+          w: 18, h: 18, color: '#fbbf24', damage: 8, life: 200,
+          owner: 'boss', rot: 0, rotSpd: 0.08
+        });
+      }
+    } else if(pattern === 1){
+      Boss.currentSkill = "🔥 SÓNG XUNG KÍCH THẶNG DƯ";
+      Boss.skillTimer = 55;
+      for(let i=0; i<2; i++){
+        projectiles.push({
+          x: Boss.x - 10, y: GROUND - 18,
+          vx: -(6.5 + i*2.2), vy: 0,
+          w: 28, h: 26, color: '#f97316', damage: 11, life: 150,
+          owner: 'boss', rot: 0, rotSpd: 0
+        });
+      }
+      spawnShockwave(Boss.x + Boss.w/2, GROUND, '#f97316');
+      shake = 6;
+    } else {
+      Boss.currentSkill = "🎯 PHÁO TẬP TRUNG C/V";
+      Boss.skillTimer = 55;
+      for(let i=0; i<(phase2?4:3); i++){
+        projectiles.push({
+          x: Boss.x - 10, y: Boss.y + rand(0, Boss.h),
+          vx: nx * 6.5 + rand(-0.6, 0.6), vy: ny * 6.5 + rand(-0.6, 0.6),
+          w: 26, h: 8, color: '#ea580c', damage: 10, life: 130,
+          owner: 'boss', rot: 0, rotSpd: 0
+        });
+      }
+    }
+  } else if(li===2){
+    // 🌀 BOSS 3: CƠ CHẾ HẤP THỤ
+    const pattern = (Boss.pattern++) % 3;
+    if(pattern === 0){
+      Boss.currentSkill = "🌀 LỖ ĐEN HẤP THỤ JUNIOR";
+      Boss.skillTimer = 55;
+      P.vx += (Boss.x - P.x) * 0.04; // Lực hút
+      const n = phase2 ? 12 : 8;
+      for(let i=0; i<n; i++){
+        const a = (i/n) * Math.PI * 2;
+        projectiles.push({
+          x: Boss.x + Boss.w/2, y: Boss.y + Boss.h/2,
+          vx: Math.cos(a) * 4.2, vy: Math.sin(a) * 4.2,
+          w: 12, h: 12, color: '#f87171', damage: 8, life: 130,
+          owner: 'boss', rot: 0, rotSpd: 0.15
+        });
+      }
+      spawnShockwave(Boss.x + Boss.w/2, Boss.y + Boss.h/2, '#f87171');
+    } else if(pattern === 1){
+      Boss.currentSkill = "🚀 TÊN LỬA TRUY ĐUỔI NHỊ PHÂN";
+      Boss.skillTimer = 55;
+      for(let i=0; i<(phase2?3:2); i++){
+        projectiles.push({
+          x: Boss.x, y: Boss.y + 15 + i*25,
+          vx: -3.8, vy: rand(-2, 2),
+          w: 16, h: 16, color: '#ff0055', damage: 10, life: 120,
+          homing: true, owner: 'boss', rot: 0, rotSpd: 0.2
+        });
+      }
+    } else {
+      Boss.currentSkill = "💻 THÁC MÃ NHỊ PHÂN MA TRẬN";
+      Boss.skillTimer = 55;
+      for(let i=0; i<(phase2?6:4); i++){
+        projectiles.push({
+          x: rand(100, GW - 100), y: -30,
+          vx: 0, vy: rand(4.5, 6.5),
+          w: 14, h: 28, color: '#f43f5e', damage: 9, life: 140,
+          owner: 'boss', rot: 0, rotSpd: 0
+        });
+      }
+    }
+  } else {
+    // 👻 BOSS 4: SỰ THA HÓA (FINAL BOSS)
+    const pattern = (Boss.pattern++) % 4;
+    if(pattern === 0){
+      Boss.currentSkill = "👻 VẾT RÁCH HƯ VÔ THA HÓA";
+      Boss.skillTimer = 55;
+      for(let i=0; i<(phase2?6:4); i++){
+        projectiles.push({
+          x: Boss.x - 20, y: 70 + i * 95,
+          vx: -7.5, vy: (Math.random() - 0.5) * 1.5,
+          w: 36, h: 8, color: '#c084fc', damage: 10, life: 140,
+          owner: 'boss', rot: 0, rotSpd: 0
+        });
+      }
+    } else if(pattern === 1){
+      Boss.currentSkill = "⚡ CỘT NĂNG LƯỢNG TÍM TỬ THẦN";
+      Boss.skillTimer = 55;
+      for(let i=0; i<(phase2?4:3); i++){
+        projectiles.push({
+          x: rand(90, GW - 120), y: GROUND - 10,
+          vx: 0, vy: -7.5,
+          w: 24, h: 45, color: '#a855f7', damage: 12, life: 80,
+          owner: 'boss', rot: 0, rotSpd: 0
+        });
+      }
+    } else if(pattern === 2){
+      Boss.currentSkill = "🌌 BÃO ĐẠN XOẮN ỐC HƯ VÔ";
+      Boss.skillTimer = 55;
+      const n = phase2 ? 18 : 12;
+      for(let i=0; i<n; i++){
+        const a = (Boss.animTick * 0.1) + (i/n) * Math.PI * 2;
+        projectiles.push({
+          x: Boss.x + Boss.w/2, y: Boss.y + Boss.h/2,
+          vx: Math.cos(a) * 4.5, vy: Math.sin(a) * 4.5,
+          w: 10, h: 10, color: '#d8b4fe', damage: 8, life: 130,
+          owner: 'boss', rot: 0, rotSpd: 0.18
+        });
+      }
+    } else {
+      Boss.currentSkill = "🏹 MƯA TÊN NĂNG LƯỢNG";
+      Boss.skillTimer = 55;
+      for(let i=0; i<(phase2?7:5); i++){
+        projectiles.push({
+          x: rand(100, GW), y: -20,
+          vx: -4, vy: rand(4.5, 6),
+          w: 18, h: 18, color: '#9333ea', damage: 9, life: 150,
+          owner: 'boss', rot: Math.PI / 4, rotSpd: 0
+        });
+      }
+    }
+  }
+  spawnParticles(Boss.x+Boss.w/2, Boss.y+Boss.h/2, Boss.color, 8, 4, 25);
+}
+
+// ═══════════════════════════════════════════════════════
+// PLAYER ATTACK (LASER BLASTER)
+// ═══════════════════════════════════════════════════════
+function playerAttack(){
+  if(P.atkCool>0) return;
+  P.atkTimer = 7;
+  P.atkCool = 10; // Xả đạn nhịp 6 phát/giây rất đã tay và cân bằng
+
+  const spawnX = P.facing === 1 ? P.x + P.w + 14 : P.x - 14;
+  const spawnY = P.y + 20;
+  const bSpeed = 16 * P.facing;
+
+  // Đạn súng laser năng lượng (13 - 15 DMG)
+  projectiles.push({
+    x: spawnX,
+    y: spawnY - 3,
+    vx: bSpeed,
+    vy: (Math.random() - 0.5) * 0.25,
+    w: 22,
+    h: 6,
+    color: '#38bdf8',
+    damage: P.atk + rand(0, 2),
+    life: 85,
+    owner: 'player',
+    isSpecial: false,
+    rot: 0,
+    rotSpd: 0
+  });
+
+  // Hiệu ứng tia lửa nòng súng (Muzzle Flash)
+  spawnParticles(spawnX, spawnY, '#38bdf8', 5, 3, 10);
+  spawnParticles(spawnX, spawnY, '#fbbf24', 2, 2, 8);
+  shake = Math.max(shake, 1.2);
+}
+
+function hitBoss(dmg, isSpecial=false){
+  // Giáp giảm 25% sát thương khi Boss vào Phase 2 (Cuồng nộ)
+  let actualDmg = Boss.phase === 2 ? Math.max(1, Math.round(dmg * 0.75)) : dmg;
+
+  Boss.hp -= actualDmg;
+  Boss.iframes = 0.05; // Chớp nháy nhẹ
+
+  // CHỈ BỊ STUN KHI TRÚNG ĐẠI PHÁO ĐẶC BIỆT (K)!
+  // Đạn laser thường KHÔNG stun để Boss không bị stun-lock và liên tục chiến đấu
+  if(isSpecial){
+    Boss.stunTimer = 35;
+  }
+
+  spawnParticles(Boss.x+Boss.w/2, Boss.y+Boss.h/2, Boss.color, 6, 3, 18);
+  spawnDmgNum(Boss.x+Boss.w/2, Boss.y-10, actualDmg, Boss.phase===2 ? '#f87171' : '#38bdf8');
+  shake = isSpecial ? 8 : 2;
+  gs.score += 15;
+
+  // Thỉnh thoảng rớt sao tri thức trong trận
+  if(Math.random() < 0.12){
+    spawnPickup(Boss.x+rand(0,Boss.w), Boss.y+rand(0,Boss.h/2));
+  }
+
+  if(Boss.hp<=0){
+    Boss.hp=0; Boss.defeated=true;
+    spawnParticles(Boss.x+Boss.w/2, Boss.y+Boss.h/2, Boss.color, 60, 8, 60);
+    spawnShockwave(Boss.x+Boss.w/2, Boss.y+Boss.h/2, Boss.color);
+    shake=20; gs.score+=300; gs.bossesKilled++;
+    for(let i=0;i<8;i++) spawnPickup(Boss.x+rand(0,Boss.w), Boss.y+rand(0,Boss.h/2));
+  }
+}
+
+function playerSpecial(){
+  if(P.stars<3) return; // Cần 3 sao cho đòn Đại pháo cực mạnh
+  P.stars-=3; P.specialTimer=45; shake=18;
+  spawnShockwave(P.x+P.w/2, P.y+P.h/2, '#38bdf8');
+  spawnShockwave(P.x+P.w/2, P.y+P.h/2, '#fbbf24');
+  
+  // Quét sạch toàn bộ đạn của Boss trên màn hình
+  projectiles = projectiles.filter(p => p.owner === 'player');
+
+  const spawnX = P.facing === 1 ? P.x + P.w + 18 : P.x - 18;
+  const spawnY = P.y + 18;
+
+  // Bắn chùm 5 luồng đại pháo laser đa hướng cực mạnh (~135-150 tổng damage)
+  for(let i = -2; i <= 2; i++){
+    const ang = i * 0.12;
+    const spd = 17 * P.facing;
+    projectiles.push({
+      x: spawnX,
+      y: spawnY - 4,
+      vx: Math.cos(ang) * spd,
+      vy: Math.sin(ang) * 17,
+      w: i === 0 ? 38 : 26,
+      h: i === 0 ? 12 : 8,
+      color: i === 0 ? '#fbbf24' : '#38bdf8',
+      damage: i === 0 ? 65 : 25,
+      life: 90,
+      owner: 'player',
+      isSpecial: true,
+      rot: ang * P.facing,
+      rotSpd: 0
+    });
+  }
+
+  // Khói lửa chói lòa từ nòng súng đại pháo
+  spawnParticles(spawnX, spawnY, '#38bdf8', 30, 8, 40);
+  spawnParticles(spawnX, spawnY, '#fbbf24', 20, 6, 30);
+}
+
+// ═══════════════════════════════════════════════════════
+// MAIN UPDATE
+// ═══════════════════════════════════════════════════════
+function update(){
+  bgTick++;
+  if(gs.state==='paused'){
+    if(keyJustPressed('p')) UI.resume();
+    snapshotKeys(); return;
+  }
+  if(gs.state!=='playing'){ snapshotKeys(); return; }
+
+  // ── MARIO-STYLE PLAYER INPUT & MOVEMENT ──
+  let mx=0;
+  if(K['a']||K['arrowleft']) mx=-1;
+  if(K['d']||K['arrowright']) mx=1;
+  
+  // Dứt khoát, không trơn trượt (Super responsive)
+  const targetVx = mx * 5.8;
+  P.vx = lerp(P.vx, targetVx, P.grounded ? 0.65 : 0.4);
+  if(mx===0 && P.grounded) P.vx = 0;
+  if(mx!==0) P.facing=mx;
+
+  // Hồi phục Double Jump & Coyote time khi chạm đất
+  if(P.grounded){
+    P.jumpsLeft = 2; // Được phép nhảy 2 bước!
+    P.coyoteTime = 8;
+  } else if(P.coyoteTime > 0){
+    P.coyoteTime--;
+  }
+
+  const isJumpKey = K['w'] || K['arrowup'];
+  const justPressedJump = keyJustPressed('w') || keyJustPressed('arrowup');
+
+  if(justPressedJump){
+    P.jumpBuffer = 6;
+  } else if(P.jumpBuffer > 0){
+    P.jumpBuffer--;
+  }
+
+  // Thực hiện nhảy: Nhảy thường hoặc Double Jump
+  if(P.jumpBuffer > 0){
+    if(P.grounded || P.coyoteTime > 0){
+      P.vy = -12.4;
+      P.grounded = false;
+      P.coyoteTime = 0;
+      P.jumpBuffer = 0;
+      P.jumpsLeft = 1;
+      spawnParticles(P.x + P.w/2, P.y + P.h, '#94a3b8', 4, 2, 10);
+    } else if(P.jumpsLeft > 0){
+      // 🌟 DOUBLE JUMP (Nhảy bước 2 giữa không trung)
+      P.vy = -11.5;
+      P.jumpsLeft = 0;
+      P.jumpBuffer = 0;
+      spawnParticles(P.x + P.w/2, P.y + P.h, '#38bdf8', 8, 3, 14);
+      spawnShockwave(P.x + P.w/2, P.y + P.h, '#38bdf8');
+    }
+  }
+
+  // Variable Jump Height: Nhả phím sớm = nhảy thấp
+  if(!isJumpKey && P.vy < -3.5){
+    P.vy *= 0.52;
+  }
+
+  // 🏃 DASH / LƯỚT NÉ ĐÒN (Phím Shift hoặc L)
+  if((keyJustPressed('shift') || keyJustPressed('l')) && P.dashCool <= 0){
+    P.dashTimer = 10;
+    P.dashCool = 28; // ~0.45s cooldown
+    P.iframes = 0.35; // Bất tử trong lúc lướt!
+    P.vx = P.facing * 14;
+    spawnShockwave(P.x + P.w/2, P.y + P.h/2, '#38bdf8');
+    spawnParticles(P.x + P.w/2, P.y + P.h/2, '#38bdf8', 8, 4, 15);
+  }
+
+  // ⬇️ RƠI XUỐNG BỆ (Phím S hoặc Mũi tên xuống)
+  if((K['s'] || K['arrowdown']) && (keyJustPressed('s') || keyJustPressed('arrowdown'))){
+    P.dropTimer = 14;
+    P.y += 4;
+  }
+
+  // 🔫 GIỮ PHÍM ĐỂ BẮN LIÊN TỤC (Hold to shoot)
+  if(K['j'] || K[' ']) playerAttack();
+  if(keyJustPressed('k')) playerSpecial();
+  if(keyJustPressed('p')) { gs.state='paused'; UI.show('screenPause'); snapshotKeys(); return; }
+
+  // ── MARIO-STYLE PHYSICS & LANDING ──
+  const grav = P.vy < 0 ? 0.52 : 0.82;
+  P.vy = clamp(P.vy + grav, -18, 12.5);
+
+  // Di chuyển X
+  P.x += P.vx;
+  P.x = clamp(P.x, 0, GW - P.w);
+
+  // Di chuyển Y với cơ chế chạm sàn vững chắc
+  const prevY = P.y;
+  P.y += P.vy;
+
+  let landed = false;
+  platforms.forEach(pl=>{
+    // Nếu bệ nổi và đang bấm dropTimer thì bỏ qua để rơi xuống
+    if(pl.ground || P.dropTimer <= 0){
+      if(P.x + P.w > pl.x + 3 && P.x < pl.x + pl.w - 3){
+        if(prevY + P.h <= pl.y + 4 && P.y + P.h >= pl.y){
+          P.y = pl.y - P.h;
+          P.vy = 0;
+          landed = true;
+        }
+      }
+    }
+  });
+
+  if(landed){
+    if(!P.grounded){
+      spawnParticles(P.x + P.w/2, P.y + P.h, '#94a3b8', 3, 1.5, 8);
+    }
+    P.grounded = true;
+  } else {
+    P.grounded = false;
+  }
+
+  if(P.y > GH + 80){
+    P.hp = Math.max(1, P.hp - 10);
+    spawnParticles(P.x, P.y, '#f87171', 12, 5, 30);
+    P.x = 120; P.y = GROUND - P.h; P.vy = 0; P.grounded = true; P.iframes = 1.5;
+  }
+
+  // Timers
+  if(P.atkTimer>0) P.atkTimer--;
+  if(P.atkCool>0) P.atkCool--;
+  if(P.dashCool>0) P.dashCool--;
+  if(P.dashTimer>0) {
+    P.dashTimer--;
+    P.trail.push({x:P.x+P.w/2, y:P.y+P.h/2, life:14});
+  }
+  if(P.dropTimer>0) P.dropTimer--;
+  if(P.iframes>0) P.iframes-=1/60;
+  if(P.specialTimer>0) P.specialTimer--;
+  P.animTick++; P.breathTick++;
+
+  // trail for special
+  if(P.specialTimer>20){
+    P.trail.push({x:P.x+P.w/2, y:P.y+P.h/2, life:20});
+  }
+  P.trail = P.trail.filter(t=>--t.life>0);
+
+  // ── BOSS AI ──
+  if(Boss&&!Boss.defeated){
+    Boss.animTick++;
+    if(Boss.iframes>0) Boss.iframes-=1/60;
+    if(Boss.stunTimer>0){ Boss.stunTimer--; }
+    else {
+      // Boss bay bổng lơ lửng tự nhiên
+      Boss.y = GROUND - 76 + Math.sin(Boss.animTick * 0.05) * 12;
+
+      // move
+      const dx=P.x-Boss.x;
+      const speed = Boss.phase===2 ? 2.5 : 1.8;
+      Boss.vx = Math.abs(dx)>160 ? (dx>0?speed:-speed) : (dx>0?-speed*.6:speed*.6);
+      Boss.x=clamp(Boss.x+Boss.vx, 30, GW-Boss.w-30);
+
+      // phase 2 trigger (khi máu dưới 50%)
+      if(Boss.hp<Boss.maxHp*.5&&Boss.phase===1){
+        Boss.phase=2; shake=18;
+        Boss.currentSkill = "🔥 CUỒNG NỘ: KÍCH HOẠT KHIÊN GIẢM 25% DMG";
+        Boss.skillTimer = 75;
+        spawnParticles(Boss.x+Boss.w/2, Boss.y+Boss.h/2, Boss.color, 40, 8, 50);
+        spawnShockwave(Boss.x+Boss.w/2, Boss.y+Boss.h/2, '#f87171');
+      }
+      if(Boss.atkCool>0) Boss.atkCool--;
+      else bossAttack(gs.level);
+    }
+  }
+
+  // ── PROJECTILES ──
+  projectiles.forEach(pr=>{
+    if(pr.homing&&!Boss?.defeated){
+      const dx=P.x-pr.x, dy=P.y-pr.y, d=Math.sqrt(dx*dx+dy*dy)||1;
+      pr.vx=lerp(pr.vx,dx/d*7,.15); pr.vy=lerp(pr.vy,dy/d*7,.15);
+    }
+    if(pr.bouncing){
+      if(pr.y + pr.h >= GROUND){
+        pr.y = GROUND - pr.h;
+        pr.vy = -Math.abs(pr.vy) * 0.88;
+        spawnParticles(pr.x+pr.w/2, pr.y+pr.h, pr.color, 3, 2, 8);
+      } else {
+        pr.vy += 0.28;
+      }
+    }
+    pr.x+=pr.vx; pr.y+=pr.vy; pr.life--;
+    if(pr.rot!==undefined) pr.rot+=pr.rotSpd;
+
+    // Boss projectile trúng Player (Miễn nhiễm sát thương khi đang Lướt Dash)
+    if(pr.owner==='boss'&&P.iframes<=0&&P.dashTimer<=0){
+      if(overlap(pr.x,pr.y,pr.w,pr.h, P.x,P.y,P.w,P.h)){
+        P.hp-=pr.damage; P.iframes=1.2;
+        spawnParticles(P.x+P.w/2,P.y+P.h/2,'#f87171',10,4,25);
+        spawnDmgNum(P.x+P.w/2,P.y-8,pr.damage,'#f87171');
+        shake=5; pr.life=0;
+      }
+    }
+
+    // Player projectile trúng Boss
+    if(pr.owner==='player'&&Boss&&!Boss.defeated){
+      if(overlap(pr.x,pr.y,pr.w,pr.h, Boss.x,Boss.y,Boss.w,Boss.h)){
+        hitBoss(pr.damage, pr.isSpecial);
+        spawnParticles(pr.x+pr.w/2, pr.y+pr.h/2, '#38bdf8', 6, 4, 16);
+        spawnParticles(pr.x+pr.w/2, pr.y+pr.h/2, '#fbbf24', 3, 2, 10);
+        pr.life=0;
+      }
+    }
+  });
+  projectiles=projectiles.filter(pr=>pr.life>0&&pr.x>-60&&pr.x<GW+60&&pr.y>-60&&pr.y<GH+60);
+
+  // ── PICKUPS ──
+  pickups.forEach(pk=>{
+    pk.vy=clamp(pk.vy+.25,-99,5); pk.y+=pk.vy; pk.life--;
+    if(pk.y>GROUND-pk.h){ pk.y=GROUND-pk.h; pk.vy*=-.3; }
+    if(overlap(pk.x,pk.y,pk.w,pk.h, P.x,P.y,P.w,P.h)){
+      P.stars++; gs.stars++;
+      spawnParticles(pk.x+pk.w/2,pk.y+pk.h/2,'#fbbf24',8,5,25);
+      gs.score+=25; pk.life=0;
+    }
+  });
+  pickups=pickups.filter(pk=>pk.life>0);
+
+  // ── PARTICLES & EFFECTS ──
+  particles.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.vy+=p.grav||0;
+    p.vx*=.97; p.life--;
+  });
+  particles=particles.filter(p=>p.life>0);
+
+  shockwaves.forEach(s=>{ s.r=lerp(s.r,s.maxR,.12+.02*s.r/s.maxR); s.life--; });
+  shockwaves=shockwaves.filter(s=>s.life>0);
+
+  dmgNums.forEach(d=>{ d.x+=d.vx; d.y+=d.vy; d.vy*=.92; d.life--; });
+  dmgNums=dmgNums.filter(d=>d.life>0);
+
+  if(shake>0) shake*=.85; if(shake<.3) shake=0;
+
+  // ── DEATH / BOSS DEFEATED ──
+  if(P.hp<=0){ P.hp=0; gs.state='gameover'; UI.showGameOver(); snapshotKeys(); return; }
+
+  if(Boss&&Boss.defeated){
+    Boss.defeatTimer=(Boss.defeatTimer||0)+1;
+    if(Boss.defeatTimer===100) UI.startQuizRound();
+  }
+
+  // ── UPDATE HUD ──
+  updateHUD();
+  snapshotKeys();
+}
+
+function updateHUD(){
+  document.getElementById('hudLevel').textContent = gs.level+1;
+  document.getElementById('hudScore').textContent = gs.score;
+  document.getElementById('hudStars').textContent = P.stars;
+  document.getElementById('hudQuiz').textContent = `${gs.quizCorrect}/${gs.quizTotal}`;
+
+  // Glow gold on mobile Ultimate button when 3⭐ ready
+  const ultBtn = document.getElementById('btnTouchUlt');
+  if(ultBtn){
+    if(P.stars >= 3){
+      ultBtn.style.borderColor = '#fbbf24';
+      ultBtn.style.boxShadow = '0 0 18px rgba(251, 191, 36, 0.7)';
+    } else {
+      ultBtn.style.borderColor = 'rgba(249, 115, 22, 0.5)';
+      ultBtn.style.boxShadow = '0 6px 20px rgba(0,0,0,0.5)';
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDERING
+// ═══════════════════════════════════════════════════════
+function render(){
+  X.save();
+  if(shake>.3){
+    X.translate((Math.random()-.5)*shake*2.2,(Math.random()-.5)*shake*2.2);
+  }
+
+  drawBackground(gs.level);
+  drawShockwaves();
+  drawPlatforms();
+  drawPickups();
+  drawProjectiles();
+  if(Boss&&!Boss.defeated) drawBoss(gs.level);
+  drawPlayerTrail();
+  drawPlayer();
+  drawParticles();
+  drawDmgNums();
+  drawHUDOnCanvas();
+
+  if(gs.state==='paused'){
+    X.fillStyle='rgba(0,0,0,.55)';
+    X.fillRect(0,0,GW,GH);
+  }
+
+  X.restore();
+}
+
+// ── BACKGROUND ──
+function drawBackground(li){
+  const palettes=[
+    {top:'#060d1a',bot:'#0c1e38'},
+    {top:'#0d0800',bot:'#1e1000'},
+    {top:'#0d0303',bot:'#1e0505'},
+    {top:'#060010',bot:'#100020'},
+  ];
+  const p=palettes[li];
+  const g=X.createLinearGradient(0,0,0,GH);
+  g.addColorStop(0,p.top); g.addColorStop(1,p.bot);
+  X.fillStyle=g; X.fillRect(0,0,GW,GH);
+
+  // animated bg elements
+  X.globalAlpha=.07;
+  if(li===0){
+    for(let i=0;i<4;i++){
+      const cx=120+i*230, cy=220;
+      const r=50+i*10, rot=bgTick*.008*(i%2===0?1:-1);
+      X.strokeStyle='#38bdf8'; X.lineWidth=2;
+      X.beginPath();
+      for(let t=0;t<8;t++){
+        const a=rot+t*Math.PI/4;
+        X.fillStyle='#38bdf8';
+        X.fillRect(cx+Math.cos(a)*r-5,cy+Math.sin(a)*r-5,10,10);
+      }
+      X.beginPath(); X.arc(cx,cy,r*.55,0,Math.PI*2); X.stroke();
+    }
+  } else if(li===1){
+    X.fillStyle='#f97316'; X.font='bold 80px monospace';
+    for(let i=0;i<4;i++) X.fillText('$',60+i*240,260+Math.sin(bgTick*.02+i)*15);
+  } else if(li===2){
+    X.fillStyle='#f87171'; X.font='12px monospace';
+    for(let r=0;r<9;r++){
+      let s=''; for(let c=0;c<50;c++) s+=Math.random()>.5?'1':'0';
+      X.fillText(s,10,60+r*52);
+    }
+  } else {
+    X.fillStyle='#a78bfa';
+    for(let i=0;i<120;i++){
+      const sx=(Math.sin(bgTick*.007+i*2.5)*0.5+0.5)*GW;
+      const sy=(Math.cos(bgTick*.009+i*1.7)*0.5+0.5)*GH;
+      X.fillRect(sx,sy,2+Math.random()*3,2+Math.random()*3);
+    }
+  }
+  X.globalAlpha=1;
+}
+
+// ── PLATFORMS ──
+function drawPlatforms(){
+  platforms.forEach(pl=>{
+    if(pl.ground){
+      const g=X.createLinearGradient(0,pl.y,0,pl.y+pl.h);
+      g.addColorStop(0,'#1e293b'); g.addColorStop(1,'#0f172a');
+      X.fillStyle=g; X.fillRect(pl.x,pl.y,pl.w,pl.h);
+      // Surface line
+      X.fillStyle='#334155'; X.fillRect(pl.x,pl.y,pl.w,3);
+      // Grid lines
+      X.strokeStyle='rgba(51,65,85,.4)'; X.lineWidth=1;
+      for(let gx=0;gx<pl.w;gx+=80){
+        X.beginPath(); X.moveTo(pl.x+gx,pl.y); X.lineTo(pl.x+gx,pl.y+pl.h); X.stroke();
+      }
+    } else {
+      const lc=LEVELS[gs.level].bossColor;
+      X.fillStyle='#1e3a5f'; X.beginPath();
+      X.roundRect(pl.x,pl.y,pl.w,pl.h,4); X.fill();
+      // Glow top
+      const g=X.createLinearGradient(pl.x,pl.y,pl.x,pl.y+6);
+      g.addColorStop(0,lc); g.addColorStop(1,'transparent');
+      X.fillStyle=g; X.fillRect(pl.x,pl.y,pl.w,6);
+    }
+  });
+}
+
+// ── PICKUPS ──
+function drawPickups(){
+  pickups.forEach(pk=>{
+    const bob=Math.sin(bgTick*.1+pk.x)*4;
+    const glow=X.createRadialGradient(pk.x+pk.w/2,pk.y+pk.h/2+bob,0,pk.x+pk.w/2,pk.y+pk.h/2+bob,pk.w);
+    glow.addColorStop(0,'rgba(251,191,36,.5)'); glow.addColorStop(1,'rgba(251,191,36,0)');
+    X.fillStyle=glow; X.beginPath(); X.arc(pk.x+pk.w/2,pk.y+pk.h/2+bob,pk.w,0,Math.PI*2); X.fill();
+    X.font=`${pk.w}px serif`; X.textAlign='center';
+    X.fillText('⭐',pk.x+pk.w/2,pk.y+pk.h/2+bob+8);
+  });
+  X.textAlign='left';
+}
+
+// ── PROJECTILES ──
+function drawProjectiles(){
+  projectiles.forEach(pr=>{
+    X.save();
+    X.translate(pr.x+pr.w/2, pr.y+pr.h/2);
+    if(pr.rot) X.rotate(pr.rot);
+
+    if(pr.owner==='player'){
+      // Đạn laser siêu đẹp của nhân vật FPT
+      X.shadowColor = pr.color;
+      X.shadowBlur = 12;
+      X.fillStyle = pr.color;
+      X.beginPath();
+      X.roundRect(-pr.w/2, -pr.h/2, pr.w, pr.h, pr.h/2);
+      X.fill();
+
+      // Lõi laser trắng sáng rực
+      X.fillStyle = '#ffffff';
+      X.fillRect(-pr.w/3, -pr.h/4, pr.w * 0.6, pr.h/2);
+    } else {
+      // Glow đạn của Boss
+      X.shadowColor=pr.color; X.shadowBlur=10;
+      X.fillStyle=pr.color;
+      X.globalAlpha=.85;
+      if(pr.w>pr.h*2){
+        X.fillRect(-pr.w/2,-pr.h/2,pr.w,pr.h);
+      } else {
+        X.beginPath(); X.roundRect(-pr.w/2,-pr.h/2,pr.w,pr.h,pr.w/3); X.fill();
+      }
+    }
+    X.shadowBlur=0; X.globalAlpha=1;
+    X.restore();
+  });
+}
+
+// ── SHOCKWAVES ──
+function drawShockwaves(){
+  shockwaves.forEach(s=>{
+    X.globalAlpha=s.life/s.maxLife*.5;
+    X.strokeStyle=s.color; X.lineWidth=3;
+    X.beginPath(); X.arc(s.x,s.y,s.r,0,Math.PI*2); X.stroke();
+    X.globalAlpha=1;
+  });
+}
+
+// ── PARTICLES ──
+function drawParticles(){
+  particles.forEach(p=>{
+    const a=p.life/p.maxLife;
+    X.globalAlpha=a*a;
+    X.fillStyle=p.color;
+    X.shadowColor=p.color; X.shadowBlur=4;
+    X.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size);
+    X.shadowBlur=0;
+  });
+  X.globalAlpha=1;
+}
+
+// ── DAMAGE NUMBERS ──
+function drawDmgNums(){
+  dmgNums.forEach(d=>{
+    const a=d.life/55;
+    X.globalAlpha=a;
+    X.font=`bold ${14+Math.round((1-a)*4)}px 'Exo 2', sans-serif`;
+    X.textAlign='center';
+    X.fillStyle=d.color;
+    X.shadowColor=d.color; X.shadowBlur=8;
+    X.fillText('-'+d.val, d.x, d.y);
+    X.shadowBlur=0;
+  });
+  X.globalAlpha=1; X.textAlign='left';
+}
+
+// ── PLAYER TRAIL ──
+function drawPlayerTrail(){
+  P.trail.forEach((t,i)=>{
+    X.globalAlpha=(t.life/20)*.4;
+    X.fillStyle='#fbbf24';
+    X.fillRect(t.x-8, t.y-10, 16, 20);
+  });
+  X.globalAlpha=1;
+}
+
+// ── PLAYER ──
+function drawPlayer(){
+  if (!P || !P.w || !P.h || isNaN(P.x) || isNaN(P.y)) return;
+  if(P.iframes>0 && Math.floor(P.iframes*20)%2===0) return;
+  X.save();
+  const bx=P.x+P.w/2, by=P.y+P.h/2;
+  X.translate(bx,by);
+  X.scale(P.facing||1,1);
+
+  const isAtk = P.atkTimer>0;
+  const isGrounded = P.grounded;
+  const isRunning = isGrounded && Math.abs(P.vx) > 0.4;
+  const isJumpingUp = !isGrounded && P.vy < -1;
+  const isFalling = !isGrounded && P.vy >= -1;
+
+  // Hơi thở nhẹ chỉ tác động phần ngực/đầu khi đứng yên (KHÔNG làm chân nhấc khỏi đất!)
+  const chestBob = (isGrounded && !isRunning) ? Math.sin((P.breathTick||0)*0.06)*0.7 : 0;
+
+  // Bóng đổ dưới sàn
+  if (!isGrounded) {
+    X.save(); X.scale(1, 0.25);
+    X.fillStyle = 'rgba(0,0,0,0.25)';
+    X.beginPath(); X.ellipse(0, 32 + (P.h/2), 11, 5, 0, 0, Math.PI*2); X.fill();
+    X.restore();
+  } else {
+    X.save(); X.scale(1, 0.25);
+    X.fillStyle = 'rgba(0,0,0,0.35)';
+    X.beginPath(); X.ellipse(0, 26, 14, 6, 0, 0, Math.PI*2); X.fill();
+    X.restore();
+  }
+
+  // Special aura
+  if(P.specialTimer>0){
+    const ar=P.specialTimer/45;
+    X.globalAlpha=ar*0.6;
+    X.fillStyle='#fbbf24';
+    X.shadowColor='#fbbf24'; X.shadowBlur=20;
+    X.beginPath(); X.ellipse(0,0,22+ar*12,28+ar*8,0,0,Math.PI*2); X.fill();
+    X.shadowBlur=0; X.globalAlpha=1;
+  }
+
+  // ── CHÂN VÀ GIÀY (Tư thế chuẩn Mario) ──
+  X.fillStyle='#1e40af'; // Quần xanh
+  if (isJumpingUp) {
+    // Nhảy lên: Co gối chân trước, chân sau hơi duỗi
+    X.fillRect(-10, 8, 8, 12);
+    X.fillRect(2, 4, 9, 13);
+    X.fillStyle='#0f172a';
+    X.fillRect(-11, 20, 10, 5);
+    X.fillRect(1, 17, 11, 5);
+  } else if (isFalling) {
+    // Rơi xuống: Hai chân chuẩn bị tiếp đất
+    X.fillRect(-10, 11, 9, 15);
+    X.fillRect(1, 11, 9, 15);
+    X.fillStyle='#0f172a';
+    X.fillRect(-11, 26, 11, 5);
+    X.fillRect(0, 26, 11, 5);
+  } else if (isRunning) {
+    // Chạy bộ: Nhịp sải chân chuyển động trước/sau nhịp nhàng
+    const runCycle = Math.sin((P.animTick||0) * 0.28) * 6;
+    X.fillRect(-9 + runCycle, 12, 8, 14);
+    X.fillRect(1 - runCycle, 12, 8, 14);
+    X.fillStyle='#0f172a';
+    X.fillRect(-10 + runCycle, 26, 10, 5);
+    X.fillRect(0 - runCycle, 26, 10, 5);
+  } else {
+    // Đứng yên: Chân bám vững chắc trên mặt sàn (KHÔNG bị tưng tưng!)
+    X.fillRect(-10, 12, 9, 14);
+    X.fillRect(1, 12, 9, 14);
+    X.fillStyle='#0f172a';
+    X.fillRect(-11, 26, 11, 5);
+    X.fillRect(0, 26, 11, 5);
+  }
+
+  // ── THÂN MÌNH & ÁO KHOÁC ──
+  X.fillStyle='#1e3a5f';
+  X.beginPath(); X.roundRect(-13, -18 + chestBob, 26, 30, 3); X.fill();
+  
+  // Vạch phản quang cam FPT
+  X.fillStyle='#f97316';
+  X.fillRect(-13, 4 + chestBob, 26, 6);
+  
+  // Logo FPT
+  X.fillStyle='#fff';
+  X.font='bold 7px monospace'; X.textAlign='center';
+  X.fillText('FPT', -1, 11 + chestBob);
+  
+  // Họa tiết ngực Cyan
+  X.fillStyle='#38bdf8';
+  X.fillRect(-5, -12 + chestBob, 10, 10);
+
+  // ── ĐẦU & KHUÔN MẶT ──
+  X.fillStyle='#fde68a';
+  X.beginPath(); X.roundRect(-10, -32 + chestBob, 20, 16, 5); X.fill();
+  
+  // Tóc
+  X.fillStyle='#1e293b';
+  X.fillRect(-11, -36 + chestBob, 22, 8);
+  X.fillRect(8, -38 + chestBob, 5, 5);
+  
+  // Mắt
+  X.fillStyle='#0f172a';
+  X.fillRect(-6, -26 + chestBob, 4, 4);
+  X.fillRect(2, -26 + chestBob, 4, 4);
+  
+  // Đồng tử Cyan
+  X.fillStyle='#38bdf8';
+  X.fillRect(-5.5, -25.5 + chestBob, 2, 2);
+  X.fillRect(2.5, -25.5 + chestBob, 2, 2);
+  
+  // Miệng
+  X.fillStyle='#f97316';
+  X.fillRect(-4, -20 + chestBob, 8, 2);
+
+  // ── TAY & SÚNG LASER BLASTER ──
+  const recoil = isAtk ? (P.atkTimer / 8) * 4 : 0;
+  const armY = isJumpingUp ? -9 : -6;
+  
+  // Cánh tay áo
+  X.fillStyle = '#1e3a5f';
+  X.fillRect(4 - recoil, armY + chestBob, 10, 7);
+  X.fillStyle = '#fde68a';
+  X.fillRect(12 - recoil, armY + 1 + chestBob, 7, 5);
+
+  // Thân súng Laser Blaster
+  X.fillStyle = '#1e293b';
+  X.beginPath();
+  X.roundRect(14 - recoil, armY - 2 + chestBob, 16, 9, 2);
+  X.fill();
+
+  // Ống kính & lõi năng lượng Cyan phát sáng
+  X.fillStyle = '#38bdf8';
+  X.shadowColor = '#38bdf8';
+  X.shadowBlur = 6;
+  X.fillRect(16 - recoil, armY + chestBob, 8, 3);
+  X.shadowBlur = 0;
+
+  // Nòng súng kim loại
+  X.fillStyle = '#475569';
+  X.fillRect(28 - recoil, armY - 1 + chestBob, 7, 4);
+
+  // Vạch cam FPT trang trí trên súng
+  X.fillStyle = '#f97316';
+  X.fillRect(16 - recoil, armY + 4 + chestBob, 10, 2);
+
+  // Hiệu ứng tia lửa nòng súng khi bắn (Muzzle Flash)
+  if(isAtk){
+    X.save();
+    X.translate(36 - recoil, armY + 1 + chestBob);
+    X.fillStyle = '#38bdf8';
+    X.shadowColor = '#38bdf8';
+    X.shadowBlur = 15;
+    X.beginPath();
+    X.moveTo(0, -6); X.lineTo(10, 0); X.lineTo(0, 6); X.lineTo(-2, 0);
+    X.closePath();
+    X.fill();
+    X.fillStyle = '#ffffff';
+    X.beginPath();
+    X.arc(2, 0, 3, 0, Math.PI * 2);
+    X.fill();
+    X.shadowBlur = 0;
+    X.restore();
+  }
+
+  X.textAlign='left';
+  X.restore();
+}
+
+// ── BOSS ──
+function drawBoss(li){
+  if(!Boss) return;
+  if(Boss.iframes>0&&Math.floor(Boss.iframes*18)%2===0) return;
+  const bx=Boss.x+Boss.w/2, by=Boss.y+Boss.h/2;
+  const t=Boss.animTick, stun=Boss.stunTimer>0;
+  const c=stun?'#64748b':Boss.color;
+
+  X.save(); X.translate(bx,by);
+  const pulse=Math.sin(t*.05)*4;
+
+  if(li===0){
+    // ── Cối xay thuật toán: Mechanical Gear Boss ──
+    const rot=t*.025;
+    // Outer gear
+    X.strokeStyle=c; X.lineWidth=4;
+    X.shadowColor=c; X.shadowBlur=stun?0:20;
+    for(let i=0;i<10;i++){
+      const a=rot+i*Math.PI/5;
+      X.fillStyle=c;
+      X.fillRect(Math.cos(a)*32-5,Math.sin(a)*32-5+pulse,10,10);
+    }
+    // Inner circle
+    X.fillStyle=stun?'#1e293b':'#0c4a6e';
+    X.beginPath(); X.arc(0,pulse,20,0,Math.PI*2); X.fill();
+    X.fillStyle=c;
+    X.beginPath(); X.arc(0,pulse,20,0,Math.PI*2); X.stroke();
+    // Center symbol
+    X.fillStyle=c; X.font='bold 14px monospace'; X.textAlign='center';
+    X.fillText('⚙',0,5+pulse);
+    // Eyes
+    X.fillStyle='#f87171';
+    X.fillRect(-8,-3+pulse,5,5); X.fillRect(3,-3+pulse,5,5);
+    X.shadowBlur=0;
+  } else if(li===1){
+    // ── Tư bản công nghệ: CPU Dollar Boss ──
+    X.shadowColor=c; X.shadowBlur=stun?0:25;
+    X.fillStyle=stun?'#334155':c;
+    X.beginPath(); X.roundRect(-30,-38+pulse,60,68,6); X.fill();
+    X.fillStyle='#0a1128';
+    X.beginPath(); X.roundRect(-24,-32+pulse,48,56,4); X.fill();
+    // Dollar sign
+    X.fillStyle=stun?'#475569':'#fbbf24';
+    X.font='bold 36px monospace'; X.textAlign='center';
+    X.fillText('$',0,12+pulse);
+    // Chip pins
+    X.fillStyle=c;
+    for(let i=0;i<4;i++){
+      X.fillRect(-36,-24+i*16+pulse,8,8);
+      X.fillRect(28,-24+i*16+pulse,8,8);
+    }
+    // Eyes above $
+    X.fillStyle='#f87171';
+    X.fillRect(-12,-20+pulse,8,8); X.fillRect(4,-20+pulse,8,8);
+    X.shadowBlur=0;
+  } else if(li===2){
+    // ── Cơ chế hấp thụ: Vortex Boss ──
+    X.shadowColor=c; X.shadowBlur=stun?0:30;
+    for(let r=3;r>0;r--){
+      X.globalAlpha=.2+r*.15;
+      X.fillStyle=c;
+      X.beginPath(); X.arc(0,pulse,r*15,0,Math.PI*2); X.fill();
+    }
+    X.globalAlpha=1;
+    X.fillStyle='#060d1a';
+    X.beginPath(); X.arc(0,pulse,12,0,Math.PI*2); X.fill();
+    // Orbiting particles
+    ['#38bdf8','#f97316','#34d399','#a78bfa','#fbbf24','#f87171'].forEach((col,i)=>{
+      const a=t*.07+i*Math.PI/3;
+      X.fillStyle=col; X.shadowColor=col; X.shadowBlur=8;
+      X.beginPath(); X.arc(Math.cos(a)*32,Math.sin(a)*32+pulse,5,0,Math.PI*2); X.fill();
+    });
+    X.fillStyle='#fbbf24'; X.font='bold 10px monospace'; X.textAlign='center';
+    X.fillText('ABSORB',0,4+pulse);
+    X.shadowBlur=0; X.globalAlpha=1;
+  } else {
+    // ── Sự tha hóa: Glitch / Corrupted Boss ──
+    const glitch=stun?0:Math.sin(t*.15)*3;
+    X.shadowColor=c; X.shadowBlur=stun?0:20;
+    for(let i=0;i<5;i++){
+      X.fillStyle=i%2===0?(stun?'#334155':c):'#1e1b4b';
+      const gx=!stun&&i%2===0?Math.sin(t*.11+i)*5:0;
+      X.fillRect(-28+gx,-36+i*14+pulse,56,12);
+    }
+    // Hollow eyes with glow
+    X.fillStyle='#0a1128';
+    X.fillRect(-16,-24+pulse,10,10); X.fillRect(6,-24+pulse,10,10);
+    X.fillStyle=stun?'#475569':'#f87171';
+    X.fillRect(-14,-22+pulse,6,6); X.fillRect(8,-22+pulse,6,6);
+    // Glitch scanline
+    if(!stun){
+      const gl=((t*4)%GH*2-GH);
+      X.globalAlpha=.4; X.fillStyle='rgba(248,113,113,.6)';
+      X.fillRect(-32,gl-50+pulse,64,3);
+      X.globalAlpha=1;
+    }
+    // Crown
+    X.fillStyle='#fbbf24';
+    X.fillRect(-18,-44+pulse,36,7);
+    X.fillRect(-20,-52+pulse,7,10);
+    X.fillRect(-2,-54+pulse,7,12);
+    X.fillRect(13,-52+pulse,7,10);
+    X.shadowBlur=0;
+  }
+
+  // Phase 2 indicator (Khiên năng lượng cuồng nộ)
+  if(Boss.phase===2){
+    X.globalAlpha=.7+Math.sin(t*.2)*.3;
+    X.strokeStyle='#f87171'; X.lineWidth=3;
+    X.shadowColor='#f87171'; X.shadowBlur=16;
+    X.setLineDash([6,4]);
+    X.beginPath(); X.arc(0,0,50,0,Math.PI*2); X.stroke();
+    X.setLineDash([]);
+    X.fillStyle='rgba(248,113,113,0.08)';
+    X.beginPath(); X.arc(0,0,50,0,Math.PI*2); X.fill();
+    X.shadowBlur=0; X.globalAlpha=1;
+  }
+
+  X.textAlign='left';
+  X.restore();
+
+  // HP bar above boss
+  const barW=200, barH=12;
+  const bpx=Boss.x+Boss.w/2-barW/2, bpy=Boss.y-32;
+  X.fillStyle='rgba(0,0,0,.7)';
+  X.beginPath(); X.roundRect(bpx-2,bpy-2,barW+4,barH+4,4); X.fill();
+  X.fillStyle='#1e293b';
+  X.beginPath(); X.roundRect(bpx,bpy,barW,barH,3); X.fill();
+  const ratio=Math.max(0, Boss.hp/Boss.maxHp);
+  const hpColor=ratio>.4?Boss.color:'#f87171';
+  X.fillStyle=hpColor;
+  X.shadowColor=hpColor; X.shadowBlur=8;
+  X.beginPath(); X.roundRect(bpx,bpy,barW*ratio,barH,3); X.fill();
+  X.shadowBlur=0;
+  // Boss HP text (hiển thị số máu rõ ràng)
+  X.fillStyle='#ffffff'; X.font='bold 9px monospace'; X.textAlign='center';
+  X.fillText(`${Math.ceil(Boss.hp)} / ${Boss.maxHp}`, bpx+barW/2, bpy+9.5);
+  // Phase 2 alert
+  if(Boss.phase===2){
+    X.fillStyle='#f87171'; X.font='bold 10px "Exo 2", monospace'; X.textAlign='center';
+    X.fillText('⚡ CUỒNG NỘ: KHIÊN GIẢM 25% SÁT THƯƠNG', bpx+barW/2, bpy-6);
+  }
+
+  // Boss Skill Warning Banner
+  if (Boss && Boss.skillTimer > 0) {
+    Boss.skillTimer--;
+    const a = Math.min(1, Boss.skillTimer / 12);
+    X.globalAlpha = a;
+    X.fillStyle = 'rgba(15, 23, 42, 0.9)';
+    X.beginPath();
+    X.roundRect(bpx - 20, bpy + barH + 6, barW + 40, 22, 6);
+    X.fill();
+    X.strokeStyle = Boss.color;
+    X.lineWidth = 1.5;
+    X.stroke();
+    X.fillStyle = '#f8fafc';
+    X.font = 'bold 11px "Exo 2", sans-serif';
+    X.textAlign = 'center';
+    X.fillText(Boss.currentSkill || '', bpx + barW/2, bpy + barH + 21);
+    X.globalAlpha = 1;
+  }
+  X.textAlign='left';
+}
+
+// ── HUD ON CANVAS ──
+function drawHUDOnCanvas(){
+  // Player HP bar
+  const hbx=16, hby=14, hbw=200, hbh=14;
+  X.fillStyle='rgba(0,0,0,.6)';
+  X.beginPath(); X.roundRect(hbx-2,hby-14,hbw+4,hbh+22,8); X.fill();
+  X.fillStyle='#64748b'; X.font='bold 10px "Exo 2",sans-serif';
+  X.fillText('HP',hbx,hby-2);
+  X.fillStyle='#1e293b';
+  X.beginPath(); X.roundRect(hbx,hby,hbw,hbh,4); X.fill();
+  const hr=P.hp/P.maxHp;
+  const hcol=hr>.5?'#34d399':hr>.25?'#fbbf24':'#f87171';
+  X.fillStyle=hcol; X.shadowColor=hcol; X.shadowBlur=6;
+  X.beginPath(); X.roundRect(hbx,hby,hbw*hr,hbh,4); X.fill();
+  X.shadowBlur=0;
+  X.fillStyle='#fff'; X.font='bold 9px monospace'; X.textAlign='center';
+  X.fillText(`${Math.ceil(P.hp)} / ${P.maxHp}`, hbx+hbw/2, hby+10);
+  X.textAlign='left';
+
+  // Stars
+  const sry=hby+hbh+8;
+  X.fillStyle='#fbbf24';
+  X.font='11px "Exo 2"';
+  X.fillText(`⭐ ×${P.stars}`, hbx, sry+10);
+
+  // Special ready indicator (3 stars)
+  if(P.stars>=3){
+    const pulse=.6+Math.sin(bgTick*.12)*.4;
+    X.globalAlpha=pulse;
+    X.fillStyle='rgba(251,191,36,.15)';
+    X.beginPath(); X.roundRect(hbx-2,sry-2,98,18,6); X.fill();
+    X.strokeStyle='#fbbf24'; X.lineWidth=1;
+    X.beginPath(); X.roundRect(hbx-2,sry-2,98,18,6); X.stroke();
+    X.fillStyle='#fbbf24'; X.font='bold 10px "Exo 2"';
+    X.fillText('⚡ K: ĐẠI PHÁO!', hbx+2, sry+11);
+    X.globalAlpha=1;
+  }
+
+  // Dash ready indicator
+  const dry = sry + 22;
+  const dashReady = P.dashCool <= 0;
+  X.fillStyle = dashReady ? 'rgba(56,189,248,.15)' : 'rgba(255,255,255,.05)';
+  X.beginPath(); X.roundRect(hbx-2, dry, 98, 18, 6); X.fill();
+  X.strokeStyle = dashReady ? '#38bdf8' : '#475569';
+  X.lineWidth = 1;
+  X.stroke();
+  X.fillStyle = dashReady ? '#38bdf8' : '#64748b';
+  X.font = 'bold 10px "Exo 2"';
+  X.fillText(dashReady ? '⚡ SHIFT: DASH' : '⏳ DASH...', hbx+4, dry+13);
+
+  // Score (top center)
+  X.fillStyle='rgba(0,0,0,.5)';
+  X.beginPath(); X.roundRect(GW/2-70,6,140,28,8); X.fill();
+  X.fillStyle='#94a3b8'; X.font='10px "Exo 2"'; X.textAlign='center';
+  X.fillText('ĐIỂM', GW/2, 18);
+  X.fillStyle='#fbbf24'; X.font='bold 14px "Orbitron",monospace';
+  X.fillText(gs.score, GW/2, 31);
+  X.textAlign='left';
+
+  // Boss defeated banner
+  if(Boss&&Boss.defeated){
+    const t=Boss.defeatTimer||0;
+    if(t<100){
+      const a=Math.min(1,t/20)*Math.max(0,1-(t-80)/20);
+      X.globalAlpha=a;
+      X.fillStyle='rgba(0,0,0,.6)';
+      X.beginPath(); X.roundRect(GW/2-160,GH/2-32,320,64,14); X.fill();
+      X.fillStyle=Boss.color; X.font='bold 28px "Orbitron",monospace'; X.textAlign='center';
+      X.shadowColor=Boss.color; X.shadowBlur=20;
+      X.fillText('BOSS DEFEATED!', GW/2, GH/2+6);
+      X.shadowBlur=0; X.globalAlpha=1;
+      X.textAlign='left';
+    }
+  }
+
+  // Level start banner
+  if (levelBannerTimer > 0) {
+    levelBannerTimer--;
+    const a = Math.min(1, levelBannerTimer / 30);
+    X.globalAlpha = a;
+    X.fillStyle = 'rgba(10, 17, 40, 0.9)';
+    X.beginPath();
+    X.roundRect(GW/2 - 250, GH/2 - 45, 500, 90, 14);
+    X.fill();
+    X.strokeStyle = LEVELS[gs.level].bossColor;
+    X.lineWidth = 2;
+    X.stroke();
+    X.fillStyle = LEVELS[gs.level].bossColor;
+    X.font = 'bold 20px "Orbitron", monospace';
+    X.textAlign = 'center';
+    X.fillText(LEVELS[gs.level].title, GW/2, GH/2 - 8);
+    X.fillStyle = '#fde68a';
+    X.font = '12.5px "Exo 2", sans-serif';
+    X.fillText(LEVELS[gs.level].desc, GW/2, GH/2 + 16);
+    X.fillStyle = '#94a3b8';
+    X.font = '11px monospace';
+    X.fillText('A/D: Chạy | W: Nhảy | J: Bắn súng Laser | K: Đại pháo (3⭐)', GW/2, GH/2 + 34);
+    X.globalAlpha = 1;
+    X.textAlign = 'left';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// ROLE & TOURNAMENT STATE
+// ═══════════════════════════════════════════════════════
+const urlParams = new URLSearchParams(window.location.search);
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const isPlayerMode = urlParams.get('mode') === 'player' || (!isLocal && !urlParams.has('admin'));
+let playerNickname = '';
+let myPlayerId = localStorage.getItem('mln_player_id') || '';
+let hasAutoSubmitted = false;
+let lobbyPollTimer = null;
+let adminLobbyPollTimer = null;
+
+// ═══════════════════════════════════════════════════════
+// UI CONTROLLER
+// ═══════════════════════════════════════════════════════
+let quizQueue=[], quizIdx=0, quizTotal=0;
+
+const UI = {
+  show(id){
+    document.querySelectorAll('.modal').forEach(m=>m.classList.remove('show'));
+    const el=document.getElementById(id);
+    if(el){ el.classList.add('show'); }
+    document.getElementById('overlay').classList.add('active');
+  },
+  hide(){
+    document.querySelectorAll('.modal').forEach(m=>m.classList.remove('show'));
+    document.getElementById('overlay').classList.remove('active');
+  },
+
+  startGame(){
+    gs.level=0; gs.score=0; gs.stars=0;
+    gs.quizCorrect=0; gs.quizTotal=0; gs.bossesKilled=0;
+    hasAutoSubmitted=false;
+    document.getElementById('topBar').classList.add('show');
+    if(!isPlayerMode){
+      const cb = document.getElementById('ctrlBar');
+      if (cb) cb.classList.add('show');
+    }
+    UI.startLevel(0);
+  },
+
+  showLevelIntro(li){
+    UI.startLevel(li);
+  },
+
+  startLevel(li){
+    if (typeof li === 'number') gs.level = li;
+    UI.hide();
+    resetPlayer();
+    buildPlatforms(gs.level);
+    spawnBoss(gs.level);
+    projectiles=[]; particles=[]; pickups=[]; dmgNums=[]; shockwaves=[]; shake=0;
+    levelBannerTimer = 150;
+    gs.state='playing';
+  },
+
+  startQuizRound(){
+    const l=LEVELS[gs.level];
+    quizQueue=[...l.quizIdx];
+    quizIdx=0; quizTotal=quizQueue.length;
+    gs.state='quiz';
+    UI.showNextQuiz();
+  },
+
+  showNextQuiz(){
+    if(quizQueue.length===0){
+      UI.hide();
+      if(gs.level<LEVELS.length-1){
+        gs.level++;
+        resetPlayer();
+        P.hp = P.maxHp; // Hồi 100% full 200 HP qua màn tiếp theo!
+        UI.startLevel(gs.level);
+      } else {
+        UI.showVictory();
+      }
+      return;
+    }
+    const qi=quizQueue.shift();
+    const q=QUIZZES[qi];
+    quizIdx++;
+
+    // Pips
+    const pipsEl=document.getElementById('quizPips');
+    pipsEl.innerHTML='';
+    for(let i=0;i<quizTotal;i++){
+      const pip=document.createElement('div');
+      pip.className='quiz-pip'+(i<quizIdx-1?' done':i===quizIdx-1?' active':'');
+      pipsEl.appendChild(pip);
+    }
+
+    document.getElementById('quizLabel').textContent=`CÂU HỎI ${quizIdx} / ${quizTotal}`;
+    document.getElementById('quizQ').textContent=q.q;
+    document.getElementById('quizFeedback').className='feedback-box';
+    document.getElementById('quizNextBtn').style.display='none';
+
+    const optsEl=document.getElementById('quizOpts');
+    optsEl.innerHTML='';
+    q.opts.forEach((opt,i)=>{
+      const btn=document.createElement('button');
+      btn.className='quiz-opt';
+      btn.innerHTML=`<span class="opt-letter">${String.fromCharCode(65+i)}</span>${opt}`;
+      btn.onclick=()=>UI.answerQuiz(qi,i);
+      optsEl.appendChild(btn);
+    });
+
+    UI.show('screenQuiz');
+  },
+
+  answerQuiz(qi,chosen){
+    const q=QUIZZES[qi];
+    const opts=document.querySelectorAll('.quiz-opt');
+    opts.forEach((o,i)=>{
+      o.classList.add('disabled');
+      if(i===q.ans) o.classList.add('correct');
+      if(i===chosen&&i!==q.ans) o.classList.add('wrong');
+    });
+
+    const fb=document.getElementById('quizFeedback');
+    gs.quizTotal++;
+    if(chosen===q.ans){
+      gs.quizCorrect++; gs.score+=150;
+      P.hp=Math.min(P.maxHp,P.hp+50); P.atk+=2;
+      fb.className='feedback-box ok show';
+      fb.innerHTML=`<strong>✅ CHÍNH XÁC! (+150 điểm · Hồi +50 HP · Sát thương ATK +2)</strong>📖 ${q.ex}`;
+    } else {
+      // KHÔNG TRỪ MÁU: Người chơi thoải mái ôn tập và đọc giải thích
+      fb.className='feedback-box err show';
+      fb.innerHTML=`<strong>❌ CHƯA CHÍNH XÁC (Không bị trừ máu)! Đáp án đúng: ${String.fromCharCode(65+q.ans)}. ${q.opts[q.ans]}</strong>📖 ${q.ex}`;
+    }
+    document.getElementById('quizNextBtn').style.display='flex';
+    updateHUD();
+  },
+
+  quizNext(){ UI.showNextQuiz(); },
+
+  async startPlayerGame(){
+    const input = document.getElementById('inputPlayerName');
+    const errEl = document.getElementById('playerNameError');
+    const name = input ? input.value.trim() : '';
+
+    if (!name || name.length < 2) {
+      if (errEl) {
+        errEl.style.display = 'block';
+        errEl.textContent = '⚠️ BẮT BUỘC: Vui lòng nhập Họ Tên hoặc MSSV để bắt đầu thi đấu!';
+      }
+      if (input) {
+        input.focus();
+        input.style.borderColor = '#f87171';
+        input.style.boxShadow = '0 0 16px rgba(248, 113, 113, 0.6)';
+        setTimeout(() => {
+          input.style.borderColor = '';
+          input.style.boxShadow = '';
+        }, 1600);
+      }
+      if (navigator.vibrate) {
+        try { navigator.vibrate([60, 50, 60]); } catch(e){}
+      }
+      return;
+    }
+
+    if (errEl) errEl.style.display = 'none';
+    playerNickname = name;
+    localStorage.setItem('mln_player_name', playerNickname);
+
+    const hudName = document.getElementById('hudPlayerNameText');
+    const hudPill = document.getElementById('hudPlayerPill');
+    if (hudName) hudName.textContent = playerNickname;
+    if (hudPill) hudPill.style.display = 'flex';
+
+    const btn = document.getElementById('btnStartPlayerGame');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = '⏳ ĐANG KẾT NỐI PHÒNG CHỜ...';
+    }
+
+    try {
+      const res = await fetch('/api/lobby/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: playerNickname })
+      });
+      const data = await res.json();
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = '🚀 ĐĂNG KÝ VÀO PHÒNG CHỜ!';
+      }
+
+      if (data.success) {
+        myPlayerId = data.playerId;
+        localStorage.setItem('mln_player_id', myPlayerId);
+
+        // Nếu trận đấu đã phát lệnh bắt đầu từ trước, vào chơi ngay
+        if (data.lobbyStatus === 'started') {
+          UI.startCountdownAndPlay();
+          return;
+        }
+
+        // Vào phòng chờ và bắt đầu lắng nghe lệnh của Chủ trì
+        UI.show('screenPlayerWaiting');
+        const pNameEl = document.getElementById('waitingPlayerName');
+        if (pNameEl) pNameEl.textContent = playerNickname;
+        UI.updateLobbyChipsUI(data.players || [], data.playerCount || 1, 'player');
+        UI.startPlayerLobbyPolling();
+      } else {
+        alert("Lỗi khi vào phòng chờ: " + (data.error || 'Vui lòng thử lại'));
+      }
+    } catch(err) {
+      console.warn("Lobby join error:", err);
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = '🚀 ĐĂNG KÝ VÀO PHÒNG CHỜ!';
+      }
+      UI.startGame();
+    }
+  },
+
+  startPlayerLobbyPolling(){
+    if (lobbyPollTimer) clearInterval(lobbyPollTimer);
+    lobbyPollTimer = setInterval(async () => {
+      const waitScreen = document.getElementById('screenPlayerWaiting');
+      if (!waitScreen || !waitScreen.classList.contains('show')) return;
+
+      try {
+        const res = await fetch('/api/lobby/status?playerId=' + encodeURIComponent(myPlayerId));
+        const data = await res.json();
+        
+        UI.updateLobbyChipsUI(data.players || [], data.playerCount || 0, 'player');
+
+        // Khi Người Chủ Trì bấm lệnh Bắt đầu thi đấu!
+        if (data.status === 'started') {
+          clearInterval(lobbyPollTimer);
+          lobbyPollTimer = null;
+          UI.startCountdownAndPlay();
+        }
+      } catch(err) {
+        console.warn("Player lobby poll error:", err);
+      }
+    }, 1200);
+  },
+
+  startCountdownAndPlay(){
+    document.querySelectorAll('.modal').forEach(m => m.classList.remove('show'));
+    const cdOverlay = document.getElementById('countdownOverlay');
+    const cdNum = document.getElementById('countdownNumber');
+    const cdSub = document.getElementById('countdownSub');
+    if (!cdOverlay || !cdNum) {
+      UI.startGame();
+      return;
+    }
+
+    cdOverlay.style.display = 'flex';
+    cdNum.textContent = '3';
+    if (cdSub) cdSub.textContent = 'CHUẨN BỊ CHIẾN ĐẤU!';
+    if (navigator.vibrate) { try { navigator.vibrate(80); } catch(e){} }
+
+    setTimeout(() => {
+      cdNum.textContent = '2';
+      if (navigator.vibrate) { try { navigator.vibrate(80); } catch(e){} }
+    }, 900);
+
+    setTimeout(() => {
+      cdNum.textContent = '1';
+      if (navigator.vibrate) { try { navigator.vibrate(80); } catch(e){} }
+    }, 1800);
+
+    setTimeout(() => {
+      cdNum.textContent = '⚔️';
+      if (cdSub) cdSub.textContent = 'XUẤT TRẬN!';
+      if (navigator.vibrate) { try { navigator.vibrate([100, 50, 150]); } catch(e){} }
+    }, 2700);
+
+    setTimeout(() => {
+      cdOverlay.style.display = 'none';
+      UI.startGame();
+    }, 3400);
+  },
+
+  updateLobbyChipsUI(players, count, target){
+    const countText = `${count} người đã sẵn sàng`;
+    if (target === 'player') {
+      const cntEl = document.getElementById('playerWaitingCount');
+      if (cntEl) cntEl.textContent = `${count} người`;
+      const chipsEl = document.getElementById('playerWaitingChips');
+      if (chipsEl) {
+        chipsEl.innerHTML = players.map(p => {
+          const isMe = p.name === playerNickname;
+          return `<div class="lobby-chip" style="${isMe ? 'border-color:var(--gold);color:var(--gold);font-weight:700;' : ''}">👤 ${escapeHtml(p.name)}${isMe ? ' (Bạn)' : ''}</div>`;
+        }).join('');
+      }
+    } else {
+      const admCnt = document.getElementById('adminLobbyCount');
+      if (admCnt) admCnt.textContent = countText;
+      const qrCnt = document.getElementById('qrLobbyCount');
+      if (qrCnt) qrCnt.textContent = `${count} người`;
+
+      const emptyHtml = '<div style="color:var(--muted);font-size:12px;font-style:italic;">Chưa có ai vào phòng. Quét mã QR để tham gia!</div>';
+      const chipsHtml = players.length === 0 ? emptyHtml : players.map(p => `<div class="lobby-chip">👤 ${escapeHtml(p.name)}</div>`).join('');
+
+      const admChips = document.getElementById('adminLobbyChips');
+      if (admChips) admChips.innerHTML = chipsHtml;
+      const qrChips = document.getElementById('qrLobbyChips');
+      if (qrChips) qrChips.innerHTML = chipsHtml;
+    }
+  },
+
+  startAdminLobbyPolling(){
+    if (adminLobbyPollTimer) clearInterval(adminLobbyPollTimer);
+    UI.fetchAdminLobbyStatus();
+    adminLobbyPollTimer = setInterval(() => {
+      UI.fetchAdminLobbyStatus();
+    }, 1500);
+  },
+
+  async fetchAdminLobbyStatus(){
+    try {
+      const res = await fetch('/api/lobby/status');
+      const data = await res.json();
+      UI.updateLobbyChipsUI(data.players || [], data.playerCount || 0, 'admin');
+
+      const startBtns = [document.getElementById('btnAdminStartAll')];
+      if (data.status === 'started') {
+        startBtns.forEach(btn => {
+          if (btn) {
+            btn.textContent = '⚡ TRẬN ĐẤU ĐANG DIỄN RA (ĐÃ PHÁT LỆNH)';
+            btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+          }
+        });
+      }
+    } catch(err) {
+      console.warn("Admin lobby poll error:", err);
+    }
+  },
+
+  async adminStartTournament(){
+    try {
+      const res = await fetch('/api/lobby/start', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        alert("🚀 ĐÃ PHÁT LỆNH BẮT ĐẦU TRẬN ĐẤU CHO CẢ LỚP!\nToàn bộ điện thoại trong phòng chờ đang đếm ngược và bước vào thi đấu!");
+        UI.fetchAdminLobbyStatus();
+      }
+    } catch(err) {
+      alert("Lỗi khi phát lệnh bắt đầu: " + err.message);
+    }
+  },
+
+  async adminResetLobby(){
+    if (!confirm("⚠️ Bạn có chắc muốn mở lại phòng chờ mới cho cả lớp?")) return;
+    try {
+      const res = await fetch('/api/lobby/reset', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        UI.fetchAdminLobbyStatus();
+        const btn = document.getElementById('btnAdminStartAll');
+        if (btn) {
+          btn.textContent = '🚀 PHÁT LỆNH BẮT ĐẦU CHO CẢ LỚP!';
+          btn.style.background = '';
+        }
+      }
+    } catch(err) {
+      alert("Lỗi khi mở lại phòng: " + err.message);
+    }
+  },
+
+  showVictory(){
+    gs.state='victory';
+    const s=document.getElementById('victoryStats');
+    s.innerHTML=`
+      <div class="stat-card"><div class="stat-val" style="color:var(--green)">${gs.bossesKilled}/4</div><div class="stat-lbl">Boss đã hạ</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--cyan)">${gs.score}</div><div class="stat-lbl">Tổng điểm</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--gold)">${gs.quizCorrect}/${gs.quizTotal}</div><div class="stat-lbl">Câu đúng</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--orange)">${gs.stars}</div><div class="stat-lbl">Sao thu thập</div></div>`;
+    const scoreDisp = document.getElementById('victoryScoreDisplay');
+    if (scoreDisp) scoreDisp.textContent = gs.score.toLocaleString();
+    UI.show('screenVictory');
+
+    if (isPlayerMode || playerNickname) {
+      UI.autoSubmitScore('victory');
+    }
+  },
+
+  showGameOver(){
+    const msgs=[
+      "QHSX lỗi thời đã kìm hãm bạn! Nâng cấp tư duy và thử lại!",
+      "Bạn chưa đủ 4 Trụ cột năng lực để vượt qua cách mạng số. Chiến đấu lại!",
+      "Cơ chế Hấp thụ đã nuốt chửng bạn! Đừng là Hollow Senior — thử lại!",
+      "AI không thay thế bạn, nhưng bạn cần rèn luyện thêm! Chơi lại nào!",
+    ];
+    document.getElementById('goMsg').textContent=msgs[Math.min(gs.level,msgs.length-1)];
+    const s=document.getElementById('goStats');
+    s.innerHTML=`
+      <div class="stat-card"><div class="stat-val" style="color:var(--red)">Màn ${gs.level+1}</div><div class="stat-lbl">Dừng tại</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--cyan)">${gs.score}</div><div class="stat-lbl">Tổng điểm</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--gold)">${gs.quizCorrect}/${gs.quizTotal}</div><div class="stat-lbl">Câu đúng</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--orange)">${gs.bossesKilled}</div><div class="stat-lbl">Boss đã hạ</div></div>`;
+    const scoreDisp = document.getElementById('goScoreDisplay');
+    if (scoreDisp) scoreDisp.textContent = gs.score.toLocaleString();
+    UI.show('screenGameover');
+
+    if (isPlayerMode || playerNickname) {
+      UI.autoSubmitScore('gameover');
+    }
+  },
+
+  async autoSubmitScore(type){
+    if (hasAutoSubmitted) return;
+    hasAutoSubmitted = true;
+
+    localStorage.setItem('mln_tournament_played', 'true');
+    localStorage.setItem('mln_player_score', gs.score);
+
+    const isVictory = type === 'victory';
+    const nameToSubmit = playerNickname || localStorage.getItem('mln_player_name') || 'Chiến binh ẩn danh';
+
+    document.querySelectorAll('.submitted-player-name').forEach(el => {
+      el.textContent = `${nameToSubmit} (${gs.score.toLocaleString()} PTS)`;
+    });
+
+    const banner = document.getElementById(isVictory ? 'playerSubmitBannerVictory' : 'playerSubmitBannerGameover');
+    const submitBox = document.getElementById(isVictory ? 'submitBoxVictory' : 'submitBoxGameover');
+    const replayBtn = document.getElementById(isVictory ? 'btnVictoryReplay' : 'btnGameOverReplay');
+
+    if (banner) banner.style.display = 'block';
+    if (submitBox) submitBox.style.display = 'none';
+
+    // 1 MẠNG DUY NHẤT: Khóa nút chơi lại đối với người chơi di động
+    if (isPlayerMode && replayBtn) {
+      replayBtn.disabled = true;
+      replayBtn.style.opacity = '0.5';
+      replayBtn.style.cursor = 'not-allowed';
+      replayBtn.innerHTML = '🔒 Đã thi đấu (1 mạng duy nhất)';
+      replayBtn.onclick = (e) => {
+        e.preventDefault();
+        alert("⚠️ Bạn đã hoàn thành 1 lượt thi đấu (1 mạng duy nhất)!\nĐiểm số đã được tự động lưu về máy chủ Admin.");
+      };
+    }
+
+    try {
+      const res = await fetch('/api/leaderboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: nameToSubmit,
+          score: gs.score,
+          quizCorrect: gs.quizCorrect,
+          level: gs.level + 1,
+          stars: gs.stars
+        })
+      });
+      const data = await res.json();
+      if(data.success){
+        console.log("✅ Tự động lưu điểm thành công:", data.entry);
+      }
+    } catch(err) {
+      console.error("Lỗi tự động gửi điểm:", err);
+      if(banner){
+        banner.innerHTML = `
+          <div style="font-size:14px;font-weight:700;color:#f87171;">⚠️ LỖI KẾT NỐI TỰ ĐỘNG GỬI ĐIỂM</div>
+          <div style="font-size:12px;color:#cbd5e1;margin-top:4px;">Thí sinh: <strong>${escapeHtml(nameToSubmit)}</strong> · ${gs.score} điểm</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">Hãy chụp lại màn hình này báo nhóm thuyết trình để cập nhật điểm vào TOP 5!</div>
+        `;
+      }
+    }
+  },
+
+  resume(){
+    gs.state='playing';
+    UI.hide();
+  },
+
+  closeModal(){
+    if(gs.state==='playing'){
+      UI.hide();
+    } else {
+      document.querySelectorAll('.modal').forEach(m=>m.classList.remove('show'));
+      if(gs.state==='victory'){
+        document.getElementById('screenVictory').classList.add('show');
+      } else if(gs.state==='gameover'){
+        document.getElementById('screenGameover').classList.add('show');
+      } else {
+        if(isPlayerMode){
+          if(myPlayerId && lobbyPollTimer){
+            document.getElementById('screenPlayerWaiting').classList.add('show');
+          } else {
+            document.getElementById('screenPlayerStart').classList.add('show');
+          }
+        } else {
+          document.getElementById('screenStart').classList.add('show');
+        }
+      }
+    }
+  },
+
+  showQRModal(){
+    UI.show('screenQR');
+    UI.initQRCode();
+    UI.fetchAdminLobbyStatus();
+  },
+
+  async initQRCode(){
+    try {
+      const res = await fetch('/api/network');
+      const data = await res.json();
+      const select = document.getElementById('qrIpSelect');
+      if(select && data.ips && data.ips.length > 0){
+        select.innerHTML = '';
+        data.ips.forEach(net => {
+          const opt = document.createElement('option');
+          opt.value = `http://${net.ip}:${data.port}/game.html?mode=player`;
+          opt.textContent = `${net.name} (${net.ip})`;
+          if (net.ip === data.primaryIp) opt.selected = true;
+          select.appendChild(opt);
+        });
+        const localOpt = document.createElement('option');
+        localOpt.value = `http://localhost:${data.port}/game.html?mode=player`;
+        localOpt.textContent = `Localhost (Chế độ người chơi)`;
+        select.appendChild(localOpt);
+      }
+      const targetUrl = (select && select.value) || data.primaryUrl || window.location.href;
+      UI.renderQR(targetUrl);
+    } catch(e) {
+      UI.renderQR(window.location.href);
+    }
+  },
+
+  onSelectIp(url){
+    UI.renderQR(url);
+  },
+
+  renderQR(url){
+    currentQRUrl = url;
+    const disp = document.getElementById('qrUrlDisplay');
+    if(disp) disp.textContent = url;
+
+    const container = document.getElementById('qrCodeContainer');
+    if(!container) return;
+    container.innerHTML = '';
+
+    if(typeof QRCode !== 'undefined'){
+      try {
+        new QRCode(container, {
+          text: url,
+          width: 200,
+          height: 200,
+          colorDark: "#020617",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+        return;
+      } catch(err){
+        console.warn("QRCode.js fallback to img:", err);
+      }
+    }
+
+    const img = document.createElement('img');
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=4&data=${encodeURIComponent(url)}`;
+    img.alt = "Mã QR Game";
+    img.style.width = '200px';
+    img.style.height = '200px';
+    container.appendChild(img);
+  },
+
+  copyQRUrl(){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(currentQRUrl).then(()=>{
+        alert("✅ Đã sao chép đường link tham gia:\n" + currentQRUrl);
+      }).catch(()=>{
+        prompt("Sao chép link này gửi vào nhóm lớp:", currentQRUrl);
+      });
+    } else {
+      prompt("Sao chép link này gửi vào nhóm lớp:", currentQRUrl);
+    }
+  },
+
+  showLeaderboardModal(){
+    UI.show('screenLeaderboard');
+    UI.fetchLeaderboard();
+    if(lbPollTimer) clearInterval(lbPollTimer);
+    lbPollTimer = setInterval(()=>{
+      if(document.getElementById('screenLeaderboard')?.classList.contains('show')){
+        UI.fetchLeaderboard(false);
+      } else {
+        clearInterval(lbPollTimer);
+        lbPollTimer = null;
+      }
+    }, 4000);
+  },
+
+  async fetchLeaderboard(showFeedback = false){
+    const container = document.getElementById('leaderboardList');
+    if(!container) return;
+    try {
+      const res = await fetch('/api/leaderboard');
+      const top5 = await res.json();
+      if(!Array.isArray(top5) || top5.length === 0){
+        container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px;">Chưa có kỷ lục nào. Hãy là người đầu tiên ghi danh vào TOP 5!</div>';
+        return;
+      }
+      const medals = ['🥇 TOP 1', '🥈 TOP 2', '🥉 TOP 3', '⭐ TOP 4', '⭐ TOP 5'];
+      const rankClasses = ['lb-rank-1', 'lb-rank-2', 'lb-rank-3', 'lb-rank-other', 'lb-rank-other'];
+
+      let html = '';
+      top5.slice(0, 5).forEach((item, index)=>{
+        html += `
+          <div class="lb-card">
+            <div class="lb-rank-badge ${rankClasses[index]}">${index < 3 ? ['🥇','🥈','🥉'][index] : (index+1)}</div>
+            <div class="lb-info">
+              <div class="lb-player-name">${escapeHtml(item.name || 'Chiến binh')} <span style="font-size:10px;color:var(--muted);font-weight:400;">(${medals[index]})</span></div>
+              <div class="lb-meta">Màn ${item.level || 1} · ✅ ${item.quizCorrect || 0} câu đúng · ⭐ ${item.stars || 0} sao · ⏱️ ${item.date || ''}</div>
+            </div>
+            <div class="lb-score-val">${item.score.toLocaleString()} <span style="font-size:10px;color:var(--muted);font-weight:400;">PTS</span></div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+      if(showFeedback && window.event && window.event.target){
+        const btn = window.event.target;
+        const orig = btn.textContent;
+        btn.textContent = '✓ Đã cập nhật!';
+        setTimeout(()=>{ btn.textContent = orig; }, 1200);
+      }
+    } catch(err){
+      container.innerHTML = '<div style="text-align:center;color:#f87171;padding:20px;">Không thể kết nối đến máy chủ bảng xếp hạng.</div>';
+    }
+  },
+
+  async submitScore(type){
+    const isVictory = type === 'victory';
+    const input = document.getElementById(isVictory ? 'playerNameVictory' : 'playerNameGameover');
+    const msgEl = document.getElementById(isVictory ? 'submitMsgVictory' : 'submitMsgGameover');
+    const btn = window.event?.target;
+
+    const rawName = input ? input.value.trim() : '';
+    if(!rawName){
+      if(msgEl){
+        msgEl.style.color = '#f87171';
+        msgEl.textContent = '⚠️ Vui lòng nhập Họ Tên hoặc Nickname của bạn!';
+      }
+      return;
+    }
+
+    if(btn) btn.disabled = true;
+    if(msgEl){
+      msgEl.style.color = '#38bdf8';
+      msgEl.textContent = 'Đang nộp điểm lên máy chủ...';
+    }
+
+    try {
+      const res = await fetch('/api/leaderboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: rawName,
+          score: gs.score,
+          quizCorrect: gs.quizCorrect,
+          level: gs.level + 1,
+          stars: gs.stars
+        })
+      });
+      const result = await res.json();
+      if(result.success){
+        if(msgEl){
+          msgEl.style.color = '#34d399';
+          msgEl.textContent = '🎉 ĐÃ LƯU ĐIỂM THÀNH CÔNG VÀO BẢNG XẾP HẠNG!';
+        }
+        setTimeout(()=>{
+          UI.showLeaderboardModal();
+        }, 900);
+      } else {
+        if(msgEl){
+          msgEl.style.color = '#f87171';
+          msgEl.textContent = '❌ Lỗi: ' + (result.error || 'Không thể lưu điểm');
+        }
+        if(btn) btn.disabled = false;
+      }
+    } catch(e){
+      if(msgEl){
+        msgEl.style.color = '#f87171';
+        msgEl.textContent = '❌ Không thể kết nối tới server: ' + e.message;
+      }
+      if(btn) btn.disabled = false;
+    }
+  },
+
+  async resetLeaderboard(){
+    if(!confirm("⚠️ Bạn có chắc chắn muốn xóa sạch bảng xếp hạng để bắt đầu giải đấu mới cho cả lớp?")) return;
+    try {
+      await fetch('/api/leaderboard/reset', { method: 'POST' });
+      UI.fetchLeaderboard(true);
+    } catch(e){
+      alert("Lỗi khi reset bảng xếp hạng: " + e.message);
+    }
+  },
+
+  toggleFullscreen(){
+    try {
+      if(!document.fullscreenElement && !document.webkitFullscreenElement){
+        const docEl = document.documentElement;
+        if(docEl.requestFullscreen) docEl.requestFullscreen();
+        else if(docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
+      } else {
+        if(document.exitFullscreen) document.exitFullscreen();
+        else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
+      }
+    } catch(e){
+      console.warn("Fullscreen toggle:", e);
+    }
+  }
+};
+
+let currentQRUrl = window.location.href;
+let lbPollTimer = null;
+
+function escapeHtml(str) {
+  return str.replace(/[&<>"']/g, m => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[m]));
+}
+
+// ═══════════════════════════════════════════════════════
+// ROLE & UI MODE INITIALIZATION
+// ═══════════════════════════════════════════════════════
+function initRoleMode() {
+  if (isPlayerMode) {
+    // 1. Ẩn toàn bộ nút quản trị máy chủ đối với thí sinh dùng điện thoại
+    const btnQR = document.getElementById('btnTopBarQR');
+    if (btnQR) btnQR.style.display = 'none';
+
+    const btnReset = document.getElementById('btnResetLeaderboard');
+    if (btnReset) btnReset.style.display = 'none';
+    const adminReset = document.getElementById('adminResetContainer');
+    if (adminReset) adminReset.style.display = 'none';
+
+    const btnLbQR = document.getElementById('btnLbShowQR');
+    if (btnLbQR) btnLbQR.style.display = 'none';
+
+    const ctrlBar = document.getElementById('ctrlBar');
+    if (ctrlBar) ctrlBar.style.display = 'none';
+
+    // 2. Ẩn màn hình Admin máy chủ, hiển thị duy nhất màn hình bắt đầu của người chơi
+    const screenStart = document.getElementById('screenStart');
+    if (screenStart) screenStart.classList.remove('show');
+
+    const screenPlayerStart = document.getElementById('screenPlayerStart');
+    if (screenPlayerStart) screenPlayerStart.classList.add('show');
+
+    // 3. Kiểm tra thể lệ 1 mạng duy nhất
+    const alreadyPlayed = localStorage.getItem('mln_tournament_played') === 'true';
+    const savedName = localStorage.getItem('mln_player_name') || '';
+    const savedScore = localStorage.getItem('mln_player_score') || '0';
+
+    if (savedName) {
+      const input = document.getElementById('inputPlayerName');
+      if (input) input.value = savedName;
+      playerNickname = savedName;
+    }
+
+    if (alreadyPlayed) {
+      // Đã dùng hết 1 mạng trong giải đấu
+      const warningBox = document.getElementById('playerPlayedWarning');
+      if (warningBox) {
+        warningBox.style.display = 'block';
+        warningBox.innerHTML = `
+          <div style="font-size:15px;font-weight:800;color:var(--gold);margin-bottom:4px;">🔒 BẠN ĐÃ HOÀN THÀNH LƯỢT THI ĐẤU!</div>
+          <div style="font-size:12.5px;color:#f8fafc;line-height:1.5;">
+            Thí sinh: <strong>${escapeHtml(savedName || 'Bạn')}</strong><br>
+            Điểm số đã nộp: <strong style="color:var(--green);font-size:16px;">${Number(savedScore).toLocaleString()} PTS</strong><br>
+            Điểm của bạn đã được ghi nhận trên máy chiếu Admin. Hãy xem vị trí của mình trên bảng xếp hạng!
+          </div>
+        `;
+      }
+      const btnStart = document.getElementById('btnStartPlayerGame');
+      if (btnStart) {
+        btnStart.disabled = true;
+        btnStart.style.opacity = '0.5';
+        btnStart.style.cursor = 'not-allowed';
+        btnStart.innerHTML = '🔒 ĐÃ THI ĐẤU (1 MẠNG DUY NHẤT)';
+      }
+      const inputCard = document.getElementById('playerNameCard');
+      if (inputCard) inputCard.style.display = 'none';
+    }
+  } else {
+    // Chế độ Admin / Presenter trên máy tính chiếu slide
+    const screenPlayerStart = document.getElementById('screenPlayerStart');
+    if (screenPlayerStart) screenPlayerStart.classList.remove('show');
+    const screenPlayerWaiting = document.getElementById('screenPlayerWaiting');
+    if (screenPlayerWaiting) screenPlayerWaiting.classList.remove('show');
+
+    const screenStart = document.getElementById('screenStart');
+    if (screenStart && gs.state === 'start') screenStart.classList.add('show');
+
+    UI.startAdminLobbyPolling();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// MOBILE TOUCH CONTROLS SETUP
+// ═══════════════════════════════════════════════════════
+function setupTouchControls() {
+  const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.innerWidth < 850;
+  const tc = document.getElementById('touchControls');
+  if(isTouch && tc){
+    tc.classList.add('active');
+  }
+
+  function bindTouch(id, key) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const press = (e) => {
+      e.preventDefault();
+      K[key] = true;
+      el.classList.add('active');
+      if (navigator.vibrate) {
+        try { navigator.vibrate(12); } catch(err){}
+      }
+    };
+    const release = (e) => {
+      e.preventDefault();
+      K[key] = false;
+      el.classList.remove('active');
+    };
+    el.addEventListener('touchstart', press, { passive: false });
+    el.addEventListener('touchend', release, { passive: false });
+    el.addEventListener('touchcancel', release, { passive: false });
+    el.addEventListener('mousedown', press);
+    el.addEventListener('mouseup', release);
+    el.addEventListener('mouseleave', release);
+  }
+
+  bindTouch('btnTouchLeft', 'a');
+  bindTouch('btnTouchRight', 'd');
+  bindTouch('btnTouchDown', 's');
+  bindTouch('btnTouchJump', 'w');
+  bindTouch('btnTouchDash', 'shift');
+  bindTouch('btnTouchShoot', 'j');
+  bindTouch('btnTouchUlt', 'k');
+
+  // Prevent double tap and gesture zoom on mobile
+  document.addEventListener('dblclick', function(e) { e.preventDefault(); }, { passive: false });
+  document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+  document.addEventListener('touchmove', function(e) {
+    if (e.scale !== undefined && e.scale !== 1) e.preventDefault();
+  }, { passive: false });
+}
+
+// Auto initialize Role, QR and Touch
+initRoleMode();
+window.addEventListener('DOMContentLoaded', () => {
+  initRoleMode();
+  setupTouchControls();
+  UI.initQRCode();
+});
+setTimeout(() => {
+  initRoleMode();
+  setupTouchControls();
+  UI.initQRCode();
+}, 200);
+
+// ═══════════════════════════════════════════════════════
+// GAME LOOP
+// ═══════════════════════════════════════════════════════
+function loop(){
+  try {
+    update();
+    render();
+  } catch (err) {
+    console.error("Game loop error:", err);
+  }
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>
