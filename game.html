@@ -131,6 +131,7 @@ body {
   animation: arcadeModalIn .2s cubic-bezier(.16,1,.3,1) both;
   scrollbar-width: thin; scrollbar-color: #20355a #0a1120;
   pointer-events: auto;
+  position: relative;
 }
 .modal::-webkit-scrollbar { width: 4px; }
 .modal::-webkit-scrollbar-track { background: #0a1120; }
@@ -148,6 +149,7 @@ body {
   text-transform: uppercase;
   line-height: 1.2;
 }
+.modal-logo .accent { color: var(--cyan); }
 .modal-sub {
   text-align: center; font-size: 11.5px; color: var(--muted);
   letter-spacing: .5px; margin-top: -6px;
@@ -169,6 +171,7 @@ body {
   background: var(--bg-panel-alt); border: 1px solid var(--border-subtle);
   border-radius: 4px; padding: 12px 14px;
   display: flex; align-items: flex-start; gap: 10px;
+  border-left: 2px solid var(--cyan);
 }
 .info-card .ico { font-size: 20px; flex-shrink: 0; }
 .info-card .txt { display: flex; flex-direction: column; gap: 2px; }
@@ -199,6 +202,7 @@ body {
   cursor: pointer; border: 1px solid transparent; text-decoration: none;
   transition: all .15s ease; align-self: center;
   pointer-events: auto !important;
+  text-transform: uppercase;
 }
 .btn:hover { transform: translateY(-1px); }
 .btn:active { transform: translateY(1px); }
@@ -254,7 +258,18 @@ body {
   border-radius: 4px; border: 1px solid var(--border-subtle);
   border-left: 3px solid var(--cyan);
 }
-.quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+.quiz-battle-tag {
+  font-family: 'Orbitron', monospace; font-size: 9px; font-weight: 700;
+  color: var(--orange); letter-spacing: 2px; text-transform: uppercase;
+  background: rgba(249,115,22,.1); border: 1px solid rgba(249,115,22,.3);
+  border-radius: 2px; padding: 3px 8px;
+}
+.quiz-q {
+  font-size: 15px; font-weight: 600; color: var(--text);
+  line-height: 1.6; padding: 14px 16px; background: rgba(26,48,80,.2);
+  border-radius: 3px; border-left: 2px solid var(--cyan);
+}
+.quiz-opts { display: flex; flex-direction: column; gap: 6px; }
 .quiz-opt {
   background: var(--bg-panel-alt); border: 1px solid var(--border-subtle);
   border-radius: 4px; padding: 12px 14px;
@@ -341,7 +356,7 @@ body {
 }
 .hud-btn.gold {
   color: var(--gold);
-  border-color: rgba(251, 191, 36, 0.4);
+  border-color: rgba(234,179,8,.3);
 }
 .hud-btn.gold:hover {
   background: var(--gold);
@@ -391,6 +406,7 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  letter-spacing: .3px;
 }
 .btn-sm {
   padding: 4px 8px;
@@ -477,13 +493,14 @@ body {
 
 /* ── SCORE SUBMISSION FORM ── */
 .submit-score-box {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(251, 191, 36, 0.25);
-  border-radius: 12px;
+  background: rgba(7,13,26,.6);
+  border: 1px solid rgba(234,179,8,.2);
+  border-radius: 3px;
   padding: 14px;
-  margin: 12px 0;
+  margin: 8px 0;
   text-align: center;
   width: 100%;
+  border-top: 2px solid rgba(234,179,8,.3);
 }
 .submit-input-row {
   display: flex;
@@ -492,20 +509,21 @@ body {
   margin-top: 8px;
 }
 .submit-input {
-  background: #0f172a;
-  border: 1px solid #334155;
-  border-radius: 8px;
+  background: #070d1a;
+  border: 1px solid var(--border);
+  border-radius: 3px;
   padding: 10px 14px;
-  color: #f8fafc;
-  font-size: 14px;
+  color: var(--text);
+  font-size: 13px;
   font-family: 'Exo 2', sans-serif;
   outline: none;
   flex: 1;
   max-width: 280px;
+  letter-spacing: .3px;
 }
 .submit-input:focus {
   border-color: var(--cyan);
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+  box-shadow: 0 0 0 1px rgba(56,189,248,.2);
 }
 
 /* ── MOBILE TOUCH CONTROLS ── */
@@ -525,20 +543,20 @@ body {
 }
 .touch-cluster {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   pointer-events: auto;
   align-items: flex-end;
 }
 .t-btn {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: rgba(15, 23, 42, 0.85);
-  border: 2px solid rgba(56, 189, 248, 0.4);
-  color: #f8fafc;
+  width: 54px;
+  height: 54px;
+  border-radius: 3px;
+  background: rgba(7,13,26,.88);
+  border: 1px solid rgba(56,189,248,.35);
+  color: var(--text);
   font-family: 'Orbitron', monospace;
   font-weight: 900;
-  font-size: 15px;
+  font-size: 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -546,176 +564,176 @@ body {
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 14px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.04);
   cursor: pointer;
 }
 .t-btn:active, .t-btn.active {
-  background: rgba(56, 189, 248, 0.45);
+  background: rgba(56,189,248,.2);
   border-color: var(--cyan);
   transform: scale(0.92);
-  box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
 }
 .t-btn-act {
-  width: 56px;
-  height: 56px;
-  border-color: rgba(249, 115, 22, 0.5);
+  width: 54px;
+  height: 54px;
+  border-color: rgba(249,115,22,.4);
 }
 .t-btn-act:active, .t-btn-act.active {
-  background: rgba(249, 115, 22, 0.45);
+  background: rgba(249,115,22,.2);
   border-color: var(--orange);
   transform: scale(0.92);
-  box-shadow: 0 0 15px rgba(249, 115, 22, 0.6);
 }
 .t-sub {
-  font-size: 8px;
+  font-size: 7px;
   font-family: 'Exo 2', sans-serif;
   color: var(--muted);
   font-weight: 700;
   margin-top: 1px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
 }
 
 /* ── PLAYER MOBILE START SCREEN STYLES ── */
 .player-name-card {
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(251, 191, 36, 0.45);
-  border-radius: 14px;
-  padding: 16px;
+  background: rgba(7,13,26,.95);
+  border: 1px solid rgba(234,179,8,.3);
+  border-radius: 3px;
+  padding: 14px;
   text-align: left;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   width: 100%;
+  border-top: 2px solid rgba(234,179,8,.4);
 }
 .player-big-input {
   width: 100%;
-  background: #060d1a;
-  border: 2px solid #334155;
-  border-radius: 10px;
-  padding: 14px 16px;
-  font-size: 16px;
+  background: #050a14;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 13px 15px;
+  font-size: 15px;
   font-family: 'Exo 2', sans-serif;
-  color: #f8fafc;
+  color: var(--text);
   outline: none;
-  transition: all .2s;
+  transition: all .15s;
+  letter-spacing: .3px;
 }
 .player-big-input:focus {
   border-color: var(--cyan);
-  box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+  box-shadow: 0 0 0 1px rgba(56,189,248,.2);
 }
 .rules-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  background: rgba(7,13,26,.5);
+  border: 1px solid var(--border);
+  border-radius: 3px;
   padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
   text-align: left;
   width: 100%;
 }
 .rule-item {
-  font-size: 12px;
-  color: #cbd5e1;
-  line-height: 1.45;
+  font-size: 11.5px;
+  color: #6a7f96;
+  line-height: 1.5;
 }
 .rule-item strong {
   color: var(--gold);
 }
 .btn-glow {
-  box-shadow: 0 0 25px rgba(249, 115, 22, 0.45);
-  animation: startGlow 1.5s infinite alternate ease-in-out;
+  animation: startGlow 2s infinite alternate ease-in-out;
 }
 @keyframes startGlow {
-  0% { transform: scale(1); box-shadow: 0 0 15px rgba(249, 115, 22, 0.3); }
-  100% { transform: scale(1.02); box-shadow: 0 0 30px rgba(249, 115, 22, 0.6); }
+  0% { box-shadow: 0 0 12px rgba(249,115,22,.25); }
+  100% { box-shadow: 0 0 24px rgba(249,115,22,.55); }
 }
 .auto-submit-banner {
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(52, 211, 153, 0.4);
-  border-radius: 12px;
-  padding: 14px;
+  background: rgba(34,197,94,.08);
+  border: 1px solid rgba(34,197,94,.3);
+  border-radius: 3px;
+  padding: 12px;
   text-align: center;
-  margin: 10px 0;
+  margin: 8px 0;
   width: 100%;
 }
 
 /* ── LOBBY / WAITING ROOM STYLES ── */
 .lobby-admin-box {
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(251, 191, 36, 0.4);
-  border-radius: 14px;
-  padding: 14px 16px;
+  background: rgba(7,13,26,.7);
+  border: 1px solid rgba(234,179,8,.25);
+  border-radius: 3px;
+  padding: 12px 14px;
   width: 100%;
-  margin-top: 10px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  margin-top: 8px;
   text-align: left;
+  border-top: 2px solid rgba(234,179,8,.3);
 }
 .lobby-admin-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 }
 .lobby-count-pill {
-  background: rgba(56, 189, 248, 0.2);
-  border: 1px solid var(--cyan);
+  background: rgba(56,189,248,.1);
+  border: 1px solid rgba(56,189,248,.35);
   color: var(--cyan);
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 2px;
+  font-size: 11px;
   font-weight: 800;
   font-family: 'Orbitron', monospace;
+  letter-spacing: .5px;
 }
 .lobby-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  max-height: 110px;
+  gap: 5px;
+  max-height: 100px;
   overflow-y: auto;
   padding: 6px;
-  background: rgba(2, 6, 23, 0.6);
-  border-radius: 8px;
-  border: 1px solid #1e293b;
-  min-height: 44px;
-  align-items: center;
+  background: rgba(5,10,20,.5);
+  border-radius: 2px;
+  border: 1px solid var(--border);
+  min-height: 40px;
+  align-items: flex-start;
 }
 .lobby-chip {
-  background: rgba(30, 58, 95, 0.85);
-  border: 1px solid rgba(56, 189, 248, 0.4);
-  color: #f8fafc;
-  border-radius: 6px;
-  padding: 4px 8px;
-  font-size: 11.5px;
+  background: rgba(26,48,80,.6);
+  border: 1px solid rgba(56,189,248,.25);
+  color: var(--text);
+  border-radius: 2px;
+  padding: 3px 8px;
+  font-size: 11px;
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 4px;
-  animation: chipFadeIn .3s ease-out;
+  animation: chipFadeIn .2s ease-out;
 }
 @keyframes chipFadeIn {
-  0% { transform: scale(0.8); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+  0% { transform: translateY(-4px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
 }
 .lobby-pulse-dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: #34d399;
-  box-shadow: 0 0 10px #34d399;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
   display: inline-block;
-  animation: pulseDot 1.4s infinite ease-in-out;
+  animation: pulseDot 1.6s infinite ease-in-out;
+  flex-shrink: 0;
 }
 @keyframes pulseDot {
-  0% { transform: scale(0.9); opacity: 0.6; }
-  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 15px #34d399; }
-  100% { transform: scale(0.9); opacity: 0.6; }
+  0%, 100% { opacity: .5; transform: scale(.9); }
+  50% { opacity: 1; transform: scale(1.2); }
 }
 .waiting-radar-container {
   position: relative;
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 10px;
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -725,67 +743,62 @@ body {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 2px solid var(--cyan);
-  animation: radarRipple 2s infinite ease-out;
+  border: 1px solid var(--cyan);
+  animation: radarRipple 2.2s infinite ease-out;
 }
 @keyframes radarRipple {
-  0% { transform: scale(0.5); opacity: 1; }
-  100% { transform: scale(1.4); opacity: 0; }
+  0% { transform: scale(0.4); opacity: .8; }
+  100% { transform: scale(1.6); opacity: 0; }
 }
 .radar-icon {
-  font-size: 36px;
+  font-size: 30px;
   z-index: 2;
-  animation: radarFloat 2.5s infinite ease-in-out;
-}
-@keyframes radarFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
 }
 .countdown-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(2, 6, 23, 0.94);
+  background: rgba(7,13,26,.96);
   z-index: 1000;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(10px);
 }
 .countdown-number {
   font-family: 'Orbitron', monospace;
-  font-size: 110px;
+  font-size: 100px;
   font-weight: 900;
   color: var(--orange);
-  text-shadow: 0 0 35px rgba(249, 115, 22, 0.8), 0 0 70px rgba(249, 115, 22, 0.5);
-  animation: countdownZoom 1s infinite ease-in-out;
+  text-shadow: 0 0 40px rgba(249,115,22,.6);
+  animation: countdownZoom .9s ease-out;
+  line-height: 1;
 }
 @keyframes countdownZoom {
-  0% { transform: scale(1.3); opacity: 0; }
-  30% { transform: scale(1); opacity: 1; }
-  80% { transform: scale(0.95); opacity: 1; }
-  100% { transform: scale(0.85); opacity: 0; }
+  0% { transform: scale(1.4); opacity: 0; }
+  40% { opacity: 1; }
+  100% { transform: scale(.9); opacity: .8; }
 }
 .countdown-sub {
   font-family: 'Orbitron', monospace;
-  font-size: 20px;
-  font-weight: 800;
-  color: #f8fafc;
-  letter-spacing: 2px;
-  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 4px;
+  margin-top: 16px;
+  text-transform: uppercase;
 }
 
 /* ── COMPREHENSIVE MOBILE RESPONSIVE OPTIMIZATIONS ── */
 .mobile-hint {
   display: none;
-  background: rgba(56, 189, 248, 0.12);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  border-radius: 10px;
-  padding: 8px 12px;
-  font-size: 11.5px;
-  color: #bae6fd;
+  background: rgba(56,189,248,.08);
+  border: 1px solid rgba(56,189,248,.25);
+  border-radius: 3px;
+  padding: 7px 12px;
+  font-size: 11px;
+  color: #7ec8f0;
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   line-height: 1.4;
 }
 
@@ -1052,17 +1065,17 @@ body {
   <!-- OVERLAY -->
   <div id="overlay" class="active">
 
-    <!-- ── PLAYER MOBILE START SCREEN (KHI ĐIỆN THOẠI QUÉT QR VÀO CHƠI) ── -->
+    <!-- ── PLAYER MOBILE START SCREEN ── -->
     <div class="modal show" id="screenPlayerStart">
       <div class="mobile-hint" style="display:block;">Xoay ngang màn hình hoặc ấn <strong>⛶</strong> để chơi toàn màn hình!</div>
       <div class="modal-logo">BIỆN CHỨNG KỶ NGUYÊN AI</div>
       <div class="modal-sub">ĐẤU TRƯỜNG TRIẾT HỌC HỌC PHẦN MLN111 — FPT UNIVERSITY</div>
       <div class="divider"></div>
 
-      <!-- BANNER CẢNH BÁO NẾU ĐÃ HOÀN THÀNH 1 LƯỢT THI ĐẤU -->
-      <div id="playerPlayedWarning" class="auto-submit-banner" style="display:none;margin-bottom:12px;"></div>
+      <!-- WARNING IF ALREADY PLAYED -->
+      <div id="playerPlayedWarning" class="auto-submit-banner" style="display:none;margin-bottom:4px;"></div>
 
-      <!-- Ô BẮT BUỘC NHẬP HỌ TÊN -->
+      <!-- NAME INPUT -->
       <div class="player-name-card" id="playerNameCard">
         <label for="inputPlayerName" style="display:block;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--gold);margin-bottom:8px;">
           DANH TÍNH THI ĐẤU (HỌ TÊN HOẶC MSSV): <span style="color:var(--red);">*</span>
@@ -1106,7 +1119,7 @@ body {
       </div>
     </div>
 
-    <!-- ── PLAYER WAITING ROOM MODAL (PHÒNG CHỜ THÍ SINH) ── -->
+    <!-- ── PLAYER WAITING ROOM MODAL ── -->
     <div class="modal" id="screenPlayerWaiting">
       <div class="waiting-radar-container">
         <div class="radar-circle"></div>
@@ -1116,6 +1129,8 @@ body {
       <div style="font-size:13px;color:var(--gold);font-weight:700;">
         Thí sinh: <span id="waitingPlayerName"></span>
       </div>
+      <div class="modal-logo">STAND<span class="accent">BY</span></div>
+      <div class="modal-sub">Waiting for host &middot; <span id="waitingPlayerName" style="color:var(--gold);"></span></div>
       <div class="divider"></div>
 
       <div class="auto-submit-banner" style="background:rgba(56,189,248,0.1);border-color:rgba(56,189,248,0.3);padding:12px;">
@@ -1282,8 +1297,8 @@ body {
 
     <!-- ── LEVEL INTRO ── -->
     <div class="modal" id="screenIntro">
-      <div id="introLevelTag" style="font-size:12px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;"></div>
-      <div id="introTitle" style="font-family:'Orbitron',monospace;font-size:22px;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;"></div>
+      <div id="introLevelTag" style="font-size:9px;color:var(--muted);font-weight:700;letter-spacing:2px;text-transform:uppercase;"></div>
+      <div id="introTitle" style="font-family:'Orbitron',monospace;font-size:20px;font-weight:900;color:var(--text);letter-spacing:2px;"></div>
       <div id="introBossPreview" class="boss-preview"></div>
       <p id="introDesc"></p>
       <div id="introTip" class="tip-box"></div>
@@ -1312,7 +1327,6 @@ body {
       <div class="divider"></div>
       <div class="stats-grid" id="victoryStats"></div>
 
-      <!-- Auto submit banner cho người chơi di động -->
       <div id="playerSubmitBannerVictory" class="auto-submit-banner" style="display:none;">
         <div style="font-size:14px;font-weight:900;color:var(--green);margin-bottom:4px;">
           ĐÃ TỰ ĐỘNG GỬI ĐIỂM VỀ MÁY CHIẾU ADMIN!
@@ -1325,7 +1339,6 @@ body {
         </div>
       </div>
 
-      <!-- Khung nộp điểm cho Admin máy chủ -->
       <div class="submit-score-box" id="submitBoxVictory">
         <p style="font-weight:700;color:var(--gold);margin-bottom:4px;">ĐẠT ĐƯỢC: <span id="victoryScoreDisplay">0</span> ĐIỂM!</p>
         <p style="font-size:12px;color:var(--muted);">Nhập Họ Tên / MSSV để lưu danh vào Bảng Vinh Danh:</p>
@@ -1333,7 +1346,7 @@ body {
           <input type="text" id="playerNameVictory" class="submit-input" placeholder="Tên bạn (vd: Hoàng - SE17...)" maxlength="25">
           <button class="btn btn-green" style="padding:10px 18px;" onclick="UI.submitScore('victory')">Nộp điểm</button>
         </div>
-        <div id="submitMsgVictory" style="font-size:12px;margin-top:6px;font-weight:700;"></div>
+        <div id="submitMsgVictory" style="font-size:11px;margin-top:6px;font-weight:700;"></div>
       </div>
 
       <div style="display:flex;gap:10px;width:100%;margin-top:10px;">
@@ -1349,7 +1362,6 @@ body {
       <p id="goMsg" style="text-align:center;color:#fca5a5;font-size:14px;"></p>
       <div class="stats-grid" id="goStats"></div>
 
-      <!-- Auto submit banner cho người chơi di động -->
       <div id="playerSubmitBannerGameover" class="auto-submit-banner" style="display:none;">
         <div style="font-size:14px;font-weight:900;color:var(--green);margin-bottom:4px;">
           ĐÃ TỰ ĐỘNG GỬI ĐIỂM VỀ MÁY CHIẾU ADMIN!
@@ -1362,7 +1374,6 @@ body {
         </div>
       </div>
 
-      <!-- Khung nộp điểm cho Admin máy chủ -->
       <div class="submit-score-box" id="submitBoxGameover">
         <p style="font-weight:700;color:var(--gold);margin-bottom:4px;">ĐẠT ĐƯỢC: <span id="goScoreDisplay">0</span> ĐIỂM!</p>
         <p style="font-size:12px;color:var(--muted);">Nhập Họ Tên / MSSV để lưu danh vào Bảng Vinh Danh:</p>
@@ -1370,7 +1381,7 @@ body {
           <input type="text" id="playerNameGameover" class="submit-input" placeholder="Tên bạn (vd: Hoàng - SE17...)" maxlength="25">
           <button class="btn btn-green" style="padding:10px 18px;" onclick="UI.submitScore('gameover')">Nộp điểm</button>
         </div>
-        <div id="submitMsgGameover" style="font-size:12px;margin-top:6px;font-weight:700;"></div>
+        <div id="submitMsgGameover" style="font-size:11px;margin-top:6px;font-weight:700;"></div>
       </div>
 
       <div style="display:flex;gap:10px;width:100%;margin-top:10px;">
@@ -1384,13 +1395,13 @@ body {
       <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:900;color:var(--gold);text-align:center;">TẠM DỪNG</div>
       <div class="divider"></div>
       <div class="ctrl-grid">
-        <kbd>A / D</kbd><span>Di chuyển trái / phải</span>
-        <kbd>W / ↑</kbd><span>Nhảy né đạn</span>
-        <kbd>J / Space</kbd><span>Bắn súng Laser</span>
-        <kbd>K</kbd><span>Đại pháo năng lượng (cần 3⭐)</span>
-        <kbd>P</kbd><span>Tiếp tục chơi</span>
+        <kbd>A / D</kbd><span>Move left / right</span>
+        <kbd>W</kbd><span>Jump</span>
+        <kbd>J / Space</kbd><span>Shoot laser</span>
+        <kbd>K</kbd><span>Ultimate cannon (3 stars)</span>
+        <kbd>P</kbd><span>Resume</span>
       </div>
-      <button class="btn btn-primary" onclick="UI.resume()">▶ Tiếp tục</button>
+      <button class="btn btn-primary" onclick="UI.resume()">&#9654; RESUME</button>
     </div>
 
   </div><!-- /overlay -->
