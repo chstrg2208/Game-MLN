@@ -60,19 +60,23 @@ function getNetworkIps() {
   for (const name of Object.keys(nets)) {
     for (const net of nets[name]) {
       if (net.family === 'IPv4' && !net.internal) {
-        results.push({ name, ip: net.address });
+        // Loại bỏ hoàn toàn dải IP link-local / APIPA không thể kết nối từ máy khác
+        if (net.address && !net.address.startsWith('169.254.')) {
+          results.push({ name, ip: net.address });
+        }
       }
     }
   }
-  // Ưu tiên Wi-Fi và mạng LAN thật (192.168.x.x / 10.x.x.x), loại trừ card ảo Hyper-V / VPN
+  // Ưu tiên Wi-Fi và mạng LAN thật (192.168.x.x / 10.x.x.x), loại trừ card ảo Hyper-V / VPN / Emulators
   function score(entry) {
     let s = 0;
     const lower = entry.name.toLowerCase();
-    if (/wi-?fi|wlan|wireless/i.test(lower)) s += 100;
-    if (/ethernet/i.test(lower) && !/vethernet/i.test(lower)) s += 80;
-    if (/^192\.168\./.test(entry.ip)) s += 50;
-    if (/^10\./.test(entry.ip)) s += 30;
-    if (/vethernet|virtual|radmin|hamachi|vmware|vbox|switch/i.test(lower)) s -= 100;
+    if (/wi-?fi|wlan|wireless/i.test(lower)) s += 150;
+    if (/ethernet/i.test(lower) && !/vethernet|virtual|switch/i.test(lower)) s += 80;
+    if (/^192\.168\./.test(entry.ip)) s += 60;
+    if (/^10\./.test(entry.ip)) s += 40;
+    if (/^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(entry.ip)) s += 20;
+    if (/vethernet|virtual|radmin|hamachi|vmware|vbox|switch|vint|tailscale|zerotier|loopback|npcap/i.test(lower)) s -= 200;
     return s;
   }
   results.sort((a, b) => score(b) - score(a));
@@ -197,21 +201,41 @@ const server = http.createServer((req, res) => {
 
   // ── API: Lấy thông tin mạng (IP) để tạo mã QR ──
   if (pathname === '/api/network' && req.method === 'GET') {
-    const host = req.headers.host || `localhost:${PORT}`;
-    const proto = req.headers['x-forwarded-proto'] || 'http';
-    const isPublicHost = !host.startsWith('localhost') && !host.startsWith('127.0.0.1') && !host.startsWith('192.168.') && !host.startsWith('10.');
+    const rawHost = req.headers['x-forwarded-host'] || req.headers.host || `localhost:${PORT}`;
+    const host = rawHost.split(',')[0].trim();
+    const proto = ((req.headers['x-forwarded-proto'] || 'http').split(',')[0].trim());
+    
+    // Kiểm tra xem host có phải localhost/mạng riêng hay là domain online/deploy/ngrok
+    const hostWithoutPort = host.split(':')[0].toLowerCase();
+    const isLocal = hostWithoutPort === 'localhost' ||
+                    hostWithoutPort === '127.0.0.1' ||
+                    hostWithoutPort.startsWith('192.168.') ||
+                    hostWithoutPort.startsWith('10.') ||
+                    hostWithoutPort.startsWith('169.254.') ||
+                    /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostWithoutPort);
+    const isPublicHost = !isLocal;
 
     const ips = getNetworkIps();
     const primaryIp = ips.length > 0 ? ips[0].ip : '127.0.0.1';
     
-    // Nếu deploy lên cloud (Render, Railway, domain thật), QR sẽ lấy domain public này!
+    // Nếu deploy lên cloud (Vercel, Render, Railway) hoặc ngrok, QR ưu tiên public URL này!
+    const publicUrl = `${proto}://${host}/game.html?mode=player`;
     const primaryUrl = isPublicHost 
-      ? `${proto}://${host}/game.html?mode=player`
+      ? publicUrl
       : `http://${primaryIp}:${PORT}/game.html?mode=player`;
 
     const localUrl = `http://localhost:${PORT}/game.html`;
     res.writeHead(200, { 'Content-Type': 'application/json; charset=UTF-8' });
-    res.end(JSON.stringify({ ips, primaryIp, primaryUrl, localUrl, port: PORT, isPublicHost, host }));
+    res.end(JSON.stringify({ 
+      ips, 
+      primaryIp, 
+      primaryUrl, 
+      localUrl, 
+      port: PORT, 
+      isPublicHost, 
+      publicUrl: isPublicHost ? publicUrl : null,
+      host 
+    }));
     return;
   }
 

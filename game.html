@@ -6,28 +6,45 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#070d1a">
-<title>BIỆN CHỨNG — Philosophy Battle</title>
+<meta name="theme-color" content="#0a1128">
+<title>BIỆN CHỨNG — Philosophy Battle Arena</title>
 <script src="qrcode.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Exo+2:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
 :root {
-  --cyan: #38bdf8; --orange: #f97316; --gold: #eab308;
-  --green: #22c55e; --red: #ef4444; --purple: #a855f7;
-  --dark: #070d1a; --card: #0d1527; --border: #1a3050;
-  --text: #e8eef4; --muted: #4a5c72;
+  --bg-deep: #060913;
+  --bg-panel: #0a1120;
+  --bg-panel-alt: #101c33;
+  --border-arcade: rgba(56, 189, 248, 0.25);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-active: #38bdf8;
+  --cyan: #38bdf8;
+  --cyan-dim: rgba(56, 189, 248, 0.12);
+  --orange: #f97316;
+  --gold: #fbbf24;
+  --green: #34d399;
+  --red: #f87171;
+  --text: #f8fafc;
+  --muted: #94a3b8;
+  --dim: #64748b;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 
 body {
-  background: #070d1a;
+  background-color: var(--bg-deep);
+  background-image: 
+    linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+    radial-gradient(ellipse at 50% 0%, #0d1e3d 0%, #060913 75%);
+  background-size: 32px 32px, 32px 32px, 100% 100%;
   display: flex; flex-direction: column;
   justify-content: center; align-items: center;
   min-height: 100vh;
   min-height: 100dvh;
   overflow: hidden;
-  font-family: 'Exo 2', 'Segoe UI', sans-serif;
+  font-family: 'Exo 2', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text);
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
@@ -41,33 +58,37 @@ body {
   max-width: 960px;
   height: 100%;
   justify-content: center;
+  padding: 0 10px;
 }
 
 /* ── CANVAS ── */
 #gameCanvas {
   border-radius: 4px;
-  box-shadow: 0 0 0 1px #1a3050, 0 0 30px rgba(56,189,248,.08), 0 16px 48px rgba(0,0,0,.8);
+  border: 1px solid var(--border-arcade);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.8), 0 16px 40px rgba(0,0,0,0.7);
   display: block;
   image-rendering: pixelated;
   width: 100%;
   height: auto;
   max-height: calc(100dvh - 110px);
   aspect-ratio: 16 / 9;
+  background: #02040a;
   touch-action: none;
-  transition: box-shadow .3s;
 }
 
 /* ── TOP BAR (HUD outside canvas) ── */
 #topBar {
   width: 100%; display: flex; justify-content: space-between; align-items: center;
-  padding: 5px 0 6px;
+  padding: 6px 2px 8px;
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
 }
 #topBar.show { display: flex; }
 .hud-pill {
-  background: rgba(7,13,26,.9); border: 1px solid var(--border);
-  border-radius: 3px; padding: 3px 12px; font-size: 11px;
+  background: rgba(10, 17, 32, 0.9); border: 1px solid var(--border-subtle);
+  border-radius: 4px; padding: 4px 10px; font-size: 11px;
   color: var(--muted); display: flex; align-items: center; gap: 6px;
-  font-family: 'Exo 2', sans-serif; letter-spacing: .3px;
+  letter-spacing: 0.5px;
 }
 .hud-pill span { color: var(--text); font-weight: 700; }
 
@@ -79,15 +100,15 @@ body {
 }
 #ctrlBar.show { display: flex; }
 .ctrl-badge {
-  background: rgba(7,13,26,.8); border: 1px solid var(--border);
-  border-radius: 3px; padding: 3px 8px;
-  font-size: 10px; color: var(--muted); display: flex; align-items: center; gap: 4px;
-  letter-spacing: .2px;
+  background: rgba(10, 17, 32, 0.75); border: 1px solid var(--border-subtle);
+  border-radius: 4px; padding: 3px 8px;
+  font-size: 10.5px; color: var(--muted); display: flex; align-items: center; gap: 5px;
+  font-family: 'Exo 2', sans-serif;
 }
 .ctrl-badge kbd {
-  background: #0d1527; border: 1px solid #243a55;
-  border-radius: 2px; padding: 1px 5px;
-  font-family: 'Orbitron', monospace; font-size: 10px; color: var(--cyan);
+  background: #111e36; border: 1px solid #20355a;
+  border-radius: 3px; padding: 1px 5px;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--cyan);
 }
 
 /* ── OVERLAY ── */
@@ -99,126 +120,143 @@ body {
 }
 #overlay.active { pointer-events: auto; }
 
-/* ── MODALS ── */
+/* ── MODALS (ARCADE CABINET FRAME) ── */
 .modal {
-  display: none; flex-direction: column; gap: 14px;
-  background: #0a1220;
-  border: 1px solid var(--border);
-  border-radius: 4px; padding: 28px 32px;
-  width: 100%; max-width: 660px; max-height: 90vh; overflow-y: auto;
-  box-shadow: 0 0 0 1px rgba(26,48,80,.6), inset 0 1px 0 rgba(56,189,248,.06), 0 24px 64px rgba(0,0,0,.8);
-  animation: modalIn .25s ease-out both;
-  scrollbar-width: thin; scrollbar-color: var(--border) #070d1a;
+  display: none; flex-direction: column; gap: 16px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-arcade);
+  border-radius: 4px; padding: 26px 30px;
+  width: 100%; max-width: 620px; max-height: 90vh; max-height: 90dvh; overflow-y: auto;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.9), 0 20px 50px rgba(0,0,0,0.85);
+  animation: arcadeModalIn .2s cubic-bezier(.16,1,.3,1) both;
+  scrollbar-width: thin; scrollbar-color: #20355a #0a1120;
   pointer-events: auto;
   position: relative;
 }
-/* Corner accent lines */
-.modal::before, .modal::after {
-  content: '';
-  position: absolute;
-  width: 16px; height: 16px;
-  border-color: var(--cyan);
-  border-style: solid;
-  opacity: .5;
-}
-.modal::before { top: 6px; left: 6px; border-width: 1px 0 0 1px; }
-.modal::after  { bottom: 6px; right: 6px; border-width: 0 1px 1px 0; }
-.modal::-webkit-scrollbar { width: 3px; }
-.modal::-webkit-scrollbar-track { background: #070d1a; }
-.modal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.modal::-webkit-scrollbar { width: 4px; }
+.modal::-webkit-scrollbar-track { background: #0a1120; }
+.modal::-webkit-scrollbar-thumb { background: #20355a; border-radius: 2px; }
 .modal.show { display: flex; }
-@keyframes modalIn {
-  from { opacity:0; transform:translateY(12px); }
-  to   { opacity:1; transform:translateY(0); }
+@keyframes arcadeModalIn {
+  from { opacity:0; transform:scale(.97) translateY(8px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
 }
 
 .modal-logo {
   text-align: center; font-family: 'Orbitron', monospace;
-  font-size: 22px; font-weight: 900; letter-spacing: 3px;
-  color: var(--text);
-  line-height: 1.2;
+  font-size: 24px; font-weight: 900; letter-spacing: 2px;
+  color: #ffffff;
   text-transform: uppercase;
+  line-height: 1.2;
 }
 .modal-logo .accent { color: var(--cyan); }
 .modal-sub {
-  text-align: center; font-size: 11px; color: var(--muted);
-  letter-spacing: 1.5px; margin-top: -6px;
-  text-transform: uppercase;
+  text-align: center; font-size: 11.5px; color: var(--muted);
+  letter-spacing: .5px; margin-top: -6px;
 }
-.modal h2 { font-size: 14px; font-weight: 700; color: var(--orange); text-transform: uppercase; letter-spacing: 1px; }
-.modal p, .modal li { font-size: 13px; line-height: 1.6; color: #7a8fa8; }
-.modal ul { padding-left: 16px; }
+.modal h2 { font-size: 18px; font-weight: 700; color: var(--orange); font-family: 'Orbitron', monospace; letter-spacing: 1px; }
+.modal p, .modal li { font-size: 13.5px; line-height: 1.6; color: #94a3b8; }
+.modal ul { padding-left: 18px; }
 .modal strong { color: var(--text); }
 
 .divider {
   height: 1px;
-  background: var(--border);
-  opacity: .6;
+  background: linear-gradient(90deg, transparent, var(--border-arcade), transparent);
+  width: 100%;
 }
 
 /* Info cards inside modal */
 .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .info-card {
-  background: rgba(26,48,80,.25); border: 1px solid var(--border);
-  border-radius: 3px; padding: 12px 14px;
+  background: var(--bg-panel-alt); border: 1px solid var(--border-subtle);
+  border-radius: 4px; padding: 12px 14px;
   display: flex; align-items: flex-start; gap: 10px;
   border-left: 2px solid var(--cyan);
 }
-.info-card .ico { font-size: 18px; flex-shrink: 0; }
+.info-card .ico { font-size: 20px; flex-shrink: 0; }
 .info-card .txt { display: flex; flex-direction: column; gap: 2px; }
-.info-card .txt strong { font-size: 12px; color: var(--text); text-transform: uppercase; letter-spacing: .5px; }
-.info-card .txt span { font-size: 11.5px; color: var(--muted); }
+.info-card .txt strong { font-size: 12.5px; color: var(--text); font-family: 'Orbitron', monospace; letter-spacing: 0.5px; }
+.info-card .txt span { font-size: 11.5px; color: var(--muted); line-height: 1.4; }
 
 /* Controls table */
 .ctrl-grid {
   display: grid; grid-template-columns: auto 1fr;
   gap: 6px 14px; align-items: center;
-  background: rgba(7,13,26,.5); border-radius: 3px; padding: 12px 14px;
-  border: 1px solid var(--border);
+  background: var(--bg-panel-alt); border-radius: 4px; padding: 12px 14px;
+  border: 1px solid var(--border-subtle);
 }
 .ctrl-grid kbd {
-  background: #0d1527; border: 1px solid #243a55;
-  border-radius: 2px; padding: 2px 7px;
-  font-family: 'Orbitron', monospace; font-size: 10px; color: var(--cyan);
-  white-space: nowrap; letter-spacing: .5px;
+  background: #060a14; border: 1px solid #20355a;
+  border-radius: 3px; padding: 2px 6px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--cyan);
+  white-space: nowrap;
 }
-.ctrl-grid span { font-size: 12px; color: #6a7f96; }
+.ctrl-grid span { font-size: 12px; color: #94a3b8; }
 
 /* Buttons */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 11px 24px; border-radius: 3px;
-  font-size: 13px; font-weight: 700; font-family: 'Exo 2', sans-serif;
-  cursor: pointer; border: none; text-decoration: none;
-  transition: all .15s ease;
-  letter-spacing: 1px; align-self: center;
+  padding: 11px 22px; border-radius: 4px;
+  font-size: 12px; font-weight: 700; font-family: 'Orbitron', monospace;
+  letter-spacing: 1px; text-transform: uppercase;
+  cursor: pointer; border: 1px solid transparent; text-decoration: none;
+  transition: all .15s ease; align-self: center;
   pointer-events: auto !important;
   text-transform: uppercase;
 }
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(1px); }
+
 .btn-primary {
-  background: transparent;
-  border: 1px solid var(--cyan);
-  color: var(--cyan);
+  background: #0284c7; border-color: #38bdf8;
+  color: #fff; box-shadow: 0 0 14px rgba(56,189,248,.2);
 }
-.btn-primary:hover { background: var(--cyan); color: #070d1a; transform: translateY(-2px); }
+.btn-primary:hover { background: #38bdf8; color: #02040a; box-shadow: 0 0 20px rgba(56,189,248,.45); }
 .btn-orange {
-  background: var(--orange);
-  border: 1px solid var(--orange);
+  background: #c2410c; border-color: #f97316;
+  color: #fff; box-shadow: 0 0 14px rgba(249,115,22,.2);
+}
+.btn-orange:hover { background: #f97316; color: #02040a; box-shadow: 0 0 20px rgba(249,115,22,.45); }
+.btn-green {
+  background: #047857; border-color: #34d399;
   color: #fff;
 }
-.btn-orange:hover { background: #ea580c; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(249,115,22,.35); }
-.btn-green {
-  background: transparent;
-  border: 1px solid var(--green);
-  color: var(--green);
+.btn-green:hover { background: #34d399; color: #02040a; box-shadow: 0 0 16px rgba(52,211,153,.4); }
+.btn-secondary {
+  background: var(--bg-panel-alt); border-color: var(--border-arcade);
+  color: var(--text);
 }
-.btn-green:hover { background: var(--green); color: #070d1a; transform: translateY(-2px); }
+.btn-secondary:hover { border-color: var(--cyan); color: var(--cyan); background: rgba(56,189,248,0.1); }
+.btn-ghost {
+  background: transparent; border-color: var(--border-subtle);
+  color: var(--muted);
+}
+.btn-ghost:hover { border-color: var(--muted); color: var(--text); }
 
-/* Quiz */
-/* ── QUIZ SCREEN ── */
-.quiz-battle-header {
-  display: flex; align-items: center; gap: 10px;
-  border-bottom: 1px solid var(--border); padding-bottom: 10px;
+/* ── QUIZ / BATTLE CHALLENGE ── */
+.quiz-challenge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+.quiz-challenge-tag {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--cyan);
+}
+.quiz-progress { display: flex; gap: 4px; align-items: center; width: 140px; }
+.quiz-pip { flex: 1; height: 4px; border-radius: 1px; background: rgba(255,255,255,.1); transition: background .2s; }
+.quiz-pip.done { background: var(--green); }
+.quiz-pip.active { background: var(--cyan); }
+
+.quiz-q {
+  font-size: 15px; font-weight: 600; color: var(--text);
+  line-height: 1.55; padding: 16px 18px; background: var(--bg-panel-alt);
+  border-radius: 4px; border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--cyan);
 }
 .quiz-battle-tag {
   font-family: 'Orbitron', monospace; font-size: 9px; font-weight: 700;
@@ -233,139 +271,131 @@ body {
 }
 .quiz-opts { display: flex; flex-direction: column; gap: 6px; }
 .quiz-opt {
-  background: rgba(7,13,26,.6); border: 1px solid var(--border);
-  border-radius: 3px; padding: 11px 14px;
-  font-size: 13px; color: #8aa0b8; cursor: pointer; text-align: left;
-  transition: all .12s ease; display: flex; align-items: center; gap: 10px;
+  background: var(--bg-panel-alt); border: 1px solid var(--border-subtle);
+  border-radius: 4px; padding: 12px 14px;
+  font-size: 13.5px; color: #cbd5e1; cursor: pointer; text-align: left;
+  transition: all .15s ease; display: flex; align-items: center; gap: 10px;
   font-family: 'Exo 2', sans-serif;
 }
 .quiz-opt .opt-letter {
-  width: 26px; height: 26px; border-radius: 2px;
-  background: rgba(56,189,248,.08); border: 1px solid rgba(56,189,248,.2);
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 11px; color: var(--cyan); font-family: 'Orbitron', monospace;
-  flex-shrink: 0; transition: all .12s;
+  width: 24px; height: 24px; border-radius: 3px;
+  background: rgba(255,255,255,.06); display: flex;
+  align-items: center; justify-content: center;
+  font-family: 'Orbitron', monospace;
+  font-weight: 700; font-size: 11px; color: var(--cyan);
+  flex-shrink: 0;
 }
-.quiz-opt:hover { border-color: var(--cyan); background: rgba(56,189,248,.05); transform: translateX(3px); }
-.quiz-opt:hover .opt-letter { background: var(--cyan); color: #070d1a; border-color: var(--cyan); }
-.quiz-opt.correct { border-color: var(--green) !important; background: rgba(34,197,94,.07) !important; color: var(--green); pointer-events:none; }
-.quiz-opt.correct .opt-letter { background:var(--green); color:#070d1a; border-color: var(--green); }
-.quiz-opt.wrong { border-color: var(--red) !important; background: rgba(239,68,68,.07) !important; color: var(--red); pointer-events:none; }
-.quiz-opt.wrong .opt-letter { background:var(--red); color:#070d1a; border-color: var(--red); }
-.quiz-opt.disabled { pointer-events:none; opacity:.45; }
-.quiz-opt.disabled.correct { opacity:1; }
+.quiz-opt:hover { border-color: var(--cyan); background: rgba(56,189,248,.08); transform: translateX(3px); }
+.quiz-opt:hover .opt-letter { background: var(--cyan); color: #02040a; }
+.quiz-opt.correct { border-color: var(--green) !important; background: rgba(16,185,129,.12) !important; color: var(--green); pointer-events: none; }
+.quiz-opt.correct .opt-letter { background: var(--green); color: #000; }
+.quiz-opt.wrong { border-color: var(--red) !important; background: rgba(239,68,68,.12) !important; color: var(--red); pointer-events: none; }
+.quiz-opt.wrong .opt-letter { background: var(--red); color: #000; }
+.quiz-opt.disabled { pointer-events: none; opacity: .45; }
+.quiz-opt.disabled.correct { opacity: 1; }
 
 /* Feedback box */
 .feedback-box {
-  border-radius: 3px; padding: 12px 14px;
-  font-size: 12.5px; line-height: 1.6; display:none;
+  border-radius: 4px; padding: 12px 14px;
+  font-size: 12.5px; line-height: 1.55; display: none;
   gap: 6px; flex-direction: column;
 }
-.feedback-box.show { display:flex; }
-.feedback-box.ok { background: rgba(34,197,94,.06); border: 1px solid rgba(34,197,94,.25); color: #86efac; }
-.feedback-box.err { background: rgba(239,68,68,.06); border: 1px solid rgba(239,68,68,.25); color: #fca5a5; }
-.feedback-box strong { font-size: 13px; font-family: 'Orbitron', monospace; letter-spacing: .5px; }
+.feedback-box.show { display: flex; }
+.feedback-box.ok { background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.35); color: #a7f3d0; }
+.feedback-box.err { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.35); color: #fecaca; }
+.feedback-box strong { font-size: 13.5px; font-family: 'Orbitron', monospace; letter-spacing: 0.5px; }
 
 /* Stats grid */
-.stats-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; }
 .stat-card {
-  background: rgba(7,13,26,.8); border: 1px solid var(--border);
-  border-radius: 3px; padding:14px 10px; text-align:center;
-  display:flex; flex-direction:column; gap:4px;
-  border-top: 2px solid var(--border);
+  background: var(--bg-panel-alt); border: 1px solid var(--border-subtle);
+  border-radius: 4px; padding: 12px 8px; text-align: center;
+  display: flex; flex-direction: column; gap: 2px;
 }
-.stat-val { font-size: 26px; font-weight: 900; font-family:'Orbitron',monospace; }
-.stat-lbl { font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; font-weight: 700; }
-
-/* Progress bar for quiz rounds */
-.quiz-progress { display:flex; gap:3px; align-items:center; flex:1; }
-.quiz-pip { flex:1; height:3px; border-radius:1px; background: rgba(255,255,255,.08); transition:background .3s; }
-.quiz-pip.done { background:var(--green); }
-.quiz-pip.active { background:var(--cyan); }
+.stat-val { font-size: 24px; font-weight: 900; font-family: 'Orbitron', monospace; color: var(--cyan); }
+.stat-lbl { font-size: 9.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
 
 /* Level intro accent */
 .boss-preview {
-  display:flex; align-items:center; gap:14px;
-  background: rgba(7,13,26,.6); border: 1px solid var(--border);
-  border-radius:3px; padding:14px;
-  border-left: 3px solid var(--cyan);
+  display: flex; align-items: center; gap: 14px;
+  background: var(--bg-panel-alt); border: 1px solid var(--border-subtle);
+  border-radius: 4px; padding: 12px 16px;
 }
-.boss-icon { font-size:42px; line-height:1; }
-.boss-info strong { font-size:15px; color:var(--text); display:block; margin-bottom:3px; font-family: 'Orbitron', monospace; }
-.boss-info span { font-size:12px; color:var(--muted); }
+.boss-icon { font-size: 38px; line-height: 1; }
+.boss-info strong { font-size: 15px; color: var(--text); display: block; font-family: 'Orbitron', monospace; letter-spacing: 1px; }
+.boss-info span { font-size: 12px; color: var(--muted); }
 
 /* Tip box */
 .tip-box {
-  background: rgba(234,179,8,.04); border: 1px solid rgba(234,179,8,.2);
-  border-radius:3px; padding:12px 14px;
-  font-size:12.5px; color:#fef08a; line-height:1.6;
-  border-left: 2px solid var(--gold);
+  background: rgba(251,191,36,.06); border: 1px solid rgba(251,191,36,.2);
+  border-left: 3px solid var(--gold);
+  border-radius: 4px; padding: 12px 14px;
+  font-size: 12.5px; color: #fde68a; line-height: 1.55; font-style: italic;
 }
-.tip-box strong { color:var(--gold); }
+.tip-box strong { color: var(--gold); font-style: normal; }
 
 /* ── HUD ACTION BUTTONS (TOP BAR) ── */
 .hud-btn {
-  background: rgba(7,13,26,.9);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  padding: 4px 11px;
-  font-size: 10px;
+  background: rgba(10, 17, 32, 0.9);
+  border: 1px solid var(--border-arcade);
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-size: 11px;
   font-weight: 700;
-  color: var(--muted);
+  font-family: 'Orbitron', monospace;
+  letter-spacing: 1px;
+  color: var(--cyan);
   cursor: pointer;
-  transition: all .12s ease;
-  font-family: 'Exo 2', sans-serif;
-  display: flex; align-items: center; gap: 5px;
-  letter-spacing: .5px;
-  text-transform: uppercase;
+  transition: all .15s ease;
+  display: flex; align-items: center; gap: 6px;
 }
 .hud-btn:hover {
-  background: rgba(56,189,248,.12);
-  color: var(--cyan);
-  border-color: var(--cyan);
+  background: var(--cyan);
+  color: #02040a;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
 }
 .hud-btn.gold {
   color: var(--gold);
   border-color: rgba(234,179,8,.3);
 }
 .hud-btn.gold:hover {
-  background: rgba(234,179,8,.12);
-  border-color: var(--gold);
+  background: var(--gold);
+  color: #000;
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
 }
 
 /* ── QR CODE MODAL & CARDS ── */
 .qr-container-card {
-  background: rgba(7,13,26,.8);
-  border: 1px solid var(--border);
-  border-radius: 3px;
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-arcade);
+  border-radius: 4px;
   padding: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
 }
 .qr-frame {
   background: #ffffff;
-  padding: 12px;
-  border-radius: 2px;
-  box-shadow: 0 0 0 1px rgba(56,189,248,.2);
+  padding: 10px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 224px;
-  min-height: 224px;
+  min-width: 200px;
+  min-height: 200px;
 }
 .qr-frame img, .qr-frame canvas {
   display: block;
 }
 .qr-url-box {
-  background: rgba(7,13,26,.9);
-  border: 1px solid var(--border);
+  background: #060a14;
+  border: 1px solid var(--border-subtle);
   border-radius: 3px;
-  padding: 7px 12px;
-  font-family: 'Orbitron', monospace;
-  font-size: 10px;
+  padding: 6px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
   color: var(--cyan);
   display: flex;
   align-items: center;
@@ -379,52 +409,42 @@ body {
   letter-spacing: .3px;
 }
 .btn-sm {
-  padding: 5px 10px;
-  font-size: 10px;
-  border-radius: 2px;
+  padding: 4px 8px;
+  font-size: 11px;
+  border-radius: 3px;
   cursor: pointer;
-  border: 1px solid rgba(56,189,248,.35);
-  background: rgba(56,189,248,.08);
+  border: 1px solid var(--border-arcade);
+  background: rgba(56, 189, 248, 0.15);
   color: var(--cyan);
-  font-family: 'Exo 2', sans-serif;
+  font-family: 'Orbitron', monospace;
   font-weight: 700;
-  transition: all .12s;
-  text-transform: uppercase;
-  letter-spacing: .5px;
 }
 .btn-sm:hover {
   background: var(--cyan);
-  color: #070d1a;
+  color: #02040a;
 }
 
 /* ── LEADERBOARD TOP 5 STYLES ── */
 .lb-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   width: 100%;
-  margin: 6px 0;
 }
 .lb-card {
-  background: rgba(7,13,26,.6);
-  border: 1px solid var(--border);
-  border-radius: 2px;
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
   padding: 10px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  transition: all .12s ease;
-}
-.lb-card:hover {
-  background: rgba(26,48,80,.35);
-  transform: translateX(2px);
-  border-color: rgba(56,189,248,.25);
 }
 .lb-rank-badge {
-  width: 36px;
-  height: 36px;
-  border-radius: 2px;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -432,53 +452,43 @@ body {
   font-weight: 900;
   font-size: 13px;
   flex-shrink: 0;
-  letter-spacing: -1px;
+  border: 1px solid transparent;
 }
 .lb-rank-1 {
-  background: rgba(234,179,8,.12);
-  border: 1px solid rgba(234,179,8,.5);
-  color: var(--gold);
+  background: rgba(245, 158, 11, 0.15);
+  border-color: #f59e0b;
+  color: #fbbf24;
 }
 .lb-rank-2 {
-  background: rgba(203,213,225,.08);
-  border: 1px solid rgba(203,213,225,.35);
-  color: #b0bec5;
+  background: rgba(203, 213, 225, 0.12);
+  border-color: #cbd5e1;
+  color: #e2e8f0;
 }
 .lb-rank-3 {
-  background: rgba(249,115,22,.1);
-  border: 1px solid rgba(249,115,22,.35);
-  color: var(--orange);
+  background: rgba(234, 88, 12, 0.15);
+  border-color: #ea580c;
+  color: #fb923c;
 }
 .lb-rank-other {
-  background: rgba(255,255,255,.03);
-  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--border-subtle);
   color: var(--muted);
 }
-.lb-info {
-  flex: 1;
-  text-align: left;
-}
+.lb-info { flex: 1; text-align: left; }
 .lb-player-name {
   font-size: 14px;
   font-weight: 700;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  color: #f8fafc;
 }
 .lb-meta {
-  font-size: 10px;
+  font-size: 10.5px;
   color: var(--muted);
-  margin-top: 2px;
-  letter-spacing: .3px;
 }
 .lb-score-val {
   font-family: 'Orbitron', monospace;
   font-weight: 900;
   font-size: 16px;
   color: var(--green);
-  text-align: right;
-  flex-shrink: 0;
 }
 
 /* ── SCORE SUBMISSION FORM ── */
@@ -908,16 +918,16 @@ body {
     background: linear-gradient(to top, rgba(10,17,40,0.98), transparent);
   }
   .touch-cluster {
-    gap: 8px;
+    gap: clamp(4px, 1.5vw, 8px);
   }
   .t-btn {
-    width: 54px;
-    height: 54px;
-    font-size: 14px;
+    width: clamp(42px, 12.5vw, 54px);
+    height: clamp(42px, 12.5vw, 54px);
+    font-size: clamp(12px, 3.5vw, 14px);
   }
   .t-btn-act {
-    width: 54px;
-    height: 54px;
+    width: clamp(42px, 12.5vw, 54px);
+    height: clamp(42px, 12.5vw, 54px);
   }
 
   /* QR & Leaderboard on mobile */
@@ -1009,17 +1019,17 @@ body {
 <div id="wrapper">
   <!-- Top HUD (outside canvas) -->
   <div id="topBar">
-    <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;">
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
       <div class="hud-pill" id="hudPlayerPill" style="display:none;color:var(--gold);font-weight:700;"><span id="hudPlayerNameText"></span></div>
-      <div class="hud-pill">STAGE <span id="hudLevel">1</span>/4</div>
-      <div class="hud-pill">STR <span id="hudStars">0</span> &nbsp;|&nbsp; PTS <span id="hudScore">0</span></div>
-      <div class="hud-pill">QUIZ <span id="hudQuiz">0/0</span></div>
+      <div class="hud-pill">HỒI <span id="hudLevel">1</span>/4</div>
+      <div class="hud-pill">⭐ <span id="hudStars">0</span> &nbsp;|&nbsp; ĐIỂM: <span id="hudScore">0</span></div>
+      <div class="hud-pill">TRẮC NGHIỆM: <span id="hudQuiz">0/0</span></div>
     </div>
-    <div style="display:flex;gap:5px;align-items:center;">
-      <button class="hud-btn gold" onclick="UI.showLeaderboardModal()">TOP 5</button>
-      <button class="hud-btn" id="btnAdminLogout" onclick="UI.logoutAdmin()" style="display:none;color:var(--red);border-color:rgba(239,68,68,.4);">LOGOUT</button>
-      <button class="hud-btn" id="btnTopBarQR" onclick="UI.showQRModal()">QR</button>
-      <button class="hud-btn" id="btnFullscreen" onclick="UI.toggleFullscreen()" title="Fullscreen">&#9974;</button>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <button class="hud-btn gold" onclick="UI.showLeaderboardModal()">VINH DANH</button>
+      <button class="hud-btn" id="btnAdminLogout" onclick="UI.logoutAdmin()" style="display:none;background:rgba(239,68,68,0.25);border-color:rgba(239,68,68,0.6);color:#fca5a5;">ĐĂNG XUẤT</button>
+      <button class="hud-btn" id="btnTopBarQR" onclick="UI.showQRModal()">MÃ QR</button>
+      <button class="hud-btn" id="btnFullscreen" onclick="UI.toggleFullscreen()" title="Toàn màn hình">⛶</button>
     </div>
   </div>
 
@@ -1028,13 +1038,13 @@ body {
 
   <!-- Bottom Controls -->
   <div id="ctrlBar">
-    <div class="ctrl-badge"><kbd>A</kbd><kbd>D</kbd> MOVE</div>
-    <div class="ctrl-badge"><kbd>W</kbd> JUMP x2</div>
-    <div class="ctrl-badge"><kbd>S</kbd> DROP</div>
-    <div class="ctrl-badge"><kbd>SHIFT</kbd><kbd>L</kbd> DASH</div>
-    <div class="ctrl-badge"><kbd>J</kbd><kbd>SPC</kbd> SHOOT</div>
-    <div class="ctrl-badge"><kbd>K</kbd> ULTIMATE (3&#9733;)</div>
-    <div class="ctrl-badge"><kbd>P</kbd> PAUSE</div>
+    <div class="ctrl-badge"><kbd>A</kbd><kbd>D</kbd> Di chuyển</div>
+    <div class="ctrl-badge"><kbd>W</kbd> Nhảy 2 bước</div>
+    <div class="ctrl-badge"><kbd>S</kbd> Xuống bệ</div>
+    <div class="ctrl-badge"><kbd>Shift</kbd><kbd>L</kbd> Lướt né đạn (Dash)</div>
+    <div class="ctrl-badge"><kbd>J</kbd><kbd>Space</kbd> Bắn Laser</div>
+    <div class="ctrl-badge"><kbd>K</kbd> Đại pháo (3⭐)</div>
+    <div class="ctrl-badge"><kbd>P</kbd> Tạm dừng</div>
   </div>
 
   <!-- Mobile Touch Controls -->
@@ -1057,9 +1067,9 @@ body {
 
     <!-- ── PLAYER MOBILE START SCREEN ── -->
     <div class="modal show" id="screenPlayerStart">
-      <div class="mobile-hint" style="display:block;">Xoay ngang hoặc bấm <strong>&#9974;</strong> để chơi toàn màn hình.</div>
-      <div class="modal-logo">BI<span class="accent">&#7878;N</span> CH&#7�;NG</div>
-      <div class="modal-sub">Philosophy Battle Arena &middot; FPT University</div>
+      <div class="mobile-hint" style="display:block;">Xoay ngang màn hình hoặc ấn <strong>⛶</strong> để chơi toàn màn hình!</div>
+      <div class="modal-logo">BIỆN CHỨNG KỶ NGUYÊN AI</div>
+      <div class="modal-sub">ĐẤU TRƯỜNG TRIẾT HỌC HỌC PHẦN MLN111 — FPT UNIVERSITY</div>
       <div class="divider"></div>
 
       <!-- WARNING IF ALREADY PLAYED -->
@@ -1067,34 +1077,45 @@ body {
 
       <!-- NAME INPUT -->
       <div class="player-name-card" id="playerNameCard">
-        <label for="inputPlayerName" style="display:block;font-size:11px;font-weight:700;color:var(--gold);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;">
-          Enter Your Identity <span style="color:var(--red);">*</span>
+        <label for="inputPlayerName" style="display:block;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--gold);margin-bottom:8px;">
+          DANH TÍNH THI ĐẤU (HỌ TÊN HOẶC MSSV): <span style="color:var(--red);">*</span>
         </label>
-        <input type="text" id="inputPlayerName" class="player-big-input" placeholder="Họ tên / MSSV (hoặc gõ 'admin')" maxlength="25" autocomplete="name" required oninput="if(this.value.trim().toLowerCase()==='admin') UI.toggleAdminPasswordBox(true)" onkeydown="if(event.key==='Enter') UI.startPlayerGame()">
-        <div id="playerNameError" style="display:none;color:var(--red);font-size:11px;margin-top:6px;font-weight:700;letter-spacing:.5px;"></div>
-      </div>
-
-      <!-- ADMIN PASSWORD CARD -->
-      <div id="adminPasswordCard" style="display:none;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.4);border-left:2px solid var(--red);border-radius:3px;padding:14px;">
-        <div style="font-size:10px;font-weight:700;color:var(--red);margin-bottom:6px;letter-spacing:2px;text-transform:uppercase;">HOST AUTHENTICATION</div>
-        <div style="display:flex;gap:8px;">
-          <input type="password" id="inputAdminPassword" class="player-big-input" placeholder="Admin password..." style="padding:10px 14px;font-size:13px;" onkeydown="if(event.key==='Enter') UI.loginAdmin()">
-          <button class="btn btn-orange" onclick="UI.loginAdmin()" style="width:auto;padding:10px 16px;font-size:11px;white-space:nowrap;">CONFIRM</button>
+        <input type="text" id="inputPlayerName" class="player-big-input" placeholder="Ví dụ: Nguyễn Văn A - SE17xxxx" maxlength="25" autocomplete="name" required oninput="if(this.value.trim().toLowerCase()==='admin') UI.toggleAdminPasswordBox(true)" onkeydown="if(event.key==='Enter') UI.startPlayerGame()">
+        <div id="playerNameError" style="display:none;color:var(--red);font-size:12px;margin-top:8px;font-weight:700;">
+          VUI LÒNG NHẬP HỌ TÊN HOẶC MSSV ĐỂ THAM GIA THI ĐẤU!
         </div>
-        <div id="adminPasswordError" style="display:none;color:var(--red);font-size:11px;margin-top:6px;font-weight:700;"></div>
       </div>
 
-      <!-- RULES -->
-      <div class="rules-card">
-        <div class="rule-item"><strong>1 LIFE ONLY</strong> &mdash; One attempt per tournament. Score auto-saves.</div>
-        <div class="rule-item"><strong>18 QUESTIONS</strong> &mdash; Correct answers restore HP and boost laser damage.</div>
-        <div class="rule-item"><strong>TOUCH CONTROLS</strong> &mdash; Use on-screen buttons on mobile devices.</div>
+      <!-- KHUNG NHẬP MẬT KHẨU ADMIN (KHI GÕ ADMIN HOẶC ẤN LINK ADMIN) -->
+      <div id="adminPasswordCard" style="display:none;background:rgba(239,68,68,0.1);border:1.5px solid rgba(239,68,68,0.4);border-radius:12px;padding:14px;margin-top:10px;">
+        <div style="font-size:13px;font-weight:800;color:#f87171;margin-bottom:6px;">
+          XÁC THỰC NGƯỜI CHỦ TRÌ (ADMIN)
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.4;">
+          Nhập mật khẩu quản trị để mở giao diện máy chiếu và bảng điều khiển:
+        </div>
+        <div style="display:flex;gap:8px;">
+          <input type="password" id="inputAdminPassword" class="player-big-input" placeholder="Mật khẩu Admin..." style="padding:10px 14px;font-size:14px;" onkeydown="if(event.key==='Enter') UI.loginAdmin()">
+          <button class="btn btn-orange" onclick="UI.loginAdmin()" style="width:auto;padding:10px 16px;font-size:13px;white-space:nowrap;font-weight:800;">
+            Xác nhận
+          </button>
+        </div>
+        <div id="adminPasswordError" style="display:none;color:var(--red);font-size:12px;margin-top:6px;font-weight:700;"></div>
       </div>
 
-      <button class="btn btn-orange btn-glow" id="btnStartPlayerGame" onclick="UI.startPlayerGame()" style="font-size:13px;padding:13px;width:100%;">ENTER THE ARENA</button>
-      <button class="btn btn-primary" onclick="UI.showLeaderboardModal()" style="width:100%;font-size:12px;">VIEW LEADERBOARD</button>
-      <div style="margin-top:8px;text-align:center;">
-        <a href="javascript:void(0)" onclick="UI.toggleAdminPasswordBox()" style="color:var(--muted);font-size:11px;text-decoration:none;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;">Host Login</a>
+      <div style="display:flex;flex-direction:column;gap:10px;width:100%;margin-top:8px;">
+        <button class="btn btn-orange btn-glow" id="btnStartPlayerGame" onclick="UI.startPlayerGame()" style="font-size:15px;padding:14px;width:100%;font-weight:900;">
+          VÀO PHÒNG CHỜ THI ĐẤU
+        </button>
+        <button class="btn btn-green" onclick="UI.showLeaderboardModal()" style="width:100%;font-size:13px;">
+          BẢNG VINH DANH TOP 5
+        </button>
+      </div>
+
+      <div style="margin-top:10px;text-align:center;">
+        <a href="javascript:void(0)" onclick="UI.toggleAdminPasswordBox()" style="color:var(--muted);font-size:11.5px;text-decoration:underline;cursor:pointer;">
+          Dành cho Người Chủ Trì (Admin)
+        </a>
       </div>
     </div>
 
@@ -1102,32 +1123,35 @@ body {
     <div class="modal" id="screenPlayerWaiting">
       <div class="waiting-radar-container">
         <div class="radar-circle"></div>
-        <div class="radar-icon">&#9876;</div>
+        <div class="radar-icon">⚔️</div>
+      </div>
+      <div class="modal-logo" style="color:var(--cyan);font-size:18px;">PHÒNG CHỜ THI ĐẤU</div>
+      <div style="font-size:13px;color:var(--gold);font-weight:700;">
+        Thí sinh: <span id="waitingPlayerName"></span>
       </div>
       <div class="modal-logo">STAND<span class="accent">BY</span></div>
       <div class="modal-sub">Waiting for host &middot; <span id="waitingPlayerName" style="color:var(--gold);"></span></div>
       <div class="divider"></div>
 
-      <div class="auto-submit-banner" style="background:rgba(56,189,248,.06);border-color:rgba(56,189,248,.3);padding:10px;">
-        <div style="display:flex;align-items:center;gap:7px;justify-content:center;">
+      <div class="auto-submit-banner" style="background:rgba(56,189,248,0.1);border-color:rgba(56,189,248,0.3);padding:12px;">
+        <div style="display:flex;align-items:center;gap:8px;justify-content:center;">
           <span class="lobby-pulse-dot"></span>
-          <span style="font-size:12px;font-weight:700;color:var(--text);letter-spacing:.5px;text-transform:uppercase;">Connected to lobby</span>
+          <span style="font-size:13px;font-weight:800;color:#f8fafc;letter-spacing:1px;">ĐÃ KẾT NỐI VÀO PHÒNG CHỜ</span>
         </div>
-        <p style="font-size:11px;color:var(--muted);line-height:1.5;margin-top:5px;text-align:center;">Watch the projector screen.<br><strong style="color:var(--orange);">Battle starts when host gives the signal.</strong></p>
+        <p style="font-size:12px;color:#cbd5e1;line-height:1.5;margin-top:6px;">
+          Theo dõi màn hình máy chiếu.<br>
+          <strong style="color:var(--orange);">Trận đấu sẽ tự động bắt đầu khi Người Chủ Trì phát lệnh!</strong>
+        </p>
       </div>
 
       <div class="lobby-admin-box" style="margin-top:4px;">
         <div class="lobby-admin-header">
-          <span style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase;">Players in lobby</span>
-          <span class="lobby-count-pill" id="playerWaitingCount">1</span>
+          <span style="font-size:12px;font-weight:700;color:var(--gold);">DANH SÁCH SẴN SÀNG:</span>
+          <span class="lobby-count-pill" id="playerWaitingCount">1 người</span>
         </div>
         <div class="lobby-chips" id="playerWaitingChips">
-          <div style="color:var(--muted);font-size:11px;font-style:italic;">Connecting...</div>
+          <div style="color:var(--muted);font-size:12px;font-style:italic;">Đang kết nối danh sách thí sinh...</div>
         </div>
-      </div>
-
-      <div class="rules-card" style="margin-top:6px;">
-        <div class="rule-item"><strong>Ready tip:</strong> Practice the touch controls below. Double jump, dash, and hold to shoot. One life only.</div>
       </div>
     </div>
 
@@ -1139,46 +1163,17 @@ body {
 
     <!-- ── ADMIN START SCREEN (MÁY CHỦ THUYẾT TRÌNH) ── -->
     <div class="modal show" id="screenStart">
-      <div class="mobile-hint">💡 <strong>Mẹo điện thoại:</strong> Xoay ngang màn hình (Landscape) hoặc bấm nút <strong>⛶</strong> để chơi toàn màn hình cực đã!</div>
-      <div class="modal-logo">⚔️ BIỆN CHỨNG KỶ NGUYÊN AI</div>
-      <div class="modal-sub">GAME ÔN TẬP TRIẾT HỌC MÁC - LÊNIN | Chương 3: CNDVLS | FPT University</div>
+      <div class="mobile-hint">Xoay ngang màn hình (Landscape) hoặc bấm nút <strong>⛶</strong> để chơi toàn màn hình!</div>
+      <div class="modal-logo">BIỆN CHỨNG KỶ NGUYÊN AI</div>
+      <div class="modal-sub">HỌC THUYẾT HÌNH THÁI KINH TẾ - XÃ HỘI | CHƯƠNG 3: CNDVLS | FPT UNIVERSITY</div>
       <div class="divider"></div>
-      <div class="info-grid">
-        <div class="info-card">
-          <span class="ico">🤖</span>
-          <div class="txt"><strong>4 Màn Boss AI Độc Bản</strong><span>Mỗi Boss sở hữu 3-4 chiêu thức ma trận đạn và cơ chế riêng</span></div>
-        </div>
-        <div class="info-card">
-          <span class="ico">📝</span>
-          <div class="txt"><strong>18 Câu trắc nghiệm Triết</strong><span>Trả lời đúng: Hồi +50 HP & Tăng sát thương súng Laser!</span></div>
-        </div>
-        <div class="info-card">
-          <span class="ico">⭐</span>
-          <div class="txt"><strong>Đại pháo hủy diệt (K)</strong><span>Gom đủ 3 sao để xóa sạch đạn Boss và dồn sát thương cực khủng</span></div>
-        </div>
-        <div class="info-card">
-          <span class="ico">⚡</span>
-          <div class="txt"><strong>Cơ động cao (Mario-style)</strong><span>Nhảy 2 bước (Double Jump) & Lướt né bất tử (Dash Shift/L)</span></div>
-        </div>
-      </div>
-      <div class="divider"></div>
-      <p style="color:#64748b;font-size:13px;text-align:center;margin-bottom:-6px;">🕹️ Hướng Dẫn Phím Điều Khiển</p>
-      <div class="ctrl-grid">
-        <kbd>A / D hoặc ◀ / ▶</kbd><span>Di chuyển mượt mà trái / phải</span>
-        <kbd>W hoặc ▲</kbd><span>Nhảy & Nhảy 2 bước trên không (Double Jump)</span>
-        <kbd>S hoặc ▼</kbd><span>Rơi xuyên bệ lơ lửng xuống tầng dưới</span>
-        <kbd>Shift hoặc L</kbd><span>Lướt né siêu tốc (Dash) — Bất tử 0.2s né đạn ma trận</span>
-        <kbd>J hoặc Space</kbd><span>Bắn súng Laser (Giữ phím để xả đạn liên tục)</span>
-        <kbd>K</kbd><span>Đại pháo năng lượng (cần 3⭐ — xóa sạch đạn Boss)</span>
-        <kbd>P</kbd><span>Tạm dừng / Tiếp tục</span>
-      </div>
 
       <!-- LOBBY STATUS CARD CHO CHỦ TRÌ (MÁY CHIẾU) -->
       <div class="lobby-admin-box">
         <div class="lobby-admin-header">
           <div style="display:flex;align-items:center;gap:8px;">
             <span class="lobby-pulse-dot"></span>
-            <span style="font-weight:900;font-size:15px;color:var(--gold);">👥 PHÒNG CHỜ CẢ LỚP (REAL-TIME)</span>
+            <span style="font-weight:900;font-size:14px;color:var(--gold);letter-spacing:1px;">PHÒNG CHỜ THI ĐẤU (REAL-TIME)</span>
           </div>
           <span class="lobby-count-pill" id="adminLobbyCount">0 người đã sẵn sàng</span>
         </div>
@@ -1186,83 +1181,117 @@ body {
           <div style="color:var(--muted);font-size:12px;font-style:italic;">Chưa có ai vào phòng. Quét mã QR để tham gia!</div>
         </div>
         <div style="display:flex;gap:10px;width:100%;margin-top:12px;">
-          <button class="btn btn-orange btn-glow" id="btnAdminStartAll" onclick="UI.adminStartTournament()" style="flex:2;font-size:16px;font-weight:900;padding:14px;">
-            🚀 PHÁT LỆNH BẮT ĐẦU CHO CẢ LỚP!
+          <button class="btn btn-orange btn-glow" id="btnAdminStartAll" onclick="UI.adminStartTournament()" style="flex:2;font-size:15px;font-weight:900;padding:13px;">
+            PHÁT LỆNH BẮT ĐẦU CHO CẢ LỚP
           </button>
           <button class="btn btn-primary" onclick="UI.adminResetLobby()" style="flex:1;font-size:12px;">
-            🔄 Mở lại phòng
+            Mở lại phòng
           </button>
         </div>
       </div>
 
-      <div style="display:flex;gap:10px;margin-top:10px;width:100%;">
-        <button class="btn btn-primary" onclick="UI.showQRModal()" style="flex:1;">📱 Quét Mã QR (Dành Cho Cả Lớp)</button>
-        <button class="btn btn-green" onclick="UI.showLeaderboardModal()" style="flex:1;">🏆 Bảng Xếp Hạng TOP 5</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;width:100%;">
+        <button class="btn btn-primary" onclick="UI.showQRModal()">MÃ QR CHO CẢ LỚP</button>
+        <button class="btn btn-green" onclick="UI.showLeaderboardModal()">BẢNG VINH DANH</button>
+        <button class="btn btn-primary" onclick="UI.showHowToPlay()">HƯỚNG DẪN CHIẾN ĐẤU</button>
+        <button class="btn btn-orange" onclick="UI.startGame()">CHIẾN ĐẤU (MÁY CHÍNH)</button>
       </div>
-      <button class="btn btn-orange" onclick="UI.startGame()" style="margin-top:10px;">🚀 BẮT ĐẦU CHIẾN ĐẤU (MÀN HÌNH CHÍNH)!</button>
+    </div>
+
+    <!-- ── HOW TO PLAY MODAL ── -->
+    <div class="modal" id="screenHowToPlay">
+      <div class="modal-logo">HƯỚNG DẪN CHIẾN ĐẤU</div>
+      <div class="modal-sub">CƠ CHẾ ĐẤU TRƯỜNG & HỆ THỐNG ĐIỀU KHIỂN</div>
+      <div class="divider"></div>
+      <div class="info-grid">
+        <div class="info-card">
+          <span class="ico">⚔️</span>
+          <div class="txt"><strong>4 Hồi Boss Triết Học</strong><span>Mỗi Boss sở hữu 3-4 chiêu thức ma trận đạn và cơ chế phản biện riêng biệt</span></div>
+        </div>
+        <div class="info-card">
+          <span class="ico">📖</span>
+          <div class="txt"><strong>18 Câu Hỏi Biện Chứng</strong><span>Trả lời chính xác để hồi phục +50 HP và gia tăng sát thương súng Laser</span></div>
+        </div>
+        <div class="info-card">
+          <span class="ico">⭐</span>
+          <div class="txt"><strong>Đại Pháo Hủy Diệt (K)</strong><span>Gom đủ 3 sao để kích hoạt, quét sạch toàn bộ đạn Boss và dồn hỏa lực cực lớn</span></div>
+        </div>
+        <div class="info-card">
+          <span class="ico">⚡</span>
+          <div class="txt"><strong>Cơ Động Tác Chiến</strong><span>Nhảy 2 bước (Double Jump) & Lướt né siêu tốc (Dash) bất tử 0.2s né đạn ma trận</span></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="ctrl-grid">
+        <kbd>A / D hoặc ◀ / ▶</kbd><span>Di chuyển trái / phải</span>
+        <kbd>W hoặc ▲</kbd><span>Nhảy & Nhảy 2 bước trên không (Double Jump)</span>
+        <kbd>S hoặc ▼</kbd><span>Rơi xuyên bệ lơ lửng xuống tầng dưới</span>
+        <kbd>Shift hoặc L</kbd><span>Lướt né siêu tốc (Dash) — Bất tử 0.2s né đạn</span>
+        <kbd>J hoặc Space</kbd><span>Bắn súng Laser (Giữ phím để xả liên tục)</span>
+        <kbd>K</kbd><span>Đại pháo năng lượng (Cần 3⭐ — Quét sạch đạn Boss)</span>
+        <kbd>P</kbd><span>Tạm dừng / Tiếp tục</span>
+      </div>
+      <button class="btn btn-primary" onclick="UI.closeModal()" style="margin-top:12px;width:100%;">✕ ĐÓNG HƯỚNG DẪN</button>
     </div>
 
     <!-- ── QR CODE MODAL ── -->
     <div class="modal" id="screenQR">
-      <div class="modal-logo">📱 THAM GIA ĐUA TOP TRIẾT HỌC</div>
-      <div class="modal-sub">DÀNH CHO KHÁN GIẢ & CẢ LỚP | Quét mã bằng camera điện thoại để vào chơi ngay!</div>
+      <div class="modal-logo">QUÉT MÃ THI ĐẤU</div>
+      <div class="modal-sub">DÀNH CHO KHÁN GIẢ & CẢ LỚP | Quét mã bằng camera điện thoại để vào đấu trường!</div>
       <div class="divider"></div>
       
       <div class="qr-container-card">
         <div class="qr-frame" id="qrCodeContainer"></div>
         <div class="qr-url-box">
-          <span id="qrUrlDisplay">Đang tải địa chỉ kết nối...</span>
-          <button class="btn-sm" onclick="UI.copyQRUrl()">📋 Copy</button>
+          <span id="qrUrlDisplay">https://game-mln-ebon.vercel.app/game.html?mode=player</span>
+          <button class="btn-sm" onclick="UI.copyQRUrl()">Sao chép</button>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);width:100%;justify-content:center;flex-wrap:wrap;">
-          <span>Đổi IP Wi-Fi/Mạng:</span>
-          <select id="qrIpSelect" onchange="UI.onSelectIp(this.value)" style="background:#0f172a;border:1px solid #334155;color:#38bdf8;padding:4px 8px;border-radius:6px;font-size:12px;outline:none;">
-          </select>
+        <div style="font-size:12px;color:var(--muted);text-align:center;margin-top:4px;">
+          Máy chủ trực tiếp Vercel (Hỗ trợ 4G/5G & mọi mạng Wi-Fi)
         </div>
       </div>
 
-      <!-- Live lobby count inside QR modal so whole class sees names join live on screen -->
       <div class="lobby-admin-box" style="margin-top:6px;width:100%;">
         <div class="lobby-admin-header">
           <div style="display:flex;align-items:center;gap:8px;">
             <span class="lobby-pulse-dot"></span>
-            <span style="font-weight:800;font-size:14px;color:var(--gold);">👥 ĐÃ VÀO PHÒNG CHỜ:</span>
+            <span style="font-weight:800;font-size:13px;color:var(--gold);">DANH SÁCH VÀO PHÒNG CHỜ:</span>
           </div>
           <span class="lobby-count-pill" id="qrLobbyCount">0 người</span>
         </div>
         <div class="lobby-chips" id="qrLobbyChips" style="max-height:85px;">
           <div style="color:var(--muted);font-size:12px;font-style:italic;">Quét mã phía trên để tên bạn xuất hiện tại đây...</div>
         </div>
-        <button class="btn btn-orange btn-glow" onclick="UI.adminStartTournament()" style="width:100%;margin-top:10px;font-size:15px;font-weight:900;padding:13px;">
-          🚀 PHÁT LỆNH BẮT ĐẦU CHO CẢ LỚP!
+        <button class="btn btn-orange btn-glow" onclick="UI.adminStartTournament()" style="width:100%;margin-top:10px;font-size:14px;font-weight:900;padding:12px;">
+          PHÁT LỆNH BẮT ĐẦU CHO CẢ LỚP
         </button>
       </div>
 
       <div class="divider"></div>
       <div style="display:flex;gap:10px;width:100%;">
-        <button class="btn btn-green" onclick="UI.showLeaderboardModal()" style="flex:1;">🏆 Xem Bảng Xếp Hạng TOP 5</button>
+        <button class="btn btn-green" onclick="UI.showLeaderboardModal()" style="flex:1;">BẢNG VINH DANH</button>
         <button class="btn btn-primary" onclick="UI.closeModal()" style="flex:1;">✕ Đóng</button>
       </div>
     </div>
 
     <!-- ── LEADERBOARD MODAL ── -->
     <div class="modal" id="screenLeaderboard">
-      <div class="modal-logo">HALL OF <span class="accent">CHAMPIONS</span></div>
-      <div class="modal-sub">Top Philosophers &middot; FPT University</div>
+      <div class="modal-logo">BẢNG VINH DANH TOP 5</div>
+      <div class="modal-sub">TRIẾT GIA XUẤT SẮC NHẤT — FPT UNIVERSITY</div>
       <div class="divider"></div>
 
       <div class="lb-wrapper" id="leaderboardList">
-        <div style="text-align:center;color:var(--muted);padding:20px;font-size:11px;letter-spacing:1px;">LOADING...</div>
+        <div style="text-align:center;color:var(--muted);padding:20px;">Đang tải bảng vinh danh...</div>
       </div>
 
       <div class="divider"></div>
-      <div style="display:flex;gap:8px;width:100%;">
-        <button class="btn btn-green" onclick="UI.fetchLeaderboard(true)" style="flex:1;font-size:11px;">REFRESH</button>
-        <button class="btn btn-primary" id="btnLbShowQR" onclick="UI.showQRModal()" style="flex:1;font-size:11px;">QR CODE</button>
-        <button class="btn btn-orange" onclick="UI.closeModal()" style="flex:1;font-size:11px;">CLOSE</button>
+      <div style="display:flex;gap:10px;width:100%;">
+        <button class="btn btn-green" onclick="UI.fetchLeaderboard(true)" style="flex:1;">Làm mới</button>
+        <button class="btn btn-primary" id="btnLbShowQR" onclick="UI.showQRModal()" style="flex:1;">Hiện mã QR</button>
+        <button class="btn btn-orange" onclick="UI.closeModal()" style="flex:1;">✕ Đóng</button>
       </div>
-      <div id="adminResetContainer" style="text-align:right;margin-top:6px;">
-        <button id="btnResetLeaderboard" onclick="UI.resetLeaderboard()" style="background:none;border:none;color:var(--red);font-size:10px;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;">Reset Tournament</button>
+      <div id="adminResetContainer" style="text-align:right;margin-top:8px;">
+        <button id="btnResetLeaderboard" onclick="UI.resetLeaderboard()" style="background:none;border:none;color:var(--red);font-size:11px;cursor:pointer;text-decoration:underline;">Đặt lại giải đấu mới</button>
       </div>
     </div>
 
@@ -1273,88 +1302,97 @@ body {
       <div id="introBossPreview" class="boss-preview"></div>
       <p id="introDesc"></p>
       <div id="introTip" class="tip-box"></div>
-      <button class="btn btn-orange" onclick="UI.startLevel()">FIGHT</button>
+      <button class="btn btn-orange" onclick="UI.startLevel()">BẮT ĐẦU CHIẾN ĐẤU</button>
     </div>
 
     <!-- ── QUIZ SCREEN ── -->
     <div class="modal" id="screenQuiz">
-      <div class="quiz-battle-header">
-        <span class="quiz-battle-tag">BATTLE CHALLENGE</span>
-        <div id="quizLabel" style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-left:auto;"></div>
-        <div id="quizPips" class="quiz-progress" style="max-width:100px;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div id="quizLabel" style="font-size:12px;font-weight:800;color:var(--gold);letter-spacing:1px;text-transform:uppercase;">THỬ THÁCH BIỆN CHỨNG</div>
+        <div id="quizPips" class="quiz-progress"></div>
       </div>
       <div id="quizQ" class="quiz-q"></div>
       <div id="quizOpts" class="quiz-opts"></div>
       <div id="quizFeedback" class="feedback-box"></div>
-      <button class="btn btn-green" id="quizNextBtn" style="display:none;font-size:11px;" onclick="UI.quizNext()">NEXT &nbsp;&#9658;</button>
+      <button class="btn btn-green" id="quizNextBtn" style="display:none;" onclick="UI.quizNext()">CÂU TIẾP THEO ▶</button>
     </div>
 
     <!-- ── VICTORY ── -->
     <div class="modal" id="screenVictory">
-      <div class="modal-logo"><span class="accent">VICTORY</span></div>
-      <div class="modal-sub">Philosophy Master &mdash; All 4 Bosses Defeated</div>
+      <div class="modal-logo">CHIẾN THẮNG VINH QUANG!</div>
       <div class="divider"></div>
-      <p style="text-align:center;font-size:12px;color:var(--green);font-weight:600;line-height:1.6;font-style:italic;border-left:2px solid var(--green);padding-left:12px;">
-        "AI does not eliminate people &mdash;<br>AI only eliminates those who refuse to upgrade themselves."
+      <p style="text-align:center;font-size:15px;color:var(--green);font-weight:600;line-height:1.6;">
+        "AI không loại bỏ con người —<br>AI chỉ loại bỏ những ai từ chối nâng cấp sức lao động của chính mình."
       </p>
       <div class="divider"></div>
       <div class="stats-grid" id="victoryStats"></div>
 
       <div id="playerSubmitBannerVictory" class="auto-submit-banner" style="display:none;">
-        <div style="font-size:13px;font-weight:900;color:var(--green);margin-bottom:4px;">SCORE SAVED TO LEADERBOARD</div>
-        <div style="font-size:12px;color:var(--text);margin-bottom:3px;">Player: <strong class="submitted-player-name" style="color:var(--gold);"></strong></div>
-        <div style="font-size:10px;color:var(--muted);">Check the projector screen for your rank.</div>
+        <div style="font-size:14px;font-weight:900;color:var(--green);margin-bottom:4px;">
+          ĐÃ TỰ ĐỘNG GỬI ĐIỂM VỀ MÁY CHIẾU ADMIN!
+        </div>
+        <div style="font-size:13px;color:#f8fafc;margin-bottom:4px;">
+          Thí sinh: <strong class="submitted-player-name" style="color:var(--gold);"></strong>
+        </div>
+        <div style="font-size:11.5px;color:var(--muted);">
+          Bạn đã hoàn thành lượt thi đấu của mình. Hãy theo dõi bảng xếp hạng trên màn hình máy chiếu!
+        </div>
       </div>
 
       <div class="submit-score-box" id="submitBoxVictory">
-        <p style="font-weight:700;color:var(--gold);margin-bottom:4px;font-size:11px;letter-spacing:.5px;text-transform:uppercase;">Score: <span id="victoryScoreDisplay">0</span> pts</p>
-        <p style="font-size:11px;color:var(--muted);">Enter name / ID to save to leaderboard:</p>
+        <p style="font-weight:700;color:var(--gold);margin-bottom:4px;">ĐẠT ĐƯỢC: <span id="victoryScoreDisplay">0</span> ĐIỂM!</p>
+        <p style="font-size:12px;color:var(--muted);">Nhập Họ Tên / MSSV để lưu danh vào Bảng Vinh Danh:</p>
         <div class="submit-input-row">
-          <input type="text" id="playerNameVictory" class="submit-input" placeholder="Your name / MSSV" maxlength="25">
-          <button class="btn btn-green" style="padding:10px 16px;font-size:11px;" onclick="UI.submitScore('victory')">SAVE</button>
+          <input type="text" id="playerNameVictory" class="submit-input" placeholder="Tên bạn (vd: Hoàng - SE17...)" maxlength="25">
+          <button class="btn btn-green" style="padding:10px 18px;" onclick="UI.submitScore('victory')">Nộp điểm</button>
         </div>
         <div id="submitMsgVictory" style="font-size:11px;margin-top:6px;font-weight:700;"></div>
       </div>
 
-      <div style="display:flex;gap:8px;width:100%;margin-top:8px;">
-        <button class="btn btn-green" onclick="UI.showLeaderboardModal()" style="flex:1;font-size:11px;">LEADERBOARD</button>
-        <button class="btn btn-orange" id="btnVictoryReplay" onclick="location.reload()" style="flex:1;font-size:11px;">PLAY AGAIN</button>
+      <div style="display:flex;gap:10px;width:100%;margin-top:10px;">
+        <button class="btn btn-green" onclick="UI.showLeaderboardModal()" style="flex:1;">Bảng Vinh Danh</button>
+        <button class="btn btn-orange" id="btnVictoryReplay" onclick="location.reload()" style="flex:1;">Chơi lại</button>
       </div>
     </div>
 
     <!-- ── GAME OVER ── -->
     <div class="modal" id="screenGameover">
-      <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:900;color:var(--red);text-align:center;letter-spacing:2px;">DEFEATED</div>
-      <div style="font-family:'Exo 2',sans-serif;font-size:10px;font-weight:700;color:var(--muted);text-align:center;letter-spacing:3px;text-transform:uppercase;margin-top:4px;">The dialectic continues...</div>
+      <div style="font-family:'Orbitron',monospace;font-size:24px;font-weight:900;color:var(--red);text-align:center;">GAME OVER</div>
       <div class="divider"></div>
-      <p id="goMsg" style="text-align:center;color:#8aa0b8;font-size:13px;"></p>
+      <p id="goMsg" style="text-align:center;color:#fca5a5;font-size:14px;"></p>
       <div class="stats-grid" id="goStats"></div>
 
       <div id="playerSubmitBannerGameover" class="auto-submit-banner" style="display:none;">
-        <div style="font-size:13px;font-weight:900;color:var(--green);margin-bottom:4px;">SCORE SAVED</div>
-        <div style="font-size:12px;color:var(--text);margin-bottom:3px;">Player: <strong class="submitted-player-name" style="color:var(--gold);"></strong></div>
-        <div style="font-size:10px;color:var(--muted);">Check the projector for your rank.</div>
+        <div style="font-size:14px;font-weight:900;color:var(--green);margin-bottom:4px;">
+          ĐÃ TỰ ĐỘNG GỬI ĐIỂM VỀ MÁY CHIẾU ADMIN!
+        </div>
+        <div style="font-size:13px;color:#f8fafc;margin-bottom:4px;">
+          Thí sinh: <strong class="submitted-player-name" style="color:var(--gold);"></strong>
+        </div>
+        <div style="font-size:11.5px;color:var(--muted);">
+          Lượt thi đấu (1 mạng duy nhất) đã kết thúc. Hãy theo dõi vị trí trên máy chiếu lớp!
+        </div>
       </div>
 
       <div class="submit-score-box" id="submitBoxGameover">
-        <p style="font-weight:700;color:var(--gold);margin-bottom:4px;font-size:11px;letter-spacing:.5px;text-transform:uppercase;">Score: <span id="goScoreDisplay">0</span> pts</p>
-        <p style="font-size:11px;color:var(--muted);">Enter name / ID to save:</p>
+        <p style="font-weight:700;color:var(--gold);margin-bottom:4px;">ĐẠT ĐƯỢC: <span id="goScoreDisplay">0</span> ĐIỂM!</p>
+        <p style="font-size:12px;color:var(--muted);">Nhập Họ Tên / MSSV để lưu danh vào Bảng Vinh Danh:</p>
         <div class="submit-input-row">
-          <input type="text" id="playerNameGameover" class="submit-input" placeholder="Your name / MSSV" maxlength="25">
-          <button class="btn btn-green" style="padding:10px 16px;font-size:11px;" onclick="UI.submitScore('gameover')">SAVE</button>
+          <input type="text" id="playerNameGameover" class="submit-input" placeholder="Tên bạn (vd: Hoàng - SE17...)" maxlength="25">
+          <button class="btn btn-green" style="padding:10px 18px;" onclick="UI.submitScore('gameover')">Nộp điểm</button>
         </div>
         <div id="submitMsgGameover" style="font-size:11px;margin-top:6px;font-weight:700;"></div>
       </div>
 
-      <div style="display:flex;gap:8px;width:100%;margin-top:8px;">
-        <button class="btn btn-green" onclick="UI.showLeaderboardModal()" style="flex:1;font-size:11px;">LEADERBOARD</button>
-        <button class="btn btn-orange" id="btnGameOverReplay" onclick="location.reload()" style="flex:1;font-size:11px;">TRY AGAIN</button>
+      <div style="display:flex;gap:10px;width:100%;margin-top:10px;">
+        <button class="btn btn-green" onclick="UI.showLeaderboardModal()" style="flex:1;">Bảng Vinh Danh</button>
+        <button class="btn btn-orange" id="btnGameOverReplay" onclick="location.reload()" style="flex:1;">Thử lại</button>
       </div>
     </div>
 
     <!-- ── PAUSE ── -->
     <div class="modal" id="screenPause">
-      <div style="font-family:'Orbitron',monospace;font-size:18px;font-weight:900;color:var(--gold);text-align:center;letter-spacing:3px;">&#9646;&#9646; PAUSED</div>
+      <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:900;color:var(--gold);text-align:center;">TẠM DỪNG</div>
       <div class="divider"></div>
       <div class="ctrl-grid">
         <kbd>A / D</kbd><span>Move left / right</span>
@@ -2871,6 +2909,10 @@ const UI = {
     document.getElementById('overlay').classList.remove('active');
   },
 
+  showHowToPlay(){
+    UI.show('screenHowToPlay');
+  },
+
   startGame(){
     gs.level=0; gs.score=0; gs.stars=0;
     gs.quizCorrect=0; gs.quizTotal=0; gs.bossesKilled=0;
@@ -3408,47 +3450,9 @@ const UI = {
     UI.fetchAdminLobbyStatus();
   },
 
-  async initQRCode(){
-    try {
-      const res = await fetch('/api/network');
-      const data = await res.json();
-      const select = document.getElementById('qrIpSelect');
-      if(select && data.ips && data.ips.length > 0){
-        select.innerHTML = '';
-        data.ips.forEach(net => {
-          const opt = document.createElement('option');
-          opt.value = `http://${net.ip}:${data.port}/game.html?mode=player`;
-          opt.textContent = `${net.name} (${net.ip})`;
-          if (net.ip === data.primaryIp) opt.selected = true;
-          select.appendChild(opt);
-        });
-        const localOpt = document.createElement('option');
-        localOpt.value = `http://localhost:${data.port}/game.html?mode=player`;
-        localOpt.textContent = `Localhost (Chế độ người chơi)`;
-        select.appendChild(localOpt);
-      }
-      let targetUrl = (select && select.value) || data.primaryUrl || window.location.href;
-      try {
-        const u = new URL(targetUrl, window.location.origin);
-        u.searchParams.set('mode', 'player');
-        u.searchParams.delete('admin');
-        targetUrl = u.toString();
-      } catch(err){}
-      UI.renderQR(targetUrl);
-    } catch(e) {
-      try {
-        const u = new URL(window.location.href);
-        u.searchParams.set('mode', 'player');
-        u.searchParams.delete('admin');
-        UI.renderQR(u.toString());
-      } catch(err){
-        UI.renderQR(window.location.origin + '/game.html?mode=player');
-      }
-    }
-  },
-
-  onSelectIp(url){
-    UI.renderQR(url);
+  initQRCode(){
+    const targetUrl = 'https://game-mln-ebon.vercel.app/game.html?mode=player';
+    UI.renderQR(targetUrl);
   },
 
   renderQR(url){
