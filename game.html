@@ -3192,12 +3192,19 @@ const UI = {
   },
 
   startCountdownAndPlay(){
+    // Dừng polling phòng chờ khi đã nhận lệnh bắt đầu
+    if (lobbyPollTimer) {
+      clearInterval(lobbyPollTimer);
+      lobbyPollTimer = null;
+    }
+
     document.querySelectorAll('.modal').forEach(m => m.classList.remove('show'));
     const cdOverlay = document.getElementById('countdownOverlay');
     const cdNum = document.getElementById('countdownNumber');
     const cdSub = document.getElementById('countdownSub');
     if (!cdOverlay || !cdNum) {
       UI.startGame();
+      UI.startPlayerResetWatch();
       return;
     }
 
@@ -3225,7 +3232,30 @@ const UI = {
     setTimeout(() => {
       cdOverlay.style.display = 'none';
       UI.startGame();
+      // Bắt đầu theo dõi nếu Admin mở lại phòng chờ mới
+      UI.startPlayerResetWatch();
     }, 3400);
+  },
+
+  // Theo dõi nền: nếu Admin bấm "Mở lại phòng", đẩy player về màn hình tham gia mới
+  startPlayerResetWatch(){
+    if (!isPlayerMode) return;
+    if (window._playerResetWatcher) clearInterval(window._playerResetWatcher);
+    window._playerResetWatcher = setInterval(async () => {
+      try {
+        const res = await fetch('/api/lobby/status');
+        const data = await res.json();
+        if (data.status === 'waiting') {
+          // Admin đã reset lobby → reload để player vào lại phòng chờ mới
+          clearInterval(window._playerResetWatcher);
+          window._playerResetWatcher = null;
+          // Xóa trạng thái 1 mạng duy nhất để cho phép chơi lại ván mới
+          localStorage.removeItem('mln_tournament_played');
+          localStorage.removeItem('mln_player_score');
+          location.reload();
+        }
+      } catch(e) {}
+    }, 3000);
   },
 
   updateLobbyChipsUI(players, count, target){
