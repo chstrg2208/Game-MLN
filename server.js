@@ -179,12 +179,19 @@ const server = http.createServer((req, res) => {
   if (pathname === '/api/lobby/start' && req.method === 'POST') {
     lobbyState.status = 'started';
     lobbyState.startTime = Date.now();
+    const playerCount = lobbyState.players.length;
+    // Xóa danh sách sau 5 giây để tất cả player kịp nhận lệnh 'started'
+    setTimeout(() => {
+      if (lobbyState.status === 'started') {
+        lobbyState.players = [];
+      }
+    }, 5000);
     res.writeHead(200, { 'Content-Type': 'application/json; charset=UTF-8' });
     res.end(JSON.stringify({
       success: true,
       status: 'started',
       startTime: lobbyState.startTime,
-      playerCount: lobbyState.players.length
+      playerCount
     }));
     return;
   }
